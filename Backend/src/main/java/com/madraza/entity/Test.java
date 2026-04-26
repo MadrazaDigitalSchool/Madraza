@@ -1,5 +1,6 @@
 package com.madraza.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,7 @@ public class Test {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creador_id", nullable = false)
     private Usuario creador;

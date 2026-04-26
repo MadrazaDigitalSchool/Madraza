@@ -1,5 +1,6 @@
 package com.madraza.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class RespuestaIntento {
     private String textoLibre;
 
     // A qué intento, pregunta y opción pertenece esta respuesta
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "intento_id", nullable = false)
     private Intento intento;

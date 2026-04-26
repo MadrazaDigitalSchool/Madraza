@@ -1,5 +1,6 @@
 package com.madraza.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,7 @@ public class Pregunta {
     @Column(columnDefinition = "TEXT")
     private String explicacion;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_id", nullable = false)
     private Test test;

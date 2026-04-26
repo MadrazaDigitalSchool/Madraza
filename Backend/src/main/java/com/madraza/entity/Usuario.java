@@ -1,5 +1,6 @@
 package com.madraza.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @JsonIgnore
     @Column(length = 255)
     private String password;
 

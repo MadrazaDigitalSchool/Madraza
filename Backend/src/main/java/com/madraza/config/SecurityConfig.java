@@ -27,10 +27,14 @@ public class SecurityConfig {
 
     @Autowired private UserDetailsServiceImpl userDetailsService;
     @Autowired private AuthEntryPointJwt authEntryPointJwt;
-    @Autowired private AuthTokenFilter authTokenFilter;
 
-    // BCrypt es el algoritmo que usamos para encriptar contraseñas
-    // nunca guardamos la contraseña en texto plano en la BD
+    // Creamos el filtro como Bean en vez de inyectarlo con @Autowired
+    // para evitar que Spring lo registre dos veces
+    @Bean
+    public AuthTokenFilter authTokenFilter() {
+        return new AuthTokenFilter();
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -53,29 +57,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Desactivamos CSRF porque usamos JWT, no cookies de sesión
-                .csrf(csrf -> csrf.disable())
-
-                // Sin sesiones — cada petición se autentica con su token JWT
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Qué rutas son públicas y cuáles requieren autenticación
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tests/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-
-                // Si no está autenticado devuelve 401 en vez de redirigir al login
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authEntryPointJwt))
-
-                .authenticationProvider(authenticationProvider())
-
-                // Nuestro filtro JWT se ejecuta antes del filtro de Spring
-                .addFilterBefore(authTokenFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/tests/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authEntryPointJwt))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(authTokenFilter(),
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

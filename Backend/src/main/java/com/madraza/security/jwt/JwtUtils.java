@@ -46,7 +46,7 @@ public class JwtUtils {
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key())
+                .signWith(key(), Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -69,6 +69,10 @@ public class JwtUtils {
             logger.error("Token expirado: {}", e.getMessage());
         } catch (MalformedJwtException e) {
             logger.error("Token inválido: {}", e.getMessage());
+        } catch (io.jsonwebtoken.security.SecurityException e) {
+            logger.error("Firma del token inválida: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("Token no soportado: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("Token vacío: {}", e.getMessage());
         }

@@ -1,5 +1,6 @@
 package com.madraza.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Opcion {
     @Column(nullable = false)
     private int orden = 1;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pregunta_id", nullable = false)
     private Pregunta pregunta;

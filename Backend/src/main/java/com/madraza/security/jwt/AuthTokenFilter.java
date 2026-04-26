@@ -12,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -21,7 +20,6 @@ import java.io.IOException;
 /**
  * @author Hafdala Mehdi Sidi
  */
-@Component
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired private JwtUtils jwtUtils;
@@ -38,12 +36,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            // 1. Extraemos el token del header Authorization
             String jwt = parseJwt(request);
+            logger.error(">>> TOKEN RECIBIDO: {}", jwt);
 
-            // 2. Si hay token y es válido, autenticamos al usuario
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String email = jwtUtils.getEmailFromJwtToken(jwt);
+                logger.error(">>> EMAIL EXTRAIDO: {}", email);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -53,16 +51,17 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // 3. Guardamos la autenticación en el contexto de seguridad
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                logger.error(">>> TOKEN NULO O INVALIDO");
             }
         } catch (Exception e) {
-            logger.error("No se pudo autenticar al usuario: {}", e.getMessage());
+            logger.error(">>> ERROR EN FILTRO: {}", e.getMessage());
         }
 
-        // 4. Continuamos con la siguiente capa de la petición
         filterChain.doFilter(request, response);
     }
+
 
     // Extrae el token del header: "Authorization: Bearer <token>"
     private String parseJwt(HttpServletRequest request) {
