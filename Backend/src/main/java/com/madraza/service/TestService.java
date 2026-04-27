@@ -8,6 +8,7 @@ import com.madraza.entity.Usuario;
 import com.madraza.repository.TestRepository;
 import com.madraza.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,8 +85,14 @@ public class TestService {
         return testRepository.save(test);
     }
 
-    // Elimina un test por su id
-    public void eliminarTest(Long id) {
-        testRepository.deleteById(id);
+    // Elimina un test solo si pertenece al usuario que lo solicita
+    @Transactional
+    public void eliminarTest(Long id, Long usuarioId) {
+        Test test = testRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Test no encontrado"));
+        if (!test.getCreador().getId().equals(usuarioId)) {
+            throw new AccessDeniedException("No puedes eliminar un test que no es tuyo");
+        }
+        testRepository.delete(test);
     }
 }
