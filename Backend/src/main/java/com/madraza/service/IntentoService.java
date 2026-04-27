@@ -48,6 +48,14 @@ public class IntentoService {
         Intento intento = intentoRepository.findById(intentoId)
                 .orElseThrow(() -> new RuntimeException("Intento no encontrado"));
 
+        if (!"EN_CURSO".equals(intento.getEstado())) {
+            throw new RuntimeException("El intento ya está " + intento.getEstado());
+        }
+
+        if (req.preguntaId() == null) {
+            throw new RuntimeException("El id de la pregunta es obligatorio");
+        }
+
         Pregunta pregunta = preguntaRepository.findById(req.preguntaId())
                 .orElseThrow(() -> new RuntimeException("Pregunta no encontrada"));
 
@@ -74,13 +82,19 @@ public class IntentoService {
         Intento intento = intentoRepository.findById(intentoId)
                 .orElseThrow(() -> new RuntimeException("Intento no encontrado"));
 
-        // Contamos cuántas respuestas fueron correctas
+        if (!"EN_CURSO".equals(intento.getEstado())) {
+            throw new RuntimeException("El intento ya está " + intento.getEstado());
+        }
+
+        // Contamos cuántas respuestas de opción múltiple fueron correctas
         long correctas = intento.getRespuestas().stream()
                 .filter(RespuestaIntento::isEsCorrecta)
                 .count();
 
+        // Incorrectas: respuestas de opción múltiple que no fueron correctas
+        // (el texto libre no se contabiliza como incorrecto automáticamente)
         long incorrectas = intento.getRespuestas().stream()
-                .filter(r -> !r.isEsCorrecta())
+                .filter(r -> r.getOpcionSeleccionada() != null && !r.isEsCorrecta())
                 .count();
 
         // Calculamos la puntuación

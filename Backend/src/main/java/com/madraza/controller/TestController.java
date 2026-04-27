@@ -37,6 +37,7 @@ public class TestController {
 
     // GET /api/tests/mis-tests — solo el usuario autenticado ve los suyos
     @GetMapping("/mis-tests")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Test>> getMisTests(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(testService.getTestsDelUsuario(userDetails.getId()));
@@ -51,10 +52,12 @@ public class TestController {
         return ResponseEntity.ok(test);
     }
 
-    // DELETE /api/tests/{id}
+    // DELETE /api/tests/{id} — solo el creador puede eliminarlo
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarTest(@PathVariable Long id) {
-        testService.eliminarTest(id);
+    public ResponseEntity<Void> eliminarTest(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        testService.eliminarTest(id, userDetails.getId());
         return ResponseEntity.noContent().build();
     }
 }
