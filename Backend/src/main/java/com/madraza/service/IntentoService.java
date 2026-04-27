@@ -3,6 +3,7 @@ package com.madraza.service;
 import com.madraza.dto.request.RespuestaRequest;
 import com.madraza.dto.response.ResultadoResponse;
 import com.madraza.entity.*;
+import com.madraza.exception.ResourceNotFoundException;
 import com.madraza.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,10 @@ public class IntentoService {
     @Transactional
     public Intento iniciarIntento(Long testId, Long usuarioId) {
         Test test = testRepository.findById(testId)
-                .orElseThrow(() -> new RuntimeException("Test no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Test no encontrado"));
 
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         Intento intento = new Intento();
         intento.setTest(test);
@@ -46,18 +47,18 @@ public class IntentoService {
     @Transactional
     public void responder(Long intentoId, RespuestaRequest req) {
         Intento intento = intentoRepository.findById(intentoId)
-                .orElseThrow(() -> new RuntimeException("Intento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Intento no encontrado"));
 
         if (!"EN_CURSO".equals(intento.getEstado())) {
-            throw new RuntimeException("El intento ya está " + intento.getEstado());
+            throw new IllegalArgumentException("El intento ya está " + intento.getEstado());
         }
 
         if (req.preguntaId() == null) {
-            throw new RuntimeException("El id de la pregunta es obligatorio");
+            throw new IllegalArgumentException("El id de la pregunta es obligatorio");
         }
 
         Pregunta pregunta = preguntaRepository.findById(req.preguntaId())
-                .orElseThrow(() -> new RuntimeException("Pregunta no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
 
         RespuestaIntento respuesta = new RespuestaIntento();
         respuesta.setIntento(intento);
@@ -67,7 +68,7 @@ public class IntentoService {
         // Si hay opción seleccionada comprobamos si es correcta
         if (req.opcionId() != null) {
             Opcion opcion = opcionRepository.findById(req.opcionId())
-                    .orElseThrow(() -> new RuntimeException("Opción no encontrada"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Opción no encontrada"));
             respuesta.setOpcionSeleccionada(opcion);
             respuesta.setEsCorrecta(opcion.isEsCorrecta());
         }
@@ -80,10 +81,10 @@ public class IntentoService {
     @Transactional
     public ResultadoResponse finalizar(Long intentoId) {
         Intento intento = intentoRepository.findById(intentoId)
-                .orElseThrow(() -> new RuntimeException("Intento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Intento no encontrado"));
 
         if (!"EN_CURSO".equals(intento.getEstado())) {
-            throw new RuntimeException("El intento ya está " + intento.getEstado());
+            throw new IllegalArgumentException("El intento ya está " + intento.getEstado());
         }
 
         // Contamos cuántas respuestas de opción múltiple fueron correctas
