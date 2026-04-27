@@ -5,6 +5,7 @@ import com.madraza.entity.Opcion;
 import com.madraza.entity.Pregunta;
 import com.madraza.entity.Test;
 import com.madraza.entity.Usuario;
+import com.madraza.exception.ResourceNotFoundException;
 import com.madraza.repository.TestRepository;
 import com.madraza.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +37,14 @@ public class TestService {
     // Busca un test por su id
     public Test getTestById(Long id) {
         return testRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Test no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Test no encontrado"));
     }
 
     // Crea un test completo con sus preguntas y opciones
     @Transactional
     public Test crearTest(TestRequest req, Long creadorId) {
         Usuario creador = usuarioRepository.findById(creadorId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         // Creamos el test
         Test test = new Test();
@@ -89,7 +90,7 @@ public class TestService {
     @Transactional
     public void eliminarTest(Long id, Long usuarioId) {
         Test test = testRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Test no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Test no encontrado"));
         if (!test.getCreador().getId().equals(usuarioId)) {
             throw new AccessDeniedException("No puedes eliminar un test que no es tuyo");
         }
