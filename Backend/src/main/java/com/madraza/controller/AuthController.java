@@ -19,11 +19,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * @author Hafdala Mehdi Sidi
@@ -93,4 +95,27 @@ public class AuthController {
 
         return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente"));
     }
+
+    // GET /api/auth/perfil — devuelve los datos del usuario autenticado
+    @GetMapping("/perfil")
+    public ResponseEntity<?> getPerfil(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        return usuarioRepository.findById(userDetails.getId())
+                .map(usuario -> {
+                    Map<String, Object> body = new java.util.LinkedHashMap<>();
+                    body.put("id",              usuario.getId());
+                    body.put("nombre",          usuario.getNombre());
+                    body.put("apellidos",       usuario.getApellidos());
+                    body.put("email",           usuario.getEmail());
+                    body.put("avatarUrl",       usuario.getAvatarUrl() != null ? usuario.getAvatarUrl() : "");
+                    body.put("emailVerificado", usuario.isEmailVerificado());
+                    body.put("roles",           userDetails.getAuthorities().stream()
+                                                    .map(a -> a.getAuthority())
+                                                    .collect(Collectors.toList()));
+                    return ResponseEntity.<Map<String, Object>>ok(body);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }
