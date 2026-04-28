@@ -8,13 +8,13 @@ export const TESTS_ROUTES: Routes = [
     {
         path: '',
         loadComponent: () =>
-            import('./lista-tests/lista-tests.component')
+            import('./lista-tests/lista-tests')
                 .then(m => m.ListaTestsComponent)
     },
     {
         path: ':id',
         loadComponent: () =>
-            import('./detalle-test/detalle-test.component')
+            import('./detalle-test/detalle-test')
                 .then(m => m.DetalleTestComponent)
     }
 ];

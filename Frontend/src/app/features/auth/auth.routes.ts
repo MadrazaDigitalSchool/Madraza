@@ -8,13 +8,13 @@ export const AUTH_ROUTES: Routes = [
     {
         path: 'login',
         loadComponent: () =>
-            import('./login/login.component')
+            import('./login/login')
                 .then(m => m.LoginComponent)
     },
     {
         path: 'registro',
         loadComponent: () =>
-            import('./registro/registro.component')
+            import('./registro/registro')
                 .then(m => m.RegistroComponent)
     },
     {
