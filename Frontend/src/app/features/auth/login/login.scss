@@ -1,0 +1,119 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--madraza-bg) 0%, #2d1b69 100%);
+    padding: clamp(16px, 4vw, 32px);
+}
+
+// Wrapper que agrupa logo + tarjeta
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+}
+
+// Logo flotante — sale por encima de la tarjeta
+.logo-link {
+    display: block;
+    text-decoration: none;
+    z-index: 2;
+    margin-bottom: -56px; // Este valor hace que entre dentro de la tarjeta
+
+    .logo-img {
+        width: clamp(90px, 25vw, 120px);
+        height: auto;
+        display: block;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 20px rgba(124, 58, 237, 0.5));
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+}
+
+// Tarjeta blanca con padding superior grande para el logo
+.login-card {
+    width: 100%;
+    background: #ffffff;
+    border-radius: var(--madraza-radius-lg);
+    padding-top: clamp(72px, 14vw, 88px); // Espacio para el logo flotante
+    padding-bottom: clamp(28px, 5vw, 40px);
+    padding-left: clamp(24px, 5vw, 40px);
+    padding-right: clamp(24px, 5vw, 40px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.subtitulo {
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(244, 67, 54, 0.08);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: var(--madraza-radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    color: var(--madraza-error);
+    font-size: 14px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.btn-login {
+    width: 100%;
+    height: 48px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: var(--madraza-radius-sm);
+    background: var(--madraza-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not([disabled]) {
+        background: var(--madraza-primary-dark);
+    }
+
+    &[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.registro-link {
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+    margin-top: 20px;
+    margin-bottom: 0;
+
+    a {
+        color: var(--madraza-primary);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

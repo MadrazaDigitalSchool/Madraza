@@ -1,0 +1,266 @@
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: white;
+    border-bottom: 1px solid #000000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+
+    // Cuando el usuario hace scroll la navbar cambia de aspecto
+    &.scrolled {
+        background: white;
+        border-bottom: 1px solid #000000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 64px;
+}
+
+// Contenedor de navegación a la derecha
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+// Título del navbar
+.navbar-title {
+    display: flex;
+    align-items: center;
+
+    .navbar-title-link {
+        text-decoration: none;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+            opacity: 0.8;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--madraza-primary);
+            white-space: nowrap;
+        }
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 16px;
+        }
+    }
+}
+
+// Links de navegación principal
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    a {
+        color: #333333;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 12px;
+        border-radius: var(--madraza-radius-sm);
+        transition: color 0.2s ease, background 0.2s ease;
+
+        &:hover {
+            color: var(--madraza-primary);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        &.active {
+            color: var(--madraza-primary);
+            font-weight: 600;
+        }
+    }
+
+    // Ocultar en móvil
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+// Acciones del lado derecho
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link-auth {
+    color: white;
+    font-size: 14px;
+    text-decoration: none;
+
+    &:hover {
+        color: var(--madraza-primary);
+    }
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+// Avatar del usuario autenticado
+.avatar-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--madraza-radius-sm);
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--madraza-primary);
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    mat-icon {
+        color: white;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+// Menú del usuario
+.menu-header {
+    padding: 12px 16px 8px;
+
+    .menu-nombre {
+        font-weight: 600;
+        font-size: 14px;
+        color: #1e1839;
+        margin: 0 0 2px;
+    }
+
+    .menu-email {
+        font-size: 12px;
+        color: #6b7280;
+        margin: 0;
+    }
+}
+
+.logout-btn {
+    color: var(--madraza-error);
+}
+
+// Botón hamburguesa — solo visible en móvil
+.menu-movil-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    border-radius: var(--madraza-radius-sm);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 768px) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+// Menú móvil desplegable
+.menu-movil {
+    background: rgba(30, 24, 57, 0.98);
+    backdrop-filter: blur(12px);
+    padding: 16px 24px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    ul {
+        list-style: none;
+        margin: 0 0 16px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        a {
+            display: block;
+            color: var(--madraza-text-muted);
+            text-decoration: none;
+            padding: 12px 8px;
+            font-size: 15px;
+            border-radius: var(--madraza-radius-sm);
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: var(--madraza-text);
+            }
+        }
+    }
+
+    .menu-movil-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+        a,
+        button {
+            display: block;
+            text-align: center;
+            padding: 12px;
+            border-radius: var(--madraza-radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s ease;
+        }
+
+        a:first-child {
+            color: var(--madraza-text);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-registro-movil,
+        button {
+            background: var(--madraza-primary);
+            color: white;
+        }
+    }
+}

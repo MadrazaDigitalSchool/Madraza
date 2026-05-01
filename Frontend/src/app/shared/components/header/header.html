@@ -1,0 +1,105 @@
+<header class="navbar" [class.scrolled]="scrolled">
+    <nav class="navbar-inner container">
+        
+        <!-- Título a la izquierda -->
+        <div class="navbar-title">
+            <a routerLink="/" class="navbar-title-link">
+                <h1>Tu plataforma Educativa para hacer tests</h1>
+            </a>
+        </div>
+
+        <!-- Navegación y acciones a la derecha -->
+        <div class="navbar-right">
+            <!-- Navegación principal -->
+            <ul class="nav-links">
+                <li>
+                    <a routerLink="/que-es-madraza" routerLinkActive="active">
+                        ¿Qué es Madraza?
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/precios" routerLinkActive="active">
+                        Precios
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/contacto" routerLinkActive="active">
+                        Contacto
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Acciones según autenticación -->
+            <div class="nav-actions">
+
+            @if (!authService.isLoggedIn()) {
+            <!-- Usuario NO autenticado - Sin botones de login/registro -->
+            } @else {
+            <!-- Usuario autenticado -->
+            <a routerLink="/tests" mat-button class="nav-link-auth">
+                Tests
+            </a>
+            <a routerLink="/dashboard" mat-button class="nav-link-auth">
+                Dashboard
+            </a>
+
+            <!-- Avatar con menú -->
+            <button class="avatar-btn" [matMenuTriggerFor]="menuUsuario">
+                <div class="avatar">{{ getIniciales() }}</div>
+                <mat-icon>keyboard_arrow_down</mat-icon>
+            </button>
+
+            <mat-menu #menuUsuario="matMenu">
+                <div class="menu-header">
+                    <p class="menu-nombre">{{ usuario?.nombre }}</p>
+                    <p class="menu-email">{{ usuario?.email }}</p>
+                </div>
+                <mat-divider></mat-divider>
+                <button mat-menu-item routerLink="/dashboard">
+                    <mat-icon>dashboard</mat-icon>
+                    Dashboard
+                </button>
+                <button mat-menu-item routerLink="/tests">
+                    <mat-icon>quiz</mat-icon>
+                    Mis tests
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="logout()" class="logout-btn">
+                    <mat-icon>logout</mat-icon>
+                    Cerrar sesión
+                </button>
+            </mat-menu>
+            }
+
+            <!-- Botón menú móvil -->
+            <button class="menu-movil-btn" (click)="toggleMenuMovil()"
+                [attr.aria-label]="menuMovilAbierto ? 'Cerrar menú' : 'Abrir menú'">
+                <mat-icon>{{ menuMovilAbierto ? 'close' : 'menu' }}</mat-icon>
+            </button>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Menú móvil desplegable -->
+    @if (menuMovilAbierto) {
+    <div class="menu-movil">
+        <ul>
+            <li><a routerLink="/que-es-madraza" (click)="menuMovilAbierto = false">¿Qué es Madraza?</a></li>
+            <li><a routerLink="/precios" (click)="menuMovilAbierto = false">Precios</a></li>
+            <li><a routerLink="/contacto" (click)="menuMovilAbierto = false">Contacto</a></li>
+        </ul>
+        @if (!authService.isLoggedIn()) {
+        <div class="menu-movil-actions">
+            <a routerLink="/auth/login" (click)="menuMovilAbierto = false">Iniciar sesión</a>
+            <a routerLink="/auth/registro" class="btn-registro-movil" (click)="menuMovilAbierto = false">Registrarse</a>
+        </div>
+        } @else {
+        <div class="menu-movil-actions">
+            <a routerLink="/dashboard" (click)="menuMovilAbierto = false">Dashboard</a>
+            <button (click)="logout()">Cerrar sesión</button>
+        </div>
+        }
+    </div>
+    }
+</header>
