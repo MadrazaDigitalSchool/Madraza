@@ -89,12 +89,7 @@
             <li><a routerLink="/precios" (click)="menuMovilAbierto = false">Precios</a></li>
             <li><a routerLink="/contacto" (click)="menuMovilAbierto = false">Contacto</a></li>
         </ul>
-        @if (!authService.isLoggedIn()) {
-        <div class="menu-movil-actions">
-            <a routerLink="/auth/login" (click)="menuMovilAbierto = false">Iniciar sesión</a>
-            <a routerLink="/auth/registro" class="btn-registro-movil" (click)="menuMovilAbierto = false">Registrarse</a>
-        </div>
-        } @else {
+        @if (authService.isLoggedIn()) {
         <div class="menu-movil-actions">
             <a routerLink="/dashboard" (click)="menuMovilAbierto = false">Dashboard</a>
             <button (click)="logout()">Cerrar sesión</button>
