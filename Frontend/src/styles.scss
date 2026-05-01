@@ -52,7 +52,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-// ── ANGULAR MATERIAL — TOKENS SIN !important ──────────────
+// ── ANGULAR MATERIAL — TOKENS ──────────────
 // Usamos las custom properties de MDC para sobreescribir
 // los estilos de Angular Material correctamente
 
@@ -84,6 +84,8 @@ body {
     color: #9e9e9e;
   }
 }
+
+
 
 // ── UTILIDADES RESPONSIVE ─────────────────────────────────
 .container {

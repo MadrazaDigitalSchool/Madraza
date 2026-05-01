@@ -1,0 +1,52 @@
+.main-footer {
+    width: 100%;
+    background-color: #ffffff; // Footer blanco
+    border-top: 1px solid #e0e0e0; // Borde sutil para separar del fondo oscuro
+    padding: 0.5rem 0;
+
+    color: rgba(0, 0, 0, 0.6);
+
+    .footer-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    .footer-section {
+        flex: 1;
+        display: flex;
+        align-items: center;
+
+        &.social {
+            justify-content: flex-start;
+
+            // Iconos en color gris oscuro/negro por defecto
+            .mat-mdc-icon-button {
+                color: rgba(0, 0, 0, 0.54);
+
+                &:hover {
+                    color: var(--madraza-primary); // Violeta al pasar el ratón
+                }
+            }
+        }
+
+        &.copyright {
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        &.links {
+            justify-content: flex-end;
+            gap: 8px;
+
+            // Esto  los botones respeten el color violeta.
+            .mat-mdc-button {
+                --mdc-text-button-label-text-color: var(--madraza-primary);
+                font-weight: 500;
+            }
+        }
+    }
+}
