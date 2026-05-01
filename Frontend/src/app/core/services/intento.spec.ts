@@ -1,13 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { Intento } from './intento';
+import { IntentoService } from './intento';
 
-describe('Intento', () => {
-  let service: Intento;
+describe('IntentoService', () => {
+  let service: IntentoService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Intento);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClientTesting()]
+    });
+    service = TestBed.inject(IntentoService);
   });
 
   it('should be created', () => {
