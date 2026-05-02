@@ -1,1 +1,117 @@
-<p>detalle-test works!</p>
+<div class="detalle-container">
+
+    <!-- Cargando -->
+    @if (cargando) {
+    <div class="estado-center">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Cargando test...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+    <div class="estado-center">
+        <mat-icon class="icon-error">error_outline</mat-icon>
+        <p>{{ error }}</p>
+        <a routerLink="/tests" mat-flat-button class="btn-volver">
+            Volver a los tests
+        </a>
+    </div>
+    }
+
+    <!-- Contenido -->
+    @if (!cargando && !error && test) {
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <a routerLink="/tests" class="btn-back">
+                <mat-icon>arrow_back</mat-icon>
+                Volver a los tests
+            </a>
+
+            <div class="hero-content">
+                <div class="chips">
+                    <span class="chip-categoria">{{ test.categoria }}</span>
+                    <span class="chip-dificultad" [ngClass]="getDificultadClass(test.dificultad)">
+                        {{ getDificultadLabel(test.dificultad) }}
+                    </span>
+                </div>
+                <h1>{{ test.titulo }}</h1>
+                @if (test.descripcion) {
+                <p class="descripcion">{{ test.descripcion }}</p>
+                }
+                <p class="creador">
+                    <mat-icon>person</mat-icon>
+                    Creado por {{ test.creador.nombre }}
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Información del test -->
+    <section class="info-section container">
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <mat-icon>quiz</mat-icon>
+                <span class="stat-valor">{{ test.preguntas.length }}</span>
+                <span class="stat-label">Preguntas</span>
+            </div>
+            <div class="stat-card">
+                <mat-icon>timer</mat-icon>
+                <span class="stat-valor">
+                    {{ test.tiempoLimite ? (test.tiempoLimite / 60 | number:'1.0-0') + ' min' : '∞' }}
+                </span>
+                <span class="stat-label">Tiempo límite</span>
+            </div>
+            <div class="stat-card">
+                <mat-icon>bar_chart</mat-icon>
+                <span class="stat-valor">{{ getDificultadLabel(test.dificultad) }}</span>
+                <span class="stat-label">Dificultad</span>
+            </div>
+            <div class="stat-card">
+                <mat-icon>visibility</mat-icon>
+                <span class="stat-valor">{{ test.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}</span>
+                <span class="stat-label">Visibilidad</span>
+            </div>
+        </div>
+
+        <!-- Preguntas preview -->
+        <div class="preguntas-section">
+            <h2>Vista previa de preguntas</h2>
+            <div class="preguntas-lista">
+                @for (pregunta of test.preguntas; track pregunta.id; let i = $index) {
+                <div class="pregunta-item">
+                    <span class="pregunta-num">{{ i + 1 }}</span>
+                    <p class="pregunta-texto">{{ pregunta.enunciado }}</p>
+                    <span class="pregunta-puntos">
+                        <mat-icon>star</mat-icon>
+                        {{ pregunta.puntos }} pt{{ pregunta.puntos !== 1 ? 's' : '' }}
+                    </span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            @if (authService.isLoggedIn()) {
+            <button mat-flat-button class="btn-iniciar" (click)="iniciarExamen()">
+                <mat-icon>play_arrow</mat-icon>
+                Iniciar examen
+            </button>
+            } @else {
+            <p class="aviso-login">Necesitas iniciar sesión para realizar este test</p>
+            <a routerLink="/auth/login" mat-flat-button class="btn-iniciar">
+                <mat-icon>login</mat-icon>
+                Iniciar sesión para empezar
+            </a>
+            }
+        </div>
+
+    </section>
+    }
+
+</div>
