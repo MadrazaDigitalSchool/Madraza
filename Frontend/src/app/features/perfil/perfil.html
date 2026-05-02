@@ -42,8 +42,9 @@
       </div>
       <button mat-flat-button class="btn-guardar" (click)="guardarPerfil()"
         [disabled]="guardando || !nombre.trim()">
-        @if (guardando) { <mat-spinner diameter="20"></mat-spinner> Guardando...
-        } @else { <mat-icon>save</mat-icon> Guardar cambios }
+        @if (guardando) { <mat-spinner diameter="20"></mat-spinner> }
+        @if (!guardando) { <mat-icon>save</mat-icon> }
+        {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
       </button>
     </section>
 

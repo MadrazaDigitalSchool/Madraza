@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -41,14 +41,13 @@ export class EditarTestComponent implements OnInit {
   preguntas: PreguntaForm[] = [];
   cargando = true;
   enviando = false;
-  error = '';
   categoriasSugeridas: string[] = [];
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private testService: TestService
-  ) {}
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private testService = inject(TestService);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.testId = Number(this.route.snapshot.paramMap.get('id'));
@@ -76,7 +75,7 @@ export class EditarTestComponent implements OnInit {
         }));
         this.cargando = false;
       },
-      error: () => { this.error = 'No se pudo cargar el test'; this.cargando = false; }
+      error: () => { alert('No se pudo cargar el test.'); this.cargando = false; }
     });
   }
 
@@ -136,8 +135,8 @@ export class EditarTestComponent implements OnInit {
 
   guardar(): void {
     if (!this.esValido || this.enviando || !this.testId) return;
+    if (!confirm('¿Guardar los cambios en este test?')) return;
     this.enviando = true;
-    this.error = '';
 
     const payload = {
       titulo: this.titulo.trim(),
@@ -154,8 +153,14 @@ export class EditarTestComponent implements OnInit {
     };
 
     this.testService.actualizarTest(this.testId, payload).subscribe({
-      next: (test) => this.router.navigate(['/tests', test.id]),
-      error: () => { this.error = 'No se pudo actualizar el test.'; this.enviando = false; }
+      next: (test) => {
+        alert('Test actualizado correctamente.');
+        this.router.navigate(['/tests', test.id]);
+      },
+      error: () => {
+        alert('No se pudo actualizar el test. Inténtalo de nuevo.');
+        this.enviando = false;
+      }
     });
   }
 }

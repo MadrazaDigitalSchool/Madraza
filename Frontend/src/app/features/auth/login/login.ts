@@ -9,12 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../../core/services/auth';
+import { environment } from '../../../../environments/environment';
 
-/**
- * Componente de Login
- * Gestiona el inicio de sesión con email y contraseña
- * @author Hafdala Mehdi Sidi
- */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -41,6 +37,9 @@ export class LoginComponent {
   mostrarPassword = false;
   recordarme = false;
 
+  readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorize/google`;
+  readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorize/github`;
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -59,7 +58,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.cargando = false;
-          this.router.navigate(['/perfil']);
+          this.router.navigate(['/dashboard']);
         },
         error: () => {
           this.cargando = false;

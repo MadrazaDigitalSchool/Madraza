@@ -39,7 +39,8 @@
         </mat-form-field>
         <button mat-flat-button class="btn-enviar" (click)="enviar()"
           [disabled]="!nombre || !email || !asunto || !mensaje || enviando">
-          @if (enviando) { Enviando... } @else { <mat-icon>send</mat-icon> Enviar mensaje }
+          @if (!enviando) { <mat-icon>send</mat-icon> }
+          {{ enviando ? 'Enviando...' : 'Enviar mensaje' }}
         </button>
         } @else {
         <div class="enviado-ok">

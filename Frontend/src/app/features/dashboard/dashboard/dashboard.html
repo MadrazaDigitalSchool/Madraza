@@ -6,7 +6,7 @@
             <div class="hero-content">
                 <div class="avatar-grande">{{ getIniciales() }}</div>
                 <div class="hero-info">
-                    <h1>¡Hola, {{ usuario?.nombre }}! 👋</h1>
+                    <h1>¡Hola, {{ usuario?.nombre }}!</h1>
                     <p>{{ usuario?.email }}</p>
                 </div>
             </div>
@@ -146,9 +146,9 @@
                             <a [routerLink]="['/tests', test.id]" class="btn-accion btn-ver" title="Ver test">
                                 <mat-icon>visibility</mat-icon>
                             </a>
-                            <a [routerLink]="['/tests/editar', test.id]" class="btn-accion btn-editar" title="Editar test">
+                            <button class="btn-accion btn-editar" (click)="editarTest(test, $event)" title="Editar test">
                                 <mat-icon>edit</mat-icon>
-                            </a>
+                            </button>
                             <button class="btn-accion btn-eliminar" (click)="eliminarTest(test, $event)"
                                 [disabled]="eliminandoId === test.id" title="Eliminar test">
                                 @if (eliminandoId === test.id) {

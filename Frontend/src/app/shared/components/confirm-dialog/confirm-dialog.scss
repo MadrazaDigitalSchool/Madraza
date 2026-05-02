@@ -1,0 +1,15 @@
+.dialog-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialog-icono {
+  color: #f44336;
+}
+
+.dialog-mensaje {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}

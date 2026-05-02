@@ -9,11 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth';
+import { environment } from '../../../../environments/environment';
 
-/**
- * Componente de Registro
- * @author Hafdala Mehdi Sidi
- */
 @Component({
   selector: 'app-registro',
   standalone: true,
@@ -42,6 +39,9 @@ export class RegistroComponent {
   cargando = false;
   mostrarPassword = false;
   recordarme = false;
+
+  readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorize/google`;
+  readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorize/github`;
 
   constructor(
     private authService: AuthService,

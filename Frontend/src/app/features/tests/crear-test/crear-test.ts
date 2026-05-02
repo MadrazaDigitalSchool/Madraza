@@ -54,7 +54,6 @@ export class CrearTestComponent implements OnInit {
   preguntas: PreguntaForm[] = [];
 
   enviando = false;
-  error = '';
   categoriasSugeridas: string[] = [];
 
   constructor(
@@ -143,7 +142,6 @@ export class CrearTestComponent implements OnInit {
   guardar(): void {
     if (!this.esValido || this.enviando) return;
     this.enviando = true;
-    this.error = '';
 
     const payload = {
       titulo: this.titulo.trim(),
@@ -169,7 +167,7 @@ export class CrearTestComponent implements OnInit {
     this.testService.crearTest(payload).subscribe({
       next: (test) => this.router.navigate(['/tests', test.id]),
       error: () => {
-        this.error = 'No se pudo crear el test. Inténtalo de nuevo.';
+        alert('No se pudo crear el test. Inténtalo de nuevo.');
         this.enviando = false;
       }
     });

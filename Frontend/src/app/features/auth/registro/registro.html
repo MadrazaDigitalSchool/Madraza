@@ -69,7 +69,7 @@
             </div>
 
             <div class="oauth-buttons">
-                <a href="http://localhost:8080/oauth2/authorize/google" class="oauth-btn"
+                <a [href]="googleOAuthUrl" class="oauth-btn"
                     aria-label="Registrarse con Google">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="currentColor">
@@ -78,7 +78,7 @@
                     </svg>
                     <span>Google</span>
                 </a>
-                <a href="http://localhost:8080/oauth2/authorize/github" class="oauth-btn"
+                <a [href]="githubOAuthUrl" class="oauth-btn"
                     aria-label="Registrarse con GitHub">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                         fill="currentColor">

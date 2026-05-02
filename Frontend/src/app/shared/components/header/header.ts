@@ -1,19 +1,15 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, HostListener, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService } from '../../../core/services/auth';
 import { MatDividerModule } from '@angular/material/divider';
-import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth';
+import { Usuario } from '../../../core/models/usuario.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 
-/**
- * Header principal — sticky, responsive
- * Muestra opciones diferentes según autenticación
- * @author Hafdala Mehdi Sidi
- */
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -29,59 +25,56 @@ import { filter } from 'rxjs/operators';
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  usuario: any = null;
-  menuMovilAbierto = false;
-  scrolled = false;
-  esRutaAuth = false;
+  usuario = signal<Usuario | null>(null);
+  menuMovilAbierto = signal(false);
+  scrolled = signal(false);
+  esRutaAuth = signal(false);
+  isLoggedIn = computed(() => this.usuario() !== null);
 
-  private routerSub?: Subscription;
-
-  constructor(public authService: AuthService, private router: Router) { }
-
-  ngOnInit(): void {
-    this.esRutaAuth = this.router.url.startsWith('/auth/');
-
-    this.routerSub = this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe((e: any) => {
-      this.esRutaAuth = (e.urlAfterRedirects as string).startsWith('/auth/');
-      if (this.authService.isLoggedIn()) {
-        this.usuario = this.authService.getUsuarioActual();
-      } else {
-        this.usuario = null;
-      }
-    });
+  constructor() {
+    this.esRutaAuth.set(this.router.url.startsWith('/auth/'));
 
     if (this.authService.isLoggedIn()) {
-      this.usuario = this.authService.getUsuarioActual();
+      this.usuario.set(this.authService.getUsuarioActual());
     }
+
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      takeUntilDestroyed()
+    ).subscribe((e: NavigationEnd) => {
+      this.esRutaAuth.set(e.urlAfterRedirects.startsWith('/auth/'));
+      this.menuMovilAbierto.set(false);
+      if (this.authService.isLoggedIn()) {
+        this.usuario.set(this.authService.getUsuarioActual());
+      } else {
+        this.usuario.set(null);
+      }
+    });
   }
 
-  ngOnDestroy(): void {
-    this.routerSub?.unsubscribe();
-  }
-
-  // Detecta el scroll para cambiar el estilo del header
   @HostListener('window:scroll')
   onScroll(): void {
-    this.scrolled = window.scrollY > 20;
+    this.scrolled.set(window.scrollY > 20);
   }
 
   getIniciales(): string {
-    if (!this.usuario?.nombre) return 'U';
-    return this.usuario.nombre.charAt(0).toUpperCase();
+    const u = this.usuario();
+    if (!u?.nombre) return 'U';
+    return u.nombre.charAt(0).toUpperCase();
   }
 
   toggleMenuMovil(): void {
-    this.menuMovilAbierto = !this.menuMovilAbierto;
+    this.menuMovilAbierto.update(v => !v);
   }
 
   logout(): void {
     this.authService.logout();
-    this.usuario = null;
-    this.menuMovilAbierto = false;
+    this.usuario.set(null);
+    this.menuMovilAbierto.set(false);
   }
 
   irPerfil(): void {

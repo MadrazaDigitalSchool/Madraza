@@ -16,14 +16,6 @@
 
     <div class="crear-body container">
 
-        <!-- Error global -->
-        @if (error) {
-        <div class="alert-error">
-            <mat-icon>error_outline</mat-icon>
-            {{ error }}
-        </div>
-        }
-
         <!-- Sección 1: Información del test -->
         <section class="seccion">
             <h2 class="seccion-titulo">
@@ -198,15 +190,9 @@
             </a>
             <button mat-flat-button class="btn-guardar" (click)="guardar()"
                 [disabled]="!esValido || enviando">
-                @if (enviando) {
-                <mat-spinner diameter="20"></mat-spinner>
-                Creando...
-                } @else {
-                <ng-container>
-                    <mat-icon>save</mat-icon>
-                    Guardar cambios
-                </ng-container>
-                }
+                @if (enviando) { <mat-spinner diameter="20"></mat-spinner> }
+                @if (!enviando) { <mat-icon>save</mat-icon> }
+                {{ enviando ? 'Guardando...' : 'Guardar cambios' }}
             </button>
         </div>
 

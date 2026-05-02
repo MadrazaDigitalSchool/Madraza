@@ -99,8 +99,8 @@ export class AuthService {
     return this.http.get<Usuario>(`${this.apiUrl}/perfil`);
   }
 
-  actualizarPerfil(datos: { nombre: string; apellidos: string }): Observable<any> {
-    return this.http.put(`${this.apiUrl}/perfil`, datos);
+  actualizarPerfil(datos: { nombre: string; apellidos: string }): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.apiUrl}/perfil`, datos);
   }
 
   // ── Recuperar contraseña ──────────────────────────────────

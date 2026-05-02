@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -19,7 +19,9 @@ import { Usuario } from '../../core/models/usuario.model';
   styleUrl: './perfil.scss'
 })
 export class PerfilComponent implements OnInit {
-  usuario: any = null;
+  public authService = inject(AuthService);
+
+  usuario: Usuario | null = null;
   nombre = '';
   apellidos = '';
   email = '';
@@ -27,29 +29,21 @@ export class PerfilComponent implements OnInit {
   guardado = false;
   error = '';
 
-  passwordActual = '';
-  passwordNueva = '';
-  passwordConfirm = '';
-  guardandoPass = false;
-  errorPass = '';
-  okPass = false;
-
-  constructor(public authService: AuthService) {}
-
   ngOnInit(): void {
     this.usuario = this.authService.getUsuarioActual();
     if (this.usuario) {
-      this.nombre = this.usuario.nombre || '';
-      this.apellidos = this.usuario.apellidos || '';
-      this.email = this.usuario.email || '';
+      this.nombre = this.usuario.nombre ?? '';
+      this.apellidos = this.usuario.apellidos ?? '';
+      this.email = this.usuario.email ?? '';
     }
     this.authService.getPerfil().subscribe({
-      next: (u: any) => {
+      next: (u: Usuario) => {
         this.usuario = u;
-        this.nombre = u.nombre || '';
-        this.apellidos = u.apellidos || '';
-        this.email = u.email || '';
-      }
+        this.nombre = u.nombre ?? '';
+        this.apellidos = u.apellidos ?? '';
+        this.email = u.email ?? '';
+      },
+      error: () => {}
     });
   }
 
@@ -63,7 +57,7 @@ export class PerfilComponent implements OnInit {
     this.guardando = true;
     this.error = '';
     this.authService.actualizarPerfil({ nombre: this.nombre.trim(), apellidos: this.apellidos.trim() }).subscribe({
-      next: (u: any) => {
+      next: (u: Usuario) => {
         this.guardando = false;
         this.guardado = true;
         const datosActuales = this.authService.getUsuarioActual();

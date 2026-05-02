@@ -1,10 +1,10 @@
-<header class="navbar" [class.scrolled]="scrolled">
+<header class="navbar" [class.scrolled]="scrolled()">
     <nav class="navbar-inner container">
 
         <!-- Logo -->
         <div class="navbar-title">
             <a routerLink="/" class="navbar-title-link">
-                @if (!esRutaAuth) {
+                @if (!esRutaAuth()) {
                 <img src="assets/madraza-vector.svg" alt="Madraza" class="navbar-logo" />
                 }
                 <h1>Tu plataforma Educativa para hacer tests</h1>
@@ -22,7 +22,7 @@
 
             <div class="nav-actions">
 
-                @if (!authService.isLoggedIn()) {
+                @if (!isLoggedIn()) {
                 <!-- No autenticado -->
                 <a routerLink="/auth/login" mat-flat-button class="btn-login-nav">Iniciar sesión</a>
                 } @else {
@@ -38,8 +38,8 @@
 
                 <mat-menu #menuUsuario="matMenu">
                     <div class="menu-header">
-                        <p class="menu-nombre">{{ usuario?.nombre }}</p>
-                        <p class="menu-email">{{ usuario?.email }}</p>
+                        <p class="menu-nombre">{{ usuario()?.nombre }}</p>
+                        <p class="menu-email">{{ usuario()?.email }}</p>
                     </div>
                     <mat-divider></mat-divider>
                     <button mat-menu-item routerLink="/dashboard">
@@ -64,8 +64,8 @@
 
                 <!-- Botón hamburguesa (solo en móvil) -->
                 <button class="menu-movil-btn" (click)="toggleMenuMovil()"
-                    [attr.aria-label]="menuMovilAbierto ? 'Cerrar menú' : 'Abrir menú'">
-                    <mat-icon>{{ menuMovilAbierto ? 'close' : 'menu' }}</mat-icon>
+                    [attr.aria-label]="menuMovilAbierto() ? 'Cerrar menú' : 'Abrir menú'">
+                    <mat-icon>{{ menuMovilAbierto() ? 'close' : 'menu' }}</mat-icon>
                 </button>
 
             </div>
@@ -73,24 +73,24 @@
     </nav>
 
     <!-- Menú móvil desplegable -->
-    @if (menuMovilAbierto) {
+    @if (menuMovilAbierto()) {
     <div class="menu-movil">
         <ul>
-            <li><a routerLink="/que-es-madraza" (click)="menuMovilAbierto = false">¿Qué es Madraza?</a></li>
-            <li><a routerLink="/precios" (click)="menuMovilAbierto = false">Precios</a></li>
-            <li><a routerLink="/contacto" (click)="menuMovilAbierto = false">Contacto</a></li>
+            <li><a routerLink="/que-es-madraza">¿Qué es Madraza?</a></li>
+            <li><a routerLink="/precios">Precios</a></li>
+            <li><a routerLink="/contacto">Contacto</a></li>
         </ul>
-        @if (authService.isLoggedIn()) {
+        @if (isLoggedIn()) {
         <div class="menu-movil-actions">
-            <a routerLink="/perfil" (click)="menuMovilAbierto = false">Mi perfil</a>
-            <a routerLink="/dashboard" (click)="menuMovilAbierto = false">Mi panel</a>
-            <a routerLink="/tests" (click)="menuMovilAbierto = false">Mis tests</a>
+            <a routerLink="/perfil">Mi perfil</a>
+            <a routerLink="/dashboard">Mi panel</a>
+            <a routerLink="/tests">Mis tests</a>
             <button (click)="logout()">Cerrar sesión</button>
         </div>
         } @else {
         <div class="menu-movil-actions">
-            <a routerLink="/auth/login" (click)="menuMovilAbierto = false">Iniciar sesión</a>
-            <a routerLink="/auth/registro" (click)="menuMovilAbierto = false">Registrarse</a>
+            <a routerLink="/auth/login">Iniciar sesión</a>
+            <a routerLink="/auth/registro">Registrarse</a>
         </div>
         }
     </div>

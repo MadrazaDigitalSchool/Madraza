@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,16 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestService } from '../../../core/services/test';
 import { AuthService } from '../../../core/services/auth';
 import { Test } from '../../../core/models/test.model';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
-/**
- * Componente de lista de tests
- * Muestra todos los tests públicos con filtros
- * Los usuarios autenticados ven además sus tests privados con opciones de editar/eliminar
- * @author Hafdala Mehdi Sidi
- */
 @Component({
   selector: 'app-lista-tests',
   standalone: true,
@@ -37,6 +34,12 @@ import { Test } from '../../../core/models/test.model';
 })
 export class ListaTestsComponent implements OnInit {
 
+  private router = inject(Router);
+  private testService = inject(TestService);
+  public authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+
   tests: Test[] = [];
   misTests: Test[] = [];
   cargando = true;
@@ -46,11 +49,6 @@ export class ListaTestsComponent implements OnInit {
   dificultadSeleccionada = '';
   categorias: string[] = [];
   eliminandoId: number | null = null;
-
-  constructor(
-    private testService: TestService,
-    public authService: AuthService
-  ) { }
 
   ngOnInit(): void {
     this.cargarTests();
@@ -121,14 +119,36 @@ export class ListaTestsComponent implements OnInit {
   eliminarTest(test: Test, evento: Event): void {
     evento.preventDefault();
     evento.stopPropagation();
-    if (!confirm(`¿Eliminar el test "${test.titulo}"? Esta acción no se puede deshacer.`)) return;
-    this.eliminandoId = test.id;
-    this.testService.eliminarTest(test.id).subscribe({
-      next: () => {
-        this.misTests = this.misTests.filter(t => t.id !== test.id);
-        this.eliminandoId = null;
-      },
-      error: () => { this.eliminandoId = null; }
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '380px',
+      data: {
+        titulo: 'Eliminar test',
+        mensaje: `¿Seguro que quieres eliminar "${test.titulo}"? Esta acción no se puede deshacer.`,
+        labelConfirmar: 'Eliminar',
+        labelCancelar: 'Cancelar'
+      }
     });
+    ref.afterClosed().subscribe(confirmado => {
+      if (!confirmado) return;
+      this.eliminandoId = test.id;
+      this.testService.eliminarTest(test.id).subscribe({
+        next: () => {
+          this.misTests = this.misTests.filter(t => t.id !== test.id);
+          this.cargarTests();
+          this.eliminandoId = null;
+          this.snackBar.open(`Test "${test.titulo}" eliminado.`, 'Cerrar', { duration: 3000 });
+        },
+        error: () => {
+          this.eliminandoId = null;
+          this.snackBar.open('Error al eliminar el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
+        }
+      });
+    });
+  }
+
+  editarTest(test: Test, evento: Event): void {
+    evento.preventDefault();
+    evento.stopPropagation();
+    this.router.navigate(['/tests/editar', test.id]);
   }
 }
