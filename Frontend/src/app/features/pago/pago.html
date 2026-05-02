@@ -1,0 +1,90 @@
+<div class="pago-container">
+
+  <!-- Header -->
+  <div class="pago-header">
+    <a href="/" class="logo-link">
+      <img src="/assets/madraza-vector.svg" alt="Madraza" class="logo" />
+    </a>
+    <h1>Elige tu plan</h1>
+    <p class="subtitulo">Accede a todos los tests y funcionalidades de Madraza</p>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage) {
+    <div class="error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  <!-- Métodos de pago -->
+  <div class="metodos-pago">
+    <span class="metodos-label">Pago seguro con</span>
+    <div class="metodos-icons">
+      <!-- Visa/MC (card) -->
+      <span class="metodo-badge">💳 Tarjeta</span>
+      <!-- Bizum -->
+      <span class="metodo-badge bizum">📱 Bizum</span>
+      <!-- PayPal -->
+      <span class="metodo-badge paypal">🅿 PayPal</span>
+    </div>
+  </div>
+
+  <!-- Planes -->
+  <div class="planes-grid">
+    @for (plan of planes; track plan.id) {
+      <div class="plan-card" [class.destacado]="plan.id === 'anual'">
+
+        @if (plan.id === 'anual') {
+          <div class="badge-recomendado">Más popular</div>
+        }
+
+        <div class="plan-header">
+          <h2>{{ plan.nombre }}</h2>
+          <div class="precio">
+            <span class="precio-num">{{ plan.precio }}</span>
+            <span class="precio-per">{{ plan.periodo }}</span>
+          </div>
+          @if (plan.ahorro) {
+            <div class="ahorro-badge">{{ plan.ahorro }}</div>
+          }
+        </div>
+
+        <ul class="features-list">
+          @for (feature of plan.features; track feature) {
+            <li>
+              <mat-icon class="check-icon">check_circle</mat-icon>
+              {{ feature }}
+            </li>
+          }
+        </ul>
+
+        <button
+          mat-flat-button
+          class="btn-pagar"
+          [class.btn-destacado]="plan.id === 'anual'"
+          (click)="pagar(plan.id)"
+          [disabled]="cargandoPlan !== null">
+          @if (cargandoPlan === plan.id) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Suscribirme ahora
+          }
+        </button>
+
+      </div>
+    }
+  </div>
+
+  <!-- Seguridad -->
+  <div class="seguridad">
+    <mat-icon>lock</mat-icon>
+    <span>Pago 100% seguro con Stripe. No almacenamos datos de tu tarjeta.</span>
+  </div>
+
+  <!-- Link logout -->
+  <div class="bottom-links">
+    <a routerLink="/auth/login" class="back-link">← Cerrar sesión y volver al inicio</a>
+  </div>
+
+</div>

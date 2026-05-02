@@ -1,0 +1,36 @@
+<div class="exito-container">
+  <div class="card">
+    <img src="/assets/madraza-vector.svg" alt="Madraza" class="logo" />
+
+    @if (estado === 'verificando') {
+      <mat-spinner diameter="56"></mat-spinner>
+      <h2>Verificando tu pago...</h2>
+      <p class="texto">Por favor, espera un momento</p>
+    }
+
+    @if (estado === 'exito') {
+      <div class="icono-exito">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <h2>¡Pago completado!</h2>
+      <p class="texto">{{ mensaje }}</p>
+      <p class="texto-sub">Hemos enviado un email de confirmación con los detalles de tu suscripción.</p>
+      <button mat-flat-button class="btn-dashboard" (click)="irAlDashboard()">
+        Ir a mi dashboard
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    }
+
+    @if (estado === 'error') {
+      <div class="icono-error">
+        <mat-icon>error</mat-icon>
+      </div>
+      <h2>Algo salió mal</h2>
+      <p class="texto">{{ mensaje }}</p>
+      <div class="btn-group">
+        <a mat-flat-button routerLink="/pago" class="btn-reintentar">Reintentar</a>
+        <a mat-stroked-button href="mailto:soporte@madraza.es">Contactar soporte</a>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="verificar-container">
+  <div class="card">
+    <img src="/assets/madraza-vector.svg" alt="Madraza" class="logo" />
+
+    @if (estado === 'cargando') {
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="texto">Verificando tu email...</p>
+    }
+
+    @if (estado === 'exito') {
+      <div class="icono-exito">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <h2>¡Email verificado!</h2>
+      <p class="texto">{{ mensaje }}</p>
+      <a mat-flat-button routerLink="/auth/login" class="btn-primary">Iniciar sesión</a>
+    }
+
+    @if (estado === 'error') {
+      <div class="icono-error">
+        <mat-icon>error</mat-icon>
+      </div>
+      <h2>Enlace inválido</h2>
+      <p class="texto">{{ mensaje }}</p>
+      <a mat-stroked-button routerLink="/auth/login">Volver al inicio de sesión</a>
+    }
+  </div>
+</div>

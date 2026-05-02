@@ -12,19 +12,16 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  // ── Helpers de storage ────────────────────────────────────
+  // ── Storage helpers ───────────────────────────────────────
 
-  /** Devuelve el token independientemente de en qué storage está */
   getToken(): string | null {
     return localStorage.getItem('token') ?? sessionStorage.getItem('token');
   }
 
-  /** Lee un valor de cualquiera de los dos storages */
   private leerStorage(key: string): string | null {
     return localStorage.getItem(key) ?? sessionStorage.getItem(key);
   }
 
-  /** Limpia ambos storages de datos de sesión */
   private limpiarStorage(): void {
     ['token', 'usuario'].forEach(k => {
       localStorage.removeItem(k);
@@ -34,35 +31,53 @@ export class AuthService {
 
   // ── Auth ──────────────────────────────────────────────────
 
-  /**
-   * Login. Con recordarme=true usa localStorage (persiste el cierre del navegador),
-   * con recordarme=false usa sessionStorage (se borra al cerrar la pestaña).
-   */
   login(request: LoginRequest, recordarme = false): Observable<JwtResponse> {
     return this.http.post<JwtResponse>(`${this.apiUrl}/login`, request).pipe(
       tap(response => {
         const storage = recordarme ? localStorage : sessionStorage;
         const otro    = recordarme ? sessionStorage : localStorage;
 
-        const userData = {
+        const userData: Partial<Usuario> = {
           id: response.id,
           nombre: response.nombre,
           email: response.email,
-          roles: response.roles
+          roles: response.roles,
+          suscripcionActiva: response.suscripcionActiva
         };
 
         storage.setItem('token', response.token);
         storage.setItem('usuario', JSON.stringify(userData));
 
-        // Limpiar el storage contrario por si había sesión previa
         otro.removeItem('token');
         otro.removeItem('usuario');
       })
     );
   }
 
-  registro(request: RegistroRequest): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/registro`, request);
+  /** Guarda el token y usuario desde el callback de OAuth2 */
+  loginConToken(token: string, suscripcionActiva: boolean): void {
+    // Guardamos en sessionStorage por defecto para OAuth2
+    sessionStorage.setItem('token', token);
+    // El usuario completo se cargará llamando a getPerfil()
+    // Guardamos un objeto mínimo temporal
+    const userTemp = { suscripcionActiva };
+    sessionStorage.setItem('usuario', JSON.stringify(userTemp));
+  }
+
+  registro(request: RegistroRequest): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>(`${this.apiUrl}/registro`, request);
+  }
+
+  verificarEmail(token: string): Observable<{ mensaje: string }> {
+    return this.http.get<{ mensaje: string }>(`${this.apiUrl}/verificar-email?token=${token}`);
+  }
+
+  recuperarPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recuperar-password`, { email });
+  }
+
+  nuevaPassword(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/nueva-password`, { token, password });
   }
 
   logout(): void {
@@ -74,13 +89,17 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  tieneSubscripcion(): boolean {
+    const u = this.getUsuarioActual();
+    return u?.suscripcionActiva === true;
+  }
+
   getUsuarioActual(): Usuario | null {
     const raw = this.leerStorage('usuario');
     return raw ? JSON.parse(raw) : null;
   }
 
-  /** Actualiza el objeto usuario en el mismo storage donde esté guardado */
-  guardarUsuarioLocal(usuario: Usuario): void {
+  guardarUsuarioLocal(usuario: Partial<Usuario>): void {
     const json = JSON.stringify(usuario);
     if (localStorage.getItem('usuario') !== null) {
       localStorage.setItem('usuario', json);
@@ -96,16 +115,12 @@ export class AuthService {
   // ── Perfil ────────────────────────────────────────────────
 
   getPerfil(): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.apiUrl}/perfil`);
+    return this.http.get<Usuario>(`${this.apiUrl}/perfil`).pipe(
+      tap(usuario => this.guardarUsuarioLocal(usuario))
+    );
   }
 
   actualizarPerfil(datos: { nombre: string; apellidos: string }): Observable<Usuario> {
     return this.http.put<Usuario>(`${this.apiUrl}/perfil`, datos);
-  }
-
-  // ── Recuperar contraseña ──────────────────────────────────
-
-  recuperarPassword(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/recuperar-password`, { email });
   }
 }

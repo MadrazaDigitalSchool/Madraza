@@ -67,12 +67,12 @@ export class RegistroComponent {
     }).subscribe({
       next: () => {
         this.cargando = false;
-        this.successMessage = '¡Cuenta creada! Redirigiendo al login...';
-        setTimeout(() => this.router.navigate(['/auth/login']), 2000);
+        this.successMessage = '¡Cuenta creada! Revisa tu email para confirmarla. Redirigiendo...';
+        setTimeout(() => this.router.navigate(['/auth/login']), 3000);
       },
       error: (err) => {
         this.cargando = false;
-        this.errorMessage = err.error?.error ?? 'Error al crear la cuenta';
+        this.errorMessage = err.error?.mensaje ?? err.error?.error ?? 'Error al crear la cuenta';
       }
     });
   }

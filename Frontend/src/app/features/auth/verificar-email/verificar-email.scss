@@ -1,0 +1,63 @@
+.verificar-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e8e6ff 100%);
+  padding: 24px;
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .logo {
+    height: 48px;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #1a1a2e;
+  }
+
+  .texto {
+    color: #666;
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .icono-exito mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #10b981;
+  }
+
+  .icono-error mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ef4444;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #6c63ff, #a855f7);
+    color: white;
+    border-radius: 50px;
+    padding: 0 32px;
+    height: 48px;
+    font-weight: 600;
+  }
+}

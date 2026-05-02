@@ -1,6 +1,5 @@
 /**
  * Modelos de datos del usuario
- * Corresponden con las entidades del backend de Madraza
  * @author Hafdala Mehdi Sidi
  */
 
@@ -22,6 +21,7 @@ export interface JwtResponse {
     nombre: string;
     email: string;
     roles: string[];
+    suscripcionActiva: boolean;
 }
 
 export interface Usuario {
@@ -31,5 +31,8 @@ export interface Usuario {
     email: string;
     avatarUrl?: string;
     emailVerificado: boolean;
+    suscripcionActiva: boolean;
+    suscripcionExpiry?: string;
+    proveedorOauth?: string;
     roles: string[];
 }

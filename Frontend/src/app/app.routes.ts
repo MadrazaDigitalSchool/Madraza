@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { subscriptionGuard } from './core/guards/subscription-guard';
 
 export const routes: Routes = [
   // ── Página principal ────────────────────────────────────
@@ -46,31 +47,53 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-  // ── Tests (protegidos) ───────────────────────────────────
+  // ── Pago (requiere login pero NO suscripción) ─────────────
+  {
+    path: 'pago',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/pago/pago').then(m => m.PagoComponent)
+      },
+      {
+        path: 'exito',
+        loadComponent: () =>
+          import('./features/pago/exito/pago-exito').then(m => m.PagoExitoComponent)
+      },
+      {
+        path: 'cancelar',
+        loadComponent: () =>
+          import('./features/pago/cancelar/pago-cancelar').then(m => m.PagoCancelarComponent)
+      }
+    ]
+  },
+
+  // ── Tests (requiere login + suscripción) ──────────────────
   {
     path: 'tests',
-    canActivate: [authGuard],
+    canActivate: [authGuard, subscriptionGuard],
     loadChildren: () => import('./features/tests/tests.routes').then(m => m.TESTS_ROUTES)
   },
 
-  // ── Examen (protegido) ───────────────────────────────────
+  // ── Examen (requiere login + suscripción) ────────────────
   {
     path: 'examen',
-    canActivate: [authGuard],
+    canActivate: [authGuard, subscriptionGuard],
     loadChildren: () => import('./features/examen/examen.routes').then(m => m.EXAMEN_ROUTES)
   },
 
-  // ── Dashboard (protegido) ────────────────────────────────
+  // ── Dashboard (requiere login + suscripción) ─────────────
   {
     path: 'dashboard',
-    canActivate: [authGuard],
+    canActivate: [authGuard, subscriptionGuard],
     loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
   },
 
-  // ── Perfil (protegido) ───────────────────────────────────
+  // ── Perfil (requiere login + suscripción) ────────────────
   {
     path: 'perfil',
-    canActivate: [authGuard],
+    canActivate: [authGuard, subscriptionGuard],
     loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
   },
 
