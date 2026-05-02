@@ -1,0 +1,131 @@
+.footer {
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    margin-top: auto;
+}
+
+.footer-inner {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr;
+    gap: clamp(32px, 6vw, 80px);
+    padding-top: clamp(40px, 6vw, 64px);
+    padding-bottom: clamp(40px, 6vw, 64px);
+}
+
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .footer-logo {
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .footer-logo-img {
+        width: clamp(100px, 30%, 140px);
+        height: auto;
+        object-fit: contain;
+    }
+
+    .footer-desc {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.7;
+        max-width: 280px;
+        margin: 0;
+    }
+}
+
+.social-links {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+
+    a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(124, 58, 237, 0.08);
+        color: var(--madraza-primary);
+        text-decoration: none;
+        transition: background 0.2s ease, transform 0.2s ease;
+
+        &:hover {
+            background: var(--madraza-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+    }
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.footer-col {
+    h4 {
+        color: #111827;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 16px;
+        margin-top: 0;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    a {
+        color: #6b7280;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--madraza-primary);
+        }
+    }
+}
+
+.footer-bottom {
+    border-top: 1px solid #e5e7eb;
+    padding: 20px 0;
+
+    p {
+        color: #9ca3af;
+        font-size: 13px;
+        text-align: center;
+        margin: 0;
+    }
+}
+
+// ── MEDIA QUERIES ─────────────────────────────────────────
+
+@media (max-width: 768px) {
+    .footer-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-brand .footer-desc {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

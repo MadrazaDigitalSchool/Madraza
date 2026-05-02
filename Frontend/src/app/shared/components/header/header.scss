@@ -179,33 +179,71 @@
 }
 
 .menu-movil {
-    background: rgba(30, 24, 57, 0.98);
-    backdrop-filter: blur(12px);
-    padding: 16px 24px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-
-    ul {
-        list-style: none;
-        margin: 0 0 16px;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-
-        a {
-            display: block;
-            color: var(--madraza-text-muted);
-            text-decoration: none;
-            padding: 12px 8px;
-            font-size: 15px;
-            border-radius: var(--madraza-radius-sm);
-            transition: color 0.2s ease;
-
-            &:hover {
-                color: var(--madraza-text);
+    position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background: rgba(30, 24, 57, 0.98);
+        backdrop-filter: blur(12px);
+        padding: 16px 24px 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    
+        ul {
+            list-style: none;
+            margin: 0 0 16px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+    
+            a {
+                display: block;
+                color: var(--madraza-text-muted);
+                text-decoration: none;
+                padding: 12px 8px;
+                font-size: 15px;
+                border-radius: var(--madraza-radius-sm);
+                transition: color 0.2s ease;
+    
+                &:hover {
+                    color: var(--madraza-text);
+                }
             }
         }
-    }
+    
+        .menu-movil-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+    
+            a,
+            button {
+                display: block;
+                text-align: center;
+                padding: 12px;
+                border-radius: var(--madraza-radius-sm);
+                font-size: 15px;
+                font-weight: 600;
+                text-decoration: none;
+                cursor: pointer;
+                border: none;
+                transition: background 0.2s ease;
+            }
+    
+            a:first-child {
+                color: var(--madraza-text);
+                background: rgba(255, 255, 255, 0.08);
+            }
+    
+            button {
+                background: var(--madraza-primary);
+                color: white;
+            }
+        }
 
     .menu-movil-actions {
         display: flex;

@@ -1,11 +1,15 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
+/**
+ * Footer principal de la aplicación Madraza
+ * @author Hafdala Mehdi Sidi
+ */
 @Component({
   selector: 'app-footer',
-  imports: [],
+  standalone: true,
+  imports: [RouterLink],
   templateUrl: './footer.html',
-  styleUrl: './footer.scss',
+  styleUrl: './footer.scss'
 })
-export class FooterComponent {
-
-}
+export class FooterComponent { }
