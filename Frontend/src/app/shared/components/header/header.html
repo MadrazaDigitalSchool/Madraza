@@ -27,10 +27,14 @@
                 <a routerLink="/auth/login" mat-flat-button class="btn-login-nav">Iniciar sesión</a>
                 } @else {
                 <!-- Avatar con menú (escritorio Y móvil) -->
-                <button class="avatar-btn" [matMenuTriggerFor]="menuUsuario">
-                    <div class="avatar">{{ getIniciales() }}</div>
-                    <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
-                </button>
+                <div class="avatar-wrapper">
+                    <button class="avatar-btn" (click)="irPerfil()" aria-label="Ir a mi perfil">
+                        <div class="avatar">{{ getIniciales() }}</div>
+                    </button>
+                    <button class="avatar-menu-btn" [matMenuTriggerFor]="menuUsuario" aria-label="Abrir menú de usuario">
+                        <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
+                    </button>
+                </div>
 
                 <mat-menu #menuUsuario="matMenu">
                     <div class="menu-header">
@@ -78,9 +82,9 @@
         </ul>
         @if (authService.isLoggedIn()) {
         <div class="menu-movil-actions">
+            <a routerLink="/perfil" (click)="menuMovilAbierto = false">Mi perfil</a>
             <a routerLink="/dashboard" (click)="menuMovilAbierto = false">Mi panel</a>
             <a routerLink="/tests" (click)="menuMovilAbierto = false">Mis tests</a>
-            <a routerLink="/perfil" (click)="menuMovilAbierto = false">Mi perfil</a>
             <button (click)="logout()">Cerrar sesión</button>
         </div>
         } @else {

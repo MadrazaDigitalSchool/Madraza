@@ -6,6 +6,65 @@
         <p>Pon a prueba tus conocimientos con nuestra colección de tests</p>
     </section>
 
+    <!-- Mis tests (solo usuarios autenticados) -->
+    @if (authService.isLoggedIn()) {
+    <section class="mis-tests-section container">
+        <div class="section-header">
+            <h2>Mis tests</h2>
+            <a routerLink="/tests/crear" class="btn-crear">
+                <mat-icon>add</mat-icon>
+                Crear test
+            </a>
+        </div>
+
+        @if (misTests.length === 0) {
+        <div class="estado-vacio">
+            <mat-icon>note_add</mat-icon>
+            <p>Aún no has creado ningún test</p>
+            <a routerLink="/tests/crear" mat-stroked-button>Crear mi primer test</a>
+        </div>
+        }
+
+        @if (misTests.length > 0) {
+        <div class="mis-tests-lista">
+            @for (test of misTests; track test.id) {
+            <div class="mis-test-item">
+                <div class="test-info">
+                    <h3>{{ test.titulo }}</h3>
+                    <div class="test-meta">
+                        <span class="chip-categoria">{{ test.categoria }}</span>
+                        <span class="chip-dificultad" [ngClass]="getDificultadClass(test.dificultad)">
+                            {{ getDificultadLabel(test.dificultad) }}
+                        </span>
+                        <span class="visibilidad" [class.publico]="test.visibilidad === 'PUBLICO'">
+                            <mat-icon>{{ test.visibilidad === 'PUBLICO' ? 'public' : 'lock' }}</mat-icon>
+                            {{ test.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="test-acciones">
+                    <a [routerLink]="['/tests', test.id]" class="btn-accion btn-ver" title="Ver test">
+                        <mat-icon>visibility</mat-icon>
+                    </a>
+                    <a [routerLink]="['/tests/editar', test.id]" class="btn-accion btn-editar" title="Editar test">
+                        <mat-icon>edit</mat-icon>
+                    </a>
+                    <button class="btn-accion btn-eliminar" (click)="eliminarTest(test, $event)"
+                        [disabled]="eliminandoId === test.id" title="Eliminar test">
+                        @if (eliminandoId === test.id) {
+                        <mat-spinner diameter="14"></mat-spinner>
+                        } @else {
+                        <mat-icon>delete</mat-icon>
+                        }
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </section>
+    }
+
     <!-- Filtros -->
     <section class="filtros container">
 

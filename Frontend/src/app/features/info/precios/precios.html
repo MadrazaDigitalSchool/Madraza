@@ -24,9 +24,9 @@
           <li><mat-icon>check</mat-icon> {{ f }}</li>
           }
         </ul>
-        <a [routerLink]="plan.link" mat-flat-button class="plan-cta" [class.cta-destacado]="plan.destacado">
+        <button [routerLink]="plan.link" mat-flat-button class="plan-cta" [class.cta-destacado]="plan.destacado">
           {{ plan.cta }}
-        </a>
+        </button>
       </div>
       }
     </div>

@@ -9,11 +9,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TestService } from '../../../core/services/test';
+import { AuthService } from '../../../core/services/auth';
 import { Test } from '../../../core/models/test.model';
 
 /**
  * Componente de lista de tests
  * Muestra todos los tests públicos con filtros
+ * Los usuarios autenticados ven además sus tests privados con opciones de editar/eliminar
  * @author Hafdala Mehdi Sidi
  */
 @Component({
@@ -36,31 +38,46 @@ import { Test } from '../../../core/models/test.model';
 export class ListaTestsComponent implements OnInit {
 
   tests: Test[] = [];
+  misTests: Test[] = [];
   cargando = true;
   error = '';
   busqueda = '';
   categoriaSeleccionada = '';
   dificultadSeleccionada = '';
   categorias: string[] = [];
+  eliminandoId: number | null = null;
 
-  constructor(private testService: TestService) { }
+  constructor(
+    private testService: TestService,
+    public authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.cargarTests();
+    if (this.authService.isLoggedIn()) {
+      this.cargarMisTests();
+    }
   }
 
   cargarTests(): void {
     this.cargando = true;
     this.testService.getTestsPublicos().subscribe({
       next: (tests) => {
-        this.tests = tests;
-        this.categorias = [...new Set(tests.map(t => t.categoria))];
+        this.tests = tests.filter(t => t.visibilidad === 'PUBLICO');
+        this.categorias = [...new Set(this.tests.map(t => t.categoria))];
         this.cargando = false;
       },
       error: () => {
         this.error = 'Error al cargar los tests';
         this.cargando = false;
       }
+    });
+  }
+
+  cargarMisTests(): void {
+    this.testService.getMisTests().subscribe({
+      next: (tests) => { this.misTests = tests; },
+      error: () => {}
     });
   }
 
@@ -99,5 +116,19 @@ export class ListaTestsComponent implements OnInit {
       'ALTA': 'Difícil'
     };
     return labels[dificultad] ?? dificultad;
+  }
+
+  eliminarTest(test: Test, evento: Event): void {
+    evento.preventDefault();
+    evento.stopPropagation();
+    if (!confirm(`¿Eliminar el test "${test.titulo}"? Esta acción no se puede deshacer.`)) return;
+    this.eliminandoId = test.id;
+    this.testService.eliminarTest(test.id).subscribe({
+      next: () => {
+        this.misTests = this.misTests.filter(t => t.id !== test.id);
+        this.eliminandoId = null;
+      },
+      error: () => { this.eliminandoId = null; }
+    });
   }
 }

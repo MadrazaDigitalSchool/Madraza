@@ -92,3 +92,8 @@ body {
   margin-inline: auto;
   padding-inline: clamp(16px, 4vw, 32px);
 }
+
+// ── LAYOUT ────────────────────────────────────────────────
+main {
+  min-height: calc(100vh - 80px - 200px);
+}

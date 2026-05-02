@@ -9,6 +9,23 @@ import { Test } from '../models/test.model';
  * relacionadas con los tests, preguntas y opciones.
  * @author Hafdala Mehdi Sidi
  */
+export interface CreateTestDTO {
+  titulo: string;
+  descripcion?: string | null;
+  categoria: string;
+  dificultad: 'BAJA' | 'MEDIA' | 'ALTA';
+  tiempoLimite?: number | null;
+  visibilidad: 'PUBLICO' | 'PRIVADO';
+  preguntas: {
+    enunciado: string;
+    tipo: 'OPCION_MULTIPLE' | 'VERDADERO_FALSO' | 'TEXTO_LIBRE';
+    orden: number;
+    puntos: number;
+    explicacion?: string | null;
+    opciones: { texto: string; esCorrecta: boolean; orden: number }[];
+  }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,14 +62,14 @@ export class TestService {
    * Crea un nuevo test con preguntas y opciones
    * Requiere token JWT
    */
-  crearTest(test: any): Observable<Test> {
+  crearTest(test: CreateTestDTO): Observable<Test> {
     return this.http.post<Test>(this.apiUrl, test);
   }
 
   /**
    * Actualiza un test existente (requiere ser el creador)
    */
-  actualizarTest(id: number, test: any): Observable<Test> {
+  actualizarTest(id: number, test: CreateTestDTO): Observable<Test> {
     return this.http.put<Test>(`${this.apiUrl}/${id}`, test);
   }
 

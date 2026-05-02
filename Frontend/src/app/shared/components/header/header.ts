@@ -83,4 +83,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.usuario = null;
     this.menuMovilAbierto = false;
   }
+
+  irPerfil(): void {
+    this.router.navigate(['/perfil']);
+  }
 }

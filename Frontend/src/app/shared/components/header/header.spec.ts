@@ -1,10 +1,12 @@
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
 import { HeaderComponent } from './header';
 
-describe('Header', () => {
+describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
 
@@ -12,6 +14,8 @@ describe('Header', () => {
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([])
       ]

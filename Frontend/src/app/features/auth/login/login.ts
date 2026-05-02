@@ -59,7 +59,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.cargando = false;
-          this.router.navigate(['/tests']);
+          this.router.navigate(['/perfil']);
         },
         error: () => {
           this.cargando = false;

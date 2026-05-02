@@ -9,6 +9,7 @@ import { TestService } from '../../../core/services/test';
 import { IntentoService } from '../../../core/services/intento';
 import { Test } from '../../../core/models/test.model';
 import { Intento } from '../../../core/models/intento.model';
+import { Usuario } from '../../../core/models/usuario.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,7 +20,7 @@ import { Intento } from '../../../core/models/intento.model';
 })
 export class DashboardComponent implements OnInit {
 
-  usuario: any = null;
+  usuario: Usuario | null = null;
   historial: Intento[] = [];
   misTests: Test[] = [];
   cargando = true;

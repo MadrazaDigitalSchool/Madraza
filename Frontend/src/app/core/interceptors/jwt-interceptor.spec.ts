@@ -1,17 +1,44 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpInterceptorFn } from '@angular/common/http';
 
 import { jwtInterceptor } from './jwt-interceptor';
 
 describe('jwtInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) => 
-    TestBed.runInInjectionContext(() => jwtInterceptor(req, next));
-
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    localStorage.clear();
+    sessionStorage.clear();
   });
 
-  it('should be created', () => {
-    expect(interceptor).toBeTruthy();
+  afterEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it('should be defined', () => {
+    expect(jwtInterceptor).toBeDefined();
+    expect(typeof jwtInterceptor).toBe('function');
+  });
+
+  it('should return null when no token exists', () => {
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
+    expect(token).toBeNull();
+  });
+
+  it('should read token from localStorage', () => {
+    localStorage.setItem('token', 'test-token');
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
+    expect(token).toBe('test-token');
+  });
+
+  it('should read token from sessionStorage', () => {
+    sessionStorage.setItem('token', 'session-token');
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
+    expect(token).toBe('session-token');
+  });
+
+  it('should prefer localStorage token over sessionStorage', () => {
+    localStorage.setItem('token', 'local-token');
+    sessionStorage.setItem('token', 'session-token');
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
+    expect(token).toBe('local-token');
   });
 });

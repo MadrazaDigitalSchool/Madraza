@@ -23,6 +23,191 @@
     }
 }
 
+.mis-tests-section {
+    padding-top: 32px;
+    padding-bottom: 24px;
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        h2 {
+            color: var(--madraza-text);
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .btn-crear {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--madraza-primary);
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: var(--madraza-radius-sm);
+            transition: background 0.2s ease;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+
+            &:hover {
+                background: var(--madraza-primary-dark);
+            }
+        }
+    }
+
+    .estado-vacio {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 40px 16px;
+        text-align: center;
+        color: #6b7280;
+        background: white;
+        border-radius: var(--madraza-radius-lg);
+        border: 1px solid #f0f0f0;
+
+        mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            color: #9ca3af;
+        }
+    }
+}
+
+.mis-tests-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mis-test-item {
+    background: white;
+    border-radius: var(--madraza-radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .test-info {
+        flex: 1;
+        min-width: 0;
+
+        h3 {
+            color: var(--madraza-text);
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .test-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+
+            .visibilidad {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 12px;
+                font-weight: 500;
+                color: #6b7280;
+
+                mat-icon {
+                    font-size: 14px;
+                    width: 14px;
+                    height: 14px;
+                }
+
+                &.publico {
+                    color: var(--madraza-primary);
+                }
+            }
+        }
+    }
+
+    .test-acciones {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+
+        .btn-accion {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: var(--madraza-radius-sm);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            text-decoration: none;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+
+            &.btn-ver {
+                background: rgba(124, 58, 237, 0.1);
+                color: var(--madraza-primary);
+
+                &:hover {
+                    background: rgba(124, 58, 237, 0.2);
+                }
+            }
+
+            &.btn-editar {
+                background: rgba(234, 179, 8, 0.12);
+                color: #ca8a04;
+
+                &:hover {
+                    background: rgba(234, 179, 8, 0.25);
+                }
+            }
+
+            &.btn-eliminar {
+                background: rgba(244, 67, 54, 0.1);
+                color: #dc2626;
+
+                &:hover {
+                    background: rgba(244, 67, 54, 0.2);
+                }
+
+                &:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+}
+
 .filtros {
     display: flex;
     align-items: center;

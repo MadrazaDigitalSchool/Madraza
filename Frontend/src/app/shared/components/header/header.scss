@@ -117,6 +117,12 @@
     }
 }
 
+.avatar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
 .avatar-btn {
     display: flex;
     align-items: center;
@@ -143,6 +149,22 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+}
+
+.avatar-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--madraza-radius-sm);
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.05);
     }
 
     mat-icon {
@@ -267,7 +289,7 @@
     border-radius: var(--madraza-radius-sm) !important;
 }
 
-// Flecha del avatar (ocultar en móvil)
+// Flecha del avatar (visible en escritorio, oculta en móvil)
 .arrow-icon {
     display: flex;
 }
@@ -286,12 +308,20 @@
     }
 
     // En móvil el avatar se muestra (sin flecha)
+    .avatar-wrapper {
+        display: flex;
+    }
+
     .avatar-btn {
         display: flex;
 
         .arrow-icon {
             display: none;
         }
+    }
+
+    .avatar-menu-btn {
+        display: none;
     }
 
     .btn-login-nav {

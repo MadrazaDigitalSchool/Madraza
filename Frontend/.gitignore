@@ -10,6 +10,7 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+pnpm-debug.log
 
 # IDEs and editors
 .idea/
@@ -19,6 +20,7 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+*.sublime-project
 
 # Visual Studio Code
 .vscode/*
@@ -26,10 +28,12 @@ yarn-error.log
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.history/*
+.history/
+
+# Angular
+/.angular/cache
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
@@ -40,6 +44,17 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Environments con datos sensibles
 src/environments/environment.prod.ts
+src/environments/environment*.ts
+
+# Logs
+logs
+*.log
+
+# Package locks (optional, uncomment if needed)
+# package-lock.json
+# yarn.lock

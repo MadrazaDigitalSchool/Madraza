@@ -61,8 +61,8 @@ export class AuthService {
     );
   }
 
-  registro(request: RegistroRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/registro`, request);
+  registro(request: RegistroRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/registro`, request);
   }
 
   logout(): void {
@@ -74,13 +74,13 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  getUsuarioActual(): any {
+  getUsuarioActual(): Usuario | null {
     const raw = this.leerStorage('usuario');
     return raw ? JSON.parse(raw) : null;
   }
 
   /** Actualiza el objeto usuario en el mismo storage donde esté guardado */
-  guardarUsuarioLocal(usuario: any): void {
+  guardarUsuarioLocal(usuario: Usuario): void {
     const json = JSON.stringify(usuario);
     if (localStorage.getItem('usuario') !== null) {
       localStorage.setItem('usuario', json);

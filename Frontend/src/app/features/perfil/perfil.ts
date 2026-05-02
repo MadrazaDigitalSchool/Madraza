@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth';
+import { Usuario } from '../../core/models/usuario.model';
 
 @Component({
   selector: 'app-perfil',
@@ -66,7 +67,14 @@ export class PerfilComponent implements OnInit {
         this.guardando = false;
         this.guardado = true;
         const datosActuales = this.authService.getUsuarioActual();
-        const nuevo = { ...datosActuales, nombre: u.nombre, apellidos: u.apellidos };
+        const nuevo: Usuario = {
+          id: datosActuales?.id ?? 0,
+          nombre: u.nombre,
+          apellidos: u.apellidos,
+          email: datosActuales?.email ?? '',
+          emailVerificado: datosActuales?.emailVerificado ?? false,
+          roles: datosActuales?.roles ?? []
+        };
         this.authService.guardarUsuarioLocal(nuevo);
         setTimeout(() => (this.guardado = false), 3000);
       },

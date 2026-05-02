@@ -1,18 +1,28 @@
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
-import { ListaTests } from './lista-tests';
+import { ListaTestsComponent } from './lista-tests';
 
-describe('ListaTests', () => {
-  let component: ListaTests;
-  let fixture: ComponentFixture<ListaTests>;
+describe('ListaTestsComponent', () => {
+  let component: ListaTestsComponent;
+  let fixture: ComponentFixture<ListaTestsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListaTests]
+      imports: [ListaTestsComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([])
+      ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ListaTests);
+    fixture = TestBed.createComponent(ListaTestsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
