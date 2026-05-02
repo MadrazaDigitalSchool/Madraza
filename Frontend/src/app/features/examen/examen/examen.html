@@ -1,1 +1,94 @@
-<p>examen works!</p>
+<div class="examen-container">
+
+    <!-- Cargando -->
+    @if (cargando) {
+    <div class="estado-center">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Preparando el examen...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+    <div class="estado-center">
+        <mat-icon class="icon-error">error_outline</mat-icon>
+        <p>{{ error }}</p>
+    </div>
+    }
+
+    <!-- Examen -->
+    @if (!cargando && !error && test && preguntaActual) {
+
+    <!-- Header del examen -->
+    <header class="examen-header">
+        <div class="header-info">
+            <h2>{{ test.titulo }}</h2>
+            <span class="progreso-texto">
+                Pregunta {{ preguntaIndex + 1 }} de {{ test.preguntas.length }}
+            </span>
+        </div>
+
+        <!-- Temporizador -->
+        @if (test.tiempoLimite) {
+        <div class="temporizador" [class.agotandose]="tiempoAgotandose">
+            <mat-icon>timer</mat-icon>
+            <span>{{ tiempoFormateado }}</span>
+        </div>
+        }
+    </header>
+
+    <!-- Barra de progreso -->
+    <mat-progress-bar mode="determinate" [value]="progreso" class="barra-progreso">
+    </mat-progress-bar>
+
+    <!-- Contenido de la pregunta -->
+    <main class="examen-main container">
+
+        <!-- Pregunta -->
+        <div class="pregunta-card">
+            <div class="pregunta-header">
+                <span class="pregunta-num">{{ preguntaIndex + 1 }}</span>
+                <div class="pregunta-info">
+                    <p class="pregunta-enunciado">{{ preguntaActual.enunciado }}</p>
+                    <span class="pregunta-puntos">
+                        <mat-icon>star</mat-icon>
+                        {{ preguntaActual.puntos }} punto{{ preguntaActual.puntos !== 1 ? 's' : '' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opciones de respuesta -->
+        <div class="opciones-lista">
+            @for (opcion of preguntaActual.opciones; track opcion.id) {
+            <button class="opcion-btn" [class.seleccionada]="opcionSeleccionada === opcion.id"
+                (click)="seleccionarOpcion(opcion.id)" [disabled]="respondiendo">
+                <span class="opcion-letra">
+                    {{ ['A', 'B', 'C', 'D'][$index] }}
+                </span>
+                <span class="opcion-texto">{{ opcion.texto }}</span>
+                @if (opcionSeleccionada === opcion.id) {
+                <mat-icon class="opcion-check">check_circle</mat-icon>
+                }
+            </button>
+            }
+        </div>
+
+        <!-- Botón siguiente / finalizar -->
+        <div class="examen-actions">
+            <button mat-flat-button class="btn-siguiente" (click)="siguiente()"
+                [disabled]="!opcionSeleccionada || respondiendo">
+                @if (respondiendo) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                } @else if (preguntaIndex < test.preguntas.length - 1) {
+                    <ng-container>Siguiente pregunta <mat-icon>arrow_forward</mat-icon></ng-container>
+                } @else {
+                    <ng-container>Finalizar examen <mat-icon>check</mat-icon></ng-container>
+                }
+            </button>
+        </div>
+
+    </main>
+    }
+
+</div>

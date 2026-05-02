@@ -1,0 +1,322 @@
+.examen-container {
+    min-height: 100vh;
+    background: var(--madraza-bg);
+    display: flex;
+    flex-direction: column;
+}
+
+.estado-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 80px 16px;
+    text-align: center;
+    color: var(--madraza-text-muted);
+
+    .icon-error {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: var(--madraza-error);
+    }
+}
+
+// Header del examen
+.examen-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px clamp(16px, 4vw, 32px);
+    background: var(--madraza-surface);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: 16px;
+
+    .header-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        h2 {
+            color: var(--madraza-text);
+            font-size: clamp(14px, 2vw, 18px);
+            font-weight: 600;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 400px;
+        }
+
+        .progreso-texto {
+            color: var(--madraza-text-muted);
+            font-size: 13px;
+        }
+    }
+}
+
+// Temporizador
+.temporizador {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--madraza-surface-2);
+    color: var(--madraza-text);
+    padding: 8px 16px;
+    border-radius: var(--madraza-radius-sm);
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.3s ease, color 0.3s ease;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: var(--madraza-text-muted);
+    }
+
+    &.agotandose {
+        background: rgba(244, 67, 54, 0.15);
+        color: var(--madraza-error);
+        border-color: rgba(244, 67, 54, 0.3);
+        animation: pulso 1s ease-in-out infinite;
+
+        mat-icon {
+            color: var(--madraza-error);
+        }
+    }
+}
+
+@keyframes pulso {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+// Barra de progreso
+.barra-progreso {
+    height: 4px;
+
+    .mdc-linear-progress__bar-inner {
+        background: var(--madraza-primary);
+    }
+}
+
+// Contenido principal
+.examen-main {
+    flex: 1;
+    padding-top: clamp(24px, 4vw, 48px);
+    padding-bottom: clamp(24px, 4vw, 48px);
+}
+
+// Card de la pregunta
+.pregunta-card {
+    background: var(--madraza-surface);
+    border-radius: var(--madraza-radius-lg);
+    padding: clamp(20px, 4vw, 32px);
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    .pregunta-header {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .pregunta-num {
+        width: 36px;
+        height: 36px;
+        background: var(--madraza-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .pregunta-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pregunta-enunciado {
+        color: var(--madraza-text);
+        font-size: clamp(15px, 2vw, 18px);
+        font-weight: 500;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .pregunta-puntos {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #ca8a04;
+        font-size: 13px;
+        font-weight: 600;
+
+        mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+// Lista de opciones
+.opciones-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.opcion-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--madraza-surface);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--madraza-radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    .opcion-letra {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--madraza-text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        flex-shrink: 0;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .opcion-texto {
+        flex: 1;
+        color: var(--madraza-text-muted);
+        font-size: 15px;
+        line-height: 1.5;
+        transition: color 0.2s ease;
+    }
+
+    .opcion-check {
+        color: var(--madraza-primary);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    &:hover:not(:disabled) {
+        border-color: rgba(124, 58, 237, 0.4);
+        background: rgba(124, 58, 237, 0.05);
+
+        .opcion-texto {
+            color: var(--madraza-text);
+        }
+    }
+
+    &.seleccionada {
+        border-color: var(--madraza-primary);
+        background: rgba(124, 58, 237, 0.1);
+
+        .opcion-letra {
+            background: var(--madraza-primary);
+            color: white;
+        }
+
+        .opcion-texto {
+            color: var(--madraza-text);
+            font-weight: 500;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+// Acciones del examen
+.examen-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-siguiente {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--madraza-primary);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 28px;
+    border-radius: var(--madraza-radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover:not([disabled]) {
+        background: var(--madraza-primary-dark);
+    }
+
+    &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+// ── MEDIA QUERIES ─────────────────────────────────────────
+
+@media (max-width: 768px) {
+    .examen-header {
+        .header-info h2 {
+            max-width: 200px;
+        }
+    }
+
+    .opcion-btn {
+        padding: 12px 16px;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .examen-actions {
+        justify-content: stretch;
+
+        .btn-siguiente {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
