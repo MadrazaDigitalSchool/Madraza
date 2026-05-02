@@ -1,0 +1,50 @@
+<div class="info-page">
+  <section class="info-hero">
+    <div class="container">
+      <div class="hero-badge"><mat-icon>payments</mat-icon> Planes y precios</div>
+      <h1>Precios sencillos y transparentes</h1>
+      <p>Empieza gratis. Actualiza cuando lo necesites.</p>
+    </div>
+  </section>
+
+  <section class="precios-body container">
+    <div class="planes-grid">
+      @for (plan of planes; track plan.nombre) {
+      <div class="plan-card" [class.destacado]="plan.destacado">
+        @if (plan.destacado) { <div class="plan-badge">Más popular</div> }
+        <div class="plan-header">
+          <h2>{{ plan.nombre }}</h2>
+          <div class="plan-precio">
+            <span class="precio-valor">{{ plan.precio }}</span>
+            @if (plan.periodo) { <span class="precio-periodo">/ {{ plan.periodo }}</span> }
+          </div>
+        </div>
+        <ul class="plan-features">
+          @for (f of plan.features; track f) {
+          <li><mat-icon>check</mat-icon> {{ f }}</li>
+          }
+        </ul>
+        <a [routerLink]="plan.link" mat-flat-button class="plan-cta" [class.cta-destacado]="plan.destacado">
+          {{ plan.cta }}
+        </a>
+      </div>
+      }
+    </div>
+
+    <div class="faq-block">
+      <h2>Preguntas frecuentes</h2>
+      <div class="faq-item">
+        <h3>¿El plan gratuito tiene límite de tiempo?</h3>
+        <p>No. El plan gratuito es para siempre sin fecha de expiración.</p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Puedo cancelar el plan Premium en cualquier momento?</h3>
+        <p>Sí, puedes cancelar cuando quieras sin penalización. El acceso se mantiene hasta el fin del período pagado.</p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Cómo funciona el plan Institucional?</h3>
+        <p>Contáctanos y diseñamos un plan a medida según el número de usuarios y necesidades de tu organización.</p>
+      </div>
+    </div>
+  </section>
+</div>

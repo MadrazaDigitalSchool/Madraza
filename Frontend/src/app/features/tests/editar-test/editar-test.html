@@ -1,0 +1,214 @@
+<div class="crear-container">
+
+    <!-- Cabecera -->
+    <div class="crear-header">
+        <div class="container">
+            <a routerLink="/dashboard" class="btn-back">
+                <mat-icon>arrow_back</mat-icon>
+                Volver al panel
+            </a>
+            <div class="header-info">
+                <h1>Editar test</h1>
+                <p>Modifica el contenido y guarda los cambios</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="crear-body container">
+
+        <!-- Error global -->
+        @if (error) {
+        <div class="alert-error">
+            <mat-icon>error_outline</mat-icon>
+            {{ error }}
+        </div>
+        }
+
+        <!-- Sección 1: Información del test -->
+        <section class="seccion">
+            <h2 class="seccion-titulo">
+                <mat-icon>info</mat-icon>
+                Información del test
+            </h2>
+
+            <div class="form-grid">
+
+                <mat-form-field appearance="outline" class="field-full">
+                    <mat-label>Título *</mat-label>
+                    <input matInput [(ngModel)]="titulo" placeholder="Ej: Fundamentos de Java" maxlength="100" />
+                    <mat-hint align="end">{{ titulo.length }}/100</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="field-full">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput [(ngModel)]="descripcion" rows="2"
+                        placeholder="Describe brevemente de qué trata el test"></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Categoría *</mat-label>
+                    <input matInput [(ngModel)]="categoria" placeholder="Ej: Programación, Historia..."
+                        list="categorias-list" />
+                    <mat-icon matSuffix>category</mat-icon>
+                    <datalist id="categorias-list">
+                        @for (cat of categoriasSugeridas; track cat) {
+                        <option [value]="cat"></option>
+                        }
+                    </datalist>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Dificultad</mat-label>
+                    <mat-select [(ngModel)]="dificultad">
+                        <mat-option value="BAJA">Fácil</mat-option>
+                        <mat-option value="MEDIA">Media</mat-option>
+                        <mat-option value="ALTA">Difícil</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Tiempo límite (minutos)</mat-label>
+                    <input matInput type="number" [(ngModel)]="tiempoLimite" min="1" max="300"
+                        placeholder="Sin límite" />
+                    <mat-icon matSuffix>timer</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Visibilidad</mat-label>
+                    <mat-select [(ngModel)]="visibilidad">
+                        <mat-option value="PUBLICO">Público</mat-option>
+                        <mat-option value="PRIVADO">Privado</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+            </div>
+        </section>
+
+        <!-- Sección 2: Preguntas -->
+        <section class="seccion">
+            <div class="seccion-titulo-row">
+                <h2 class="seccion-titulo">
+                    <mat-icon>quiz</mat-icon>
+                    Preguntas ({{ preguntas.length }})
+                </h2>
+                <button mat-flat-button class="btn-add-pregunta" (click)="agregarPregunta()">
+                    <mat-icon>add</mat-icon>
+                    Añadir pregunta
+                </button>
+            </div>
+
+            @for (pregunta of preguntas; track $index) {
+            <div class="pregunta-card">
+
+                <div class="pregunta-card-header">
+                    <span class="pregunta-num">{{ $index + 1 }}</span>
+                    <span class="pregunta-label">Pregunta {{ $index + 1 }}</span>
+                    <div class="pregunta-header-actions">
+                        <mat-form-field appearance="outline" class="field-tipo">
+                            <mat-label>Tipo</mat-label>
+                            <mat-select [(ngModel)]="pregunta.tipo" (ngModelChange)="onTipoChange(pregunta)">
+                                <mat-option value="OPCION_MULTIPLE">Opción múltiple</mat-option>
+                                <mat-option value="VERDADERO_FALSO">Verdadero / Falso</mat-option>
+                                <mat-option value="TEXTO_LIBRE">Texto libre</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="field-puntos">
+                            <mat-label>Pts</mat-label>
+                            <input matInput type="number" [(ngModel)]="pregunta.puntos" min="1" max="10" />
+                        </mat-form-field>
+                        @if (preguntas.length > 1) {
+                        <button class="btn-delete-pregunta" (click)="eliminarPregunta($index)"
+                            title="Eliminar pregunta">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <mat-form-field appearance="outline" class="field-full">
+                    <mat-label>Enunciado *</mat-label>
+                    <textarea matInput [(ngModel)]="pregunta.enunciado" rows="2"
+                        placeholder="Escribe la pregunta aquí"></textarea>
+                </mat-form-field>
+
+                <!-- Opciones de respuesta -->
+                @if (pregunta.tipo !== 'TEXTO_LIBRE') {
+                <div class="opciones-section">
+                    <p class="opciones-label">
+                        Opciones
+                        <span class="hint-correcta">— haz clic en el círculo para marcar la correcta</span>
+                    </p>
+
+                    <div class="opciones-lista">
+                        @for (opcion of pregunta.opciones; track $index) {
+                        <div class="opcion-row" [class.correcta]="opcion.esCorrecta">
+                            <button class="radio-correcta" type="button"
+                                (click)="marcarCorrecta(pregunta, $index)"
+                                [title]="opcion.esCorrecta ? 'Respuesta correcta' : 'Marcar como correcta'">
+                                <mat-icon>
+                                    {{ opcion.esCorrecta ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                                </mat-icon>
+                            </button>
+                            <span class="opcion-letra">{{ ['A','B','C','D','E'][$index] }}</span>
+                            <input class="opcion-input" [(ngModel)]="opcion.texto"
+                                [placeholder]="'Opción ' + ['A','B','C','D','E'][$index]"
+                                [disabled]="pregunta.tipo === 'VERDADERO_FALSO'" />
+                            @if (pregunta.tipo === 'OPCION_MULTIPLE' && pregunta.opciones.length > 2) {
+                            <button class="btn-delete-opcion" type="button"
+                                (click)="eliminarOpcion(pregunta, $index)"
+                                title="Eliminar opción">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                            }
+                        </div>
+                        }
+                    </div>
+
+                    @if (pregunta.tipo === 'OPCION_MULTIPLE' && pregunta.opciones.length < 5) {
+                    <button class="btn-add-opcion" type="button" (click)="agregarOpcion(pregunta)">
+                        <mat-icon>add</mat-icon>
+                        Añadir opción
+                    </button>
+                    }
+                </div>
+                }
+
+                <mat-form-field appearance="outline" class="field-full">
+                    <mat-label>Explicación (opcional)</mat-label>
+                    <input matInput [(ngModel)]="pregunta.explicacion"
+                        placeholder="Se mostrará al alumno al terminar el examen" />
+                    <mat-icon matSuffix>help_outline</mat-icon>
+                </mat-form-field>
+
+            </div>
+            }
+
+            <button mat-stroked-button class="btn-add-pregunta-bottom" type="button"
+                (click)="agregarPregunta()">
+                <mat-icon>add_circle</mat-icon>
+                Añadir otra pregunta
+            </button>
+
+        </section>
+
+        <!-- Acciones finales -->
+        <div class="crear-actions">
+            <a routerLink="/dashboard" mat-stroked-button class="btn-cancelar">
+                Cancelar
+            </a>
+            <button mat-flat-button class="btn-guardar" (click)="guardar()"
+                [disabled]="!esValido || enviando">
+                @if (enviando) {
+                <mat-spinner diameter="20"></mat-spinner>
+                Creando...
+                } @else {
+                <ng-container>
+                    <mat-icon>save</mat-icon>
+                    Guardar cambios
+                </ng-container>
+                }
+            </button>
+        </div>
+
+    </div>
+</div>

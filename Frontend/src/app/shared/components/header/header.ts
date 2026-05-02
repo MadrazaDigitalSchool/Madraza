@@ -47,6 +47,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       filter(e => e instanceof NavigationEnd)
     ).subscribe((e: any) => {
       this.esRutaAuth = (e.urlAfterRedirects as string).startsWith('/auth/');
+      if (this.authService.isLoggedIn()) {
+        this.usuario = this.authService.getUsuarioActual();
+      } else {
+        this.usuario = null;
+      }
     });
 
     if (this.authService.isLoggedIn()) {

@@ -55,7 +55,7 @@ export class LoginComponent {
     this.cargando = true;
     this.errorMessage = '';
 
-    this.authService.login({ email: this.email, password: this.password })
+    this.authService.login({ email: this.email, password: this.password }, this.recordarme)
       .subscribe({
         next: () => {
           this.cargando = false;

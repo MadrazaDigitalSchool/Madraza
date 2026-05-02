@@ -13,15 +13,11 @@
     <div class="estado-center">
         <mat-icon class="icon-error">error_outline</mat-icon>
         <p>{{ error }}</p>
-        <a routerLink="/tests" mat-flat-button class="btn-volver">
-            Volver a los tests
-        </a>
+        <a routerLink="/tests" mat-flat-button class="btn-volver">Volver a los tests</a>
     </div>
     }
 
-    <!-- Resultados -->
     @if (!cargando && !error && resultado) {
-
     <div class="resultados-inner container">
 
         <!-- Puntuación principal -->
@@ -33,7 +29,6 @@
                 <span class="score-label">Puntuación</span>
             </div>
 
-            <!-- Stats -->
             <div class="stats-row">
                 <div class="stat">
                     <mat-icon class="icon-correcto">check_circle</mat-icon>
@@ -58,6 +53,58 @@
             </div>
         </div>
 
+        <!-- Desglose por pregunta -->
+        @if (desglose.length > 0) {
+        <div class="desglose-section">
+            <h2 class="desglose-titulo">
+                <mat-icon>fact_check</mat-icon>
+                Revisión de respuestas
+            </h2>
+
+            <div class="preguntas-lista">
+                @for (item of desglose; track $index) {
+                <div class="pregunta-resultado" [class.correcta]="item.esCorrecta" [class.incorrecta]="!item.esCorrecta">
+                    <div class="pregunta-resultado-header">
+                        <div class="estado-icon">
+                            @if (item.esCorrecta) {
+                            <mat-icon class="check-icon">check_circle</mat-icon>
+                            } @else {
+                            <mat-icon class="x-icon">cancel</mat-icon>
+                            }
+                        </div>
+                        <span class="pregunta-num">{{ $index + 1 }}</span>
+                        <p class="pregunta-enunciado">{{ item.pregunta.enunciado }}</p>
+                    </div>
+
+                    <div class="opciones-resultado">
+                        @for (opcion of (item.pregunta.opciones ?? []); track opcion.id) {
+                        <div class="opcion-resultado"
+                            [class.opcion-correcta]="opcion.esCorrecta"
+                            [class.opcion-elegida-mal]="!opcion.esCorrecta && opcion.id === item.opcionElegidaId">
+                            @if (opcion.esCorrecta) {
+                            <mat-icon class="opcion-icon opcion-icon-ok">check_circle</mat-icon>
+                            } @else if (opcion.id === item.opcionElegidaId) {
+                            <mat-icon class="opcion-icon opcion-icon-mal">cancel</mat-icon>
+                            } @else {
+                            <span class="opcion-punto">·</span>
+                            }
+                            <span class="opcion-texto">{{ opcion.texto }}</span>
+                        </div>
+                        }
+                    </div>
+
+                    @if (item.pregunta.explicacion) {
+                    <div class="explicacion">
+                        <mat-icon>info</mat-icon>
+                        {{ item.pregunta.explicacion }}
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        }
+
         <!-- Acciones -->
         <div class="acciones">
             <button mat-stroked-button class="btn-repetir" (click)="repetirTest()">
@@ -70,11 +117,10 @@
             </a>
             <a routerLink="/dashboard" mat-flat-button class="btn-dashboard">
                 <mat-icon>dashboard</mat-icon>
-                Mi dashboard
+                Mi panel
             </a>
         </div>
 
     </div>
     }
-
 </div>

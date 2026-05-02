@@ -1,25 +1,27 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TestService } from '../../../core/services/test';
 import { IntentoService } from '../../../core/services/intento';
-import { Test, Opcion } from '../../../core/models/test.model';
+import { Test } from '../../../core/models/test.model';
 import { RespuestaRequest } from '../../../core/models/intento.model';
 
-/**
- * Componente del modo examen
- * Muestra preguntas una a una con temporizador y barra de progreso
- * @author Hafdala Mehdi Sidi
- */
+interface RespuestaUsuario {
+  preguntaId: number;
+  preguntaIndex: number;
+  opcionId: number | null;
+}
+
 @Component({
   selector: 'app-examen',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
@@ -35,10 +37,12 @@ export class ExamenComponent implements OnInit, OnDestroy {
   cargando = true;
   error = '';
 
-  // Pregunta actual
   preguntaIndex = 0;
   opcionSeleccionada: number | null = null;
   respondiendo = false;
+
+  // Registro de respuestas del usuario para mostrar en resultados
+  respuestasUsuario: RespuestaUsuario[] = [];
 
   // Temporizador
   tiempoRestante = 0;
@@ -50,13 +54,11 @@ export class ExamenComponent implements OnInit, OnDestroy {
     private router: Router,
     private testService: TestService,
     private intentoService: IntentoService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.cargarTest(Number(id));
-    }
+    if (id) this.cargarTest(Number(id));
   }
 
   ngOnDestroy(): void {
@@ -65,14 +67,8 @@ export class ExamenComponent implements OnInit, OnDestroy {
 
   cargarTest(testId: number): void {
     this.testService.getTestById(testId).subscribe({
-      next: (test) => {
-        this.test = test;
-        this.iniciarIntento(testId);
-      },
-      error: () => {
-        this.error = 'No se pudo cargar el test';
-        this.cargando = false;
-      }
+      next: (test) => { this.test = test; this.iniciarIntento(testId); },
+      error: () => { this.error = 'No se pudo cargar el test'; this.cargando = false; }
     });
   }
 
@@ -87,10 +83,7 @@ export class ExamenComponent implements OnInit, OnDestroy {
           this.iniciarTemporizador();
         }
       },
-      error: () => {
-        this.error = 'No se pudo iniciar el examen';
-        this.cargando = false;
-      }
+      error: () => { this.error = 'No se pudo iniciar el examen'; this.cargando = false; }
     });
   }
 
@@ -105,18 +98,20 @@ export class ExamenComponent implements OnInit, OnDestroy {
   }
 
   pararTemporizador(): void {
-    if (this.intervalo) {
-      clearInterval(this.intervalo);
-    }
+    if (this.intervalo) clearInterval(this.intervalo);
   }
 
   get preguntaActual() {
-    return this.test?.preguntas[this.preguntaIndex] ?? null;
+    return this.test?.preguntas?.[this.preguntaIndex] ?? null;
+  }
+
+  get totalPreguntas(): number {
+    return this.test?.preguntas?.length ?? 0;
   }
 
   get progreso(): number {
-    if (!this.test?.preguntas.length) return 0;
-    return ((this.preguntaIndex) / this.test.preguntas.length) * 100;
+    if (!this.totalPreguntas) return 0;
+    return (this.preguntaIndex / this.totalPreguntas) * 100;
   }
 
   get tiempoFormateado(): string {
@@ -126,8 +121,7 @@ export class ExamenComponent implements OnInit, OnDestroy {
   }
 
   get tiempoProgreso(): number {
-    if (!this.tiempoTotal) return 100;
-    return (this.tiempoRestante / this.tiempoTotal) * 100;
+    return this.tiempoTotal ? (this.tiempoRestante / this.tiempoTotal) * 100 : 100;
   }
 
   get tiempoAgotandose(): boolean {
@@ -141,8 +135,14 @@ export class ExamenComponent implements OnInit, OnDestroy {
 
   siguiente(): void {
     if (!this.opcionSeleccionada || !this.intentoId || !this.preguntaActual) return;
-
     this.respondiendo = true;
+
+    // Guardar respuesta del usuario antes de avanzar
+    this.respuestasUsuario.push({
+      preguntaId: this.preguntaActual.id,
+      preguntaIndex: this.preguntaIndex,
+      opcionId: this.opcionSeleccionada
+    });
 
     const respuesta: RespuestaRequest = {
       preguntaId: this.preguntaActual.id,
@@ -153,16 +153,13 @@ export class ExamenComponent implements OnInit, OnDestroy {
       next: () => {
         this.respondiendo = false;
         this.opcionSeleccionada = null;
-
-        if (this.preguntaIndex < (this.test?.preguntas.length ?? 0) - 1) {
+        if (this.preguntaIndex < this.totalPreguntas - 1) {
           this.preguntaIndex++;
         } else {
           this.finalizarExamen();
         }
       },
-      error: () => {
-        this.respondiendo = false;
-      }
+      error: () => { this.respondiendo = false; }
     });
   }
 
@@ -170,13 +167,16 @@ export class ExamenComponent implements OnInit, OnDestroy {
     if (!this.intentoId) return;
     this.pararTemporizador();
     this.intentoService.finalizar(this.intentoId).subscribe({
-      next: () => {
-        this.router.navigate(['/examen', this.test?.id, 'resultados'],
-          { queryParams: { intentoId: this.intentoId } });
+      next: (resultado) => {
+        this.router.navigate(
+          ['/examen', this.test?.id, 'resultados'],
+          {
+            queryParams: { intentoId: this.intentoId },
+            state: { resultado, test: this.test, respuestasUsuario: this.respuestasUsuario }
+          }
+        );
       },
-      error: () => {
-        this.router.navigate(['/tests']);
-      }
+      error: () => { this.router.navigate(['/tests']); }
     });
   }
 }

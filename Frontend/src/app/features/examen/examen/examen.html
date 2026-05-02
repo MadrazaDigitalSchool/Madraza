@@ -16,6 +16,15 @@
     </div>
     }
 
+    <!-- Sin preguntas -->
+    @if (!cargando && !error && test && !test.preguntas?.length) {
+    <div class="estado-center">
+        <mat-icon class="icon-error">quiz</mat-icon>
+        <p>Este test no tiene preguntas disponibles.</p>
+        <a routerLink="/tests" mat-flat-button>Volver a los tests</a>
+    </div>
+    }
+
     <!-- Examen -->
     @if (!cargando && !error && test && preguntaActual) {
 
@@ -23,9 +32,15 @@
     <header class="examen-header">
         <div class="header-info">
             <h2>{{ test.titulo }}</h2>
-            <span class="progreso-texto">
-                Pregunta {{ preguntaIndex + 1 }} de {{ test.preguntas.length }}
-            </span>
+            <div class="progreso-row">
+                <span class="progreso-texto">
+                    Pregunta {{ preguntaIndex + 1 }} de {{ totalPreguntas }}
+                </span>
+                <span class="respondidas-texto">
+                    <mat-icon>check_circle</mat-icon>
+                    {{ respuestasUsuario.length }} respondidas
+                </span>
+            </div>
         </div>
 
         <!-- Temporizador -->
@@ -60,7 +75,7 @@
 
         <!-- Opciones de respuesta -->
         <div class="opciones-lista">
-            @for (opcion of preguntaActual.opciones; track opcion.id) {
+            @for (opcion of (preguntaActual.opciones ?? []); track opcion.id) {
             <button class="opcion-btn" [class.seleccionada]="opcionSeleccionada === opcion.id"
                 (click)="seleccionarOpcion(opcion.id)" [disabled]="respondiendo">
                 <span class="opcion-letra">
@@ -80,7 +95,7 @@
                 [disabled]="!opcionSeleccionada || respondiendo">
                 @if (respondiendo) {
                     <mat-spinner diameter="20"></mat-spinner>
-                } @else if (preguntaIndex < test.preguntas.length - 1) {
+                } @else if (preguntaIndex < totalPreguntas - 1) {
                     <ng-container>Siguiente pregunta <mat-icon>arrow_forward</mat-icon></ng-container>
                 } @else {
                     <ng-container>Finalizar examen <mat-icon>check</mat-icon></ng-container>

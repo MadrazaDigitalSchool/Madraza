@@ -1,0 +1,67 @@
+<div class="perfil-container">
+  <div class="perfil-header">
+    <div class="container">
+      <a routerLink="/dashboard" class="btn-back">
+        <mat-icon>arrow_back</mat-icon> Volver al panel
+      </a>
+      <div class="header-content">
+        <div class="avatar-grande">{{ getIniciales() }}</div>
+        <div>
+          <h1>Mi perfil</h1>
+          <p>{{ email }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="perfil-body container">
+
+    <!-- Datos personales -->
+    <section class="seccion">
+      <h2><mat-icon>person</mat-icon> Datos personales</h2>
+      @if (guardado) {
+      <div class="alert-ok"><mat-icon>check_circle</mat-icon> Perfil actualizado correctamente</div>
+      }
+      @if (error) {
+      <div class="alert-error"><mat-icon>error_outline</mat-icon> {{ error }}</div>
+      }
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput [(ngModel)]="nombre" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Apellidos</mat-label>
+          <input matInput [(ngModel)]="apellidos" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Email</mat-label>
+          <input matInput [value]="email" disabled />
+          <mat-hint>El email no se puede cambiar</mat-hint>
+        </mat-form-field>
+      </div>
+      <button mat-flat-button class="btn-guardar" (click)="guardarPerfil()"
+        [disabled]="guardando || !nombre.trim()">
+        @if (guardando) { <mat-spinner diameter="20"></mat-spinner> Guardando...
+        } @else { <mat-icon>save</mat-icon> Guardar cambios }
+      </button>
+    </section>
+
+    <!-- Acciones de cuenta -->
+    <section class="seccion">
+      <h2><mat-icon>settings</mat-icon> Cuenta</h2>
+      <div class="acciones-lista">
+        <div class="accion-item">
+          <div>
+            <p class="accion-titulo">Cerrar sesión</p>
+            <p class="accion-desc">Cerrar la sesión actual en este dispositivo</p>
+          </div>
+          <button mat-stroked-button class="btn-logout" (click)="authService.logout()">
+            <mat-icon>logout</mat-icon> Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>

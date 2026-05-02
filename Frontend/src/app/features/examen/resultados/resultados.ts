@@ -6,22 +6,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IntentoService } from '../../../core/services/intento';
 import { ResultadoResponse } from '../../../core/models/intento.model';
+import { Test, Pregunta } from '../../../core/models/test.model';
 
-/**
- * Componente de resultados del examen
- * Muestra puntuación, correctas, incorrectas y porcentaje
- * @author Hafdala Mehdi Sidi
- */
+interface PreguntaResultado {
+  pregunta: Pregunta;
+  opcionElegidaId: number | null;
+  esCorrecta: boolean;
+  opcionCorrectaTexto: string;
+  opcionElegidaTexto: string;
+}
+
 @Component({
   selector: 'app-resultados',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule
-  ],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './resultados.html',
   styleUrl: './resultados.scss'
 })
@@ -32,16 +30,38 @@ export class ResultadosComponent implements OnInit {
   error = '';
   testId: number | null = null;
 
+  // Desglose por pregunta (disponible si viene del examen)
+  desglose: PreguntaResultado[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private intentoService: IntentoService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.testId = Number(this.route.snapshot.paramMap.get('id'));
-    const intentoId = Number(this.route.snapshot.queryParamMap.get('intentoId'));
 
+    // El ExamenComponent pasa resultado, test y respuestasUsuario vía state
+    const estado = history.state as {
+      resultado?: ResultadoResponse;
+      test?: Test;
+      respuestasUsuario?: { preguntaId: number; preguntaIndex: number; opcionId: number | null }[];
+    };
+
+    if (estado?.resultado) {
+      this.resultado = estado.resultado;
+      this.cargando = false;
+
+      // Construir desglose si tenemos los datos del test
+      if (estado.test?.preguntas && estado.respuestasUsuario) {
+        this.construirDesglose(estado.test.preguntas, estado.respuestasUsuario);
+      }
+      return;
+    }
+
+    // Fallback: acceso directo por URL
+    const intentoId = Number(this.route.snapshot.queryParamMap.get('intentoId'));
     if (intentoId) {
       this.cargarResultado(intentoId);
     } else {
@@ -50,16 +70,32 @@ export class ResultadosComponent implements OnInit {
     }
   }
 
+  private construirDesglose(
+    preguntas: Pregunta[],
+    respuestas: { preguntaId: number; preguntaIndex: number; opcionId: number | null }[]
+  ): void {
+    this.desglose = preguntas.map((pregunta, index) => {
+      const respuesta = respuestas.find(r => r.preguntaIndex === index);
+      const opcionElegidaId = respuesta?.opcionId ?? null;
+      const opciones = pregunta.opciones ?? [];
+      const opcionCorrecta = opciones.find(o => o.esCorrecta);
+      const opcionElegida = opciones.find(o => o.id === opcionElegidaId);
+      const esCorrecta = !!opcionCorrecta && opcionElegidaId === opcionCorrecta.id;
+
+      return {
+        pregunta,
+        opcionElegidaId,
+        esCorrecta,
+        opcionCorrectaTexto: opcionCorrecta?.texto ?? '—',
+        opcionElegidaTexto: opcionElegida?.texto ?? 'Sin respuesta'
+      };
+    });
+  }
+
   cargarResultado(intentoId: number): void {
     this.intentoService.finalizar(intentoId).subscribe({
-      next: (resultado) => {
-        this.resultado = resultado;
-        this.cargando = false;
-      },
-      error: () => {
-        this.error = 'No se pudieron cargar los resultados';
-        this.cargando = false;
-      }
+      next: (resultado) => { this.resultado = resultado; this.cargando = false; },
+      error: () => { this.error = 'No se pudieron cargar los resultados'; this.cargando = false; }
     });
   }
 

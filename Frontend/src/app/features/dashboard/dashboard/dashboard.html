@@ -114,12 +114,16 @@
             <section class="seccion-card">
                 <div class="seccion-header">
                     <h2>Mis tests creados</h2>
+                    <a routerLink="/tests/crear" class="ver-mas">+ Crear test</a>
                 </div>
 
                 @if (misTests.length === 0) {
                 <div class="estado-vacio">
                     <mat-icon>add_circle_outline</mat-icon>
                     <p>Aún no has creado ningún test</p>
+                    <a routerLink="/tests/crear" mat-flat-button class="btn-empezar">
+                        Crear mi primer test
+                    </a>
                 </div>
                 }
 
@@ -130,7 +134,7 @@
                         <div class="test-info">
                             <p class="test-titulo">{{ test.titulo }}</p>
                             <div class="test-meta">
-                                <span>{{ test.preguntas.length }} preguntas</span>
+                                <span>{{ test.preguntas?.length ?? 0 }} preguntas</span>
                                 <span class="separador">·</span>
                                 <span>{{ test.categoria }}</span>
                             </div>
@@ -139,9 +143,20 @@
                             <span class="visibilidad" [class.publico]="test.visibilidad === 'PUBLICO'">
                                 {{ test.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
                             </span>
-                            <a [routerLink]="['/tests', test.id]" class="btn-ver">
-                                <mat-icon>arrow_forward</mat-icon>
+                            <a [routerLink]="['/tests', test.id]" class="btn-accion btn-ver" title="Ver test">
+                                <mat-icon>visibility</mat-icon>
                             </a>
+                            <a [routerLink]="['/tests/editar', test.id]" class="btn-accion btn-editar" title="Editar test">
+                                <mat-icon>edit</mat-icon>
+                            </a>
+                            <button class="btn-accion btn-eliminar" (click)="eliminarTest(test, $event)"
+                                [disabled]="eliminandoId === test.id" title="Eliminar test">
+                                @if (eliminandoId === test.id) {
+                                <mat-spinner diameter="14"></mat-spinner>
+                                } @else {
+                                <mat-icon>delete</mat-icon>
+                                }
+                            </button>
                         </div>
                     </div>
                     }

@@ -18,7 +18,7 @@ export interface Pregunta {
     orden: number;
     puntos: number;
     explicacion?: string;
-    opciones: Opcion[];
+    opciones: Opcion[] | null;
 }
 
 export interface Test {
@@ -30,10 +30,10 @@ export interface Test {
     tiempoLimite?: number;
     visibilidad: 'PUBLICO' | 'PRIVADO';
     activo: boolean;
-    creador: {
+    creador?: {
         id: number;
         nombre: string;
         email: string;
-    };
-    preguntas: Pregunta[];
+    } | null;
+    preguntas: Pregunta[] | null;
 }

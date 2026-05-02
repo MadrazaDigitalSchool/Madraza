@@ -1,0 +1,85 @@
+<div class="home-container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+    <div class="hero-content container">
+      <div class="hero-badge">
+        <mat-icon>school</mat-icon>
+        Plataforma educativa gratuita
+      </div>
+      <h1 class="hero-title">
+        Aprende más rápido<br/>
+        con <span class="gradient-text">Madraza</span>
+      </h1>
+      <p class="hero-subtitle">
+        La plataforma de tests interactivos para estudiantes, opositores y docentes.<br/>
+        Practica, mide tu progreso y supera tus límites.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/auth/registro" mat-flat-button class="btn-primary-hero">
+          <mat-icon>rocket_launch</mat-icon>
+          Empezar gratis
+        </a>
+        <a routerLink="/tests" mat-stroked-button class="btn-secondary-hero">
+          <mat-icon>search</mat-icon>
+          Explorar tests
+        </a>
+      </div>
+      <div class="hero-stats">
+        @for (stat of stats; track stat.label) {
+        <div class="hero-stat">
+          <span class="stat-valor">{{ stat.valor }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Todo lo que necesitas para aprender</h2>
+        <p>Herramientas diseñadas para maximizar tu rendimiento académico</p>
+      </div>
+      <div class="features-grid">
+        @for (f of features; track f.title) {
+        <div class="feature-card">
+          <div class="feature-icon">
+            <mat-icon>{{ f.icon }}</mat-icon>
+          </div>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.desc }}</p>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-blob"></div>
+        <h2>¿Listo para empezar?</h2>
+        <p>Únete a miles de estudiantes que ya mejoran su rendimiento con Madraza</p>
+        <div class="cta-actions">
+          <a routerLink="/auth/registro" mat-flat-button class="btn-cta">
+            Crear cuenta gratis
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+          <a routerLink="/que-es-madraza" mat-stroked-button class="btn-cta-outline">
+            Saber más
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

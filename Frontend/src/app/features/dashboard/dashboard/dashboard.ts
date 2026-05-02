@@ -10,21 +10,10 @@ import { IntentoService } from '../../../core/services/intento';
 import { Test } from '../../../core/models/test.model';
 import { Intento } from '../../../core/models/intento.model';
 
-/**
- * Componente Dashboard
- * Panel personal del usuario con estadísticas, historial y mis tests
- * @author Hafdala Mehdi Sidi
- */
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule
-  ],
+  imports: [CommonModule, RouterLink, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -34,12 +23,13 @@ export class DashboardComponent implements OnInit {
   historial: Intento[] = [];
   misTests: Test[] = [];
   cargando = true;
+  eliminandoId: number | null = null;
 
   constructor(
     public authService: AuthService,
     private testService: TestService,
     private intentoService: IntentoService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuarioActual();
@@ -49,39 +39,24 @@ export class DashboardComponent implements OnInit {
   cargarDatos(): void {
     this.cargando = true;
 
-    // Cargar historial de intentos
     this.intentoService.getHistorial().subscribe({
-      next: (historial) => {
-        this.historial = historial;
-        this.cargando = false;
-      },
-      error: () => {
-        this.cargando = false;
-      }
+      next: (historial) => { this.historial = historial; this.cargando = false; },
+      error: () => { this.cargando = false; }
     });
 
-    // Cargar mis tests
     this.testService.getMisTests().subscribe({
-      next: (tests) => {
-        this.misTests = tests;
-      },
-      error: () => { }
+      next: (tests) => { this.misTests = tests; },
+      error: () => {}
     });
   }
 
-  // Total de intentos
-  get totalIntentos(): number {
-    return this.historial.length;
-  }
+  get totalIntentos(): number { return this.historial.length; }
 
-  // Media de aciertos
   get mediaAciertos(): number {
     if (!this.historial.length) return 0;
-    const suma = this.historial.reduce((acc, i) => acc + (i.porcentaje ?? 0), 0);
-    return Math.round(suma / this.historial.length);
+    return Math.round(this.historial.reduce((a, i) => a + (i.porcentaje ?? 0), 0) / this.historial.length);
   }
 
-  // Mejor puntuación
   get mejorPuntuacion(): number {
     if (!this.historial.length) return 0;
     return Math.max(...this.historial.map(i => i.porcentaje ?? 0));
@@ -99,10 +74,20 @@ export class DashboardComponent implements OnInit {
   }
 
   formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return new Date(fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  eliminarTest(test: Test, evento: Event): void {
+    evento.preventDefault();
+    evento.stopPropagation();
+    if (!confirm(`¿Eliminar el test "${test.titulo}"? Esta acción no se puede deshacer.`)) return;
+    this.eliminandoId = test.id;
+    this.testService.eliminarTest(test.id).subscribe({
+      next: () => {
+        this.misTests = this.misTests.filter(t => t.id !== test.id);
+        this.eliminandoId = null;
+      },
+      error: () => { this.eliminandoId = null; }
     });
   }
 }

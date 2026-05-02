@@ -18,6 +18,12 @@ export const AUTH_ROUTES: Routes = [
                 .then(m => m.RegistroComponent)
     },
     {
+        path: 'recuperar-password',
+        loadComponent: () =>
+            import('./recuperar-password/recuperar-password')
+                .then(m => m.RecuperarPasswordComponent)
+    },
+    {
         path: '',
         redirectTo: 'login',
         pathMatch: 'full'

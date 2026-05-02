@@ -12,4 +12,8 @@ import { RouterLink } from '@angular/router';
   templateUrl: './footer.html',
   styleUrl: './footer.scss'
 })
-export class FooterComponent { }
+export class FooterComponent {
+  scrollTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}

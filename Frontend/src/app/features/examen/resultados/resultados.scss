@@ -31,10 +31,128 @@
 
 .resultados-inner {
     width: 100%;
-    max-width: 560px;
+    max-width: 760px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
+}
+
+// ── Desglose por pregunta ─────────────────────────────────
+
+.desglose-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.desglose-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--madraza-text);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+
+    mat-icon { color: var(--madraza-primary-light); font-size: 22px; width: 22px; height: 22px; }
+}
+
+.preguntas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pregunta-resultado {
+    background: var(--madraza-surface);
+    border: 2px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--madraza-radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    &.correcta { border-color: rgba(34, 197, 128, 0.35); background: rgba(34, 197, 128, 0.04); }
+    &.incorrecta { border-color: rgba(244, 67, 54, 0.3); background: rgba(244, 67, 54, 0.04); }
+}
+
+.pregunta-resultado-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    .estado-icon {
+        flex-shrink: 0;
+        .check-icon { color: var(--madraza-success); font-size: 22px; width: 22px; height: 22px; }
+        .x-icon { color: var(--madraza-error); font-size: 22px; width: 22px; height: 22px; }
+    }
+
+    .pregunta-num {
+        flex-shrink: 0;
+        width: 26px; height: 26px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: var(--madraza-text-muted);
+        font-size: 12px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .pregunta-enunciado {
+        color: var(--madraza-text);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.5;
+        margin: 0;
+        flex: 1;
+    }
+}
+
+.opciones-resultado {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 34px;
+}
+
+.opcion-resultado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--madraza-radius-sm);
+    font-size: 13px;
+
+    &.opcion-correcta {
+        background: rgba(34, 197, 128, 0.1);
+        border: 1px solid rgba(34, 197, 128, 0.3);
+        .opcion-texto { color: var(--madraza-success); font-weight: 500; }
+    }
+
+    &.opcion-elegida-mal {
+        background: rgba(244, 67, 54, 0.08);
+        border: 1px solid rgba(244, 67, 54, 0.25);
+        .opcion-texto { color: var(--madraza-error); }
+    }
+
+    .opcion-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; }
+    .opcion-icon-ok { color: var(--madraza-success); }
+    .opcion-icon-mal { color: var(--madraza-error); }
+    .opcion-punto { color: var(--madraza-text-muted); font-size: 20px; width: 16px; text-align: center; flex-shrink: 0; }
+    .opcion-texto { color: var(--madraza-text-muted); line-height: 1.4; }
+}
+
+.explicacion {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(167, 139, 250, 0.08);
+    border-radius: var(--madraza-radius-sm);
+    color: var(--madraza-primary-light);
+    font-size: 13px;
+    line-height: 1.5;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
 }
 
 // Card de puntuación

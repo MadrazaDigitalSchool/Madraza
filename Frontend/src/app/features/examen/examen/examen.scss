@@ -38,6 +38,23 @@
         flex-direction: column;
         gap: 4px;
 
+        .progreso-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .respondidas-texto {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--madraza-success);
+            font-size: 12px;
+            font-weight: 500;
+
+            mat-icon { font-size: 14px; width: 14px; height: 14px; }
+        }
+
         h2 {
             color: var(--madraza-text);
             font-size: clamp(14px, 2vw, 18px);

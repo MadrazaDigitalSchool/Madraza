@@ -41,10 +41,12 @@
                 @if (test.descripcion) {
                 <p class="descripcion">{{ test.descripcion }}</p>
                 }
+                @if (test.creador) {
                 <p class="creador">
                     <mat-icon>person</mat-icon>
                     Creado por {{ test.creador.nombre }}
                 </p>
+                }
             </div>
         </div>
     </section>
@@ -56,7 +58,7 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <mat-icon>quiz</mat-icon>
-                <span class="stat-valor">{{ test.preguntas.length }}</span>
+                <span class="stat-valor">{{ test.preguntas?.length ?? 0 }}</span>
                 <span class="stat-label">Preguntas</span>
             </div>
             <div class="stat-card">
@@ -82,7 +84,7 @@
         <div class="preguntas-section">
             <h2>Vista previa de preguntas</h2>
             <div class="preguntas-lista">
-                @for (pregunta of test.preguntas; track pregunta.id; let i = $index) {
+                @for (pregunta of (test.preguntas ?? []); track pregunta.id; let i = $index) {
                 <div class="pregunta-item">
                     <span class="pregunta-num">{{ i + 1 }}</span>
                     <p class="pregunta-texto">{{ pregunta.enunciado }}</p>

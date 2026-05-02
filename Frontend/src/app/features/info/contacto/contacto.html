@@ -1,0 +1,79 @@
+<div class="info-page">
+  <section class="info-hero">
+    <div class="container">
+      <div class="hero-badge"><mat-icon>mail</mat-icon> Contacto</div>
+      <h1>¿Hablamos?</h1>
+      <p>Estamos aquí para ayudarte con cualquier duda o sugerencia</p>
+    </div>
+  </section>
+
+  <section class="contacto-body container">
+    <div class="contacto-grid">
+
+      <!-- Formulario -->
+      <div class="form-card">
+        @if (!enviado) {
+        <h2>Envíanos un mensaje</h2>
+        <div class="form-row-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput [(ngModel)]="nombre" placeholder="Tu nombre" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" [(ngModel)]="email" placeholder="tu@email.com" />
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Asunto</mat-label>
+          <mat-select [(ngModel)]="asunto">
+            <mat-option value="soporte">Soporte técnico</mat-option>
+            <mat-option value="sugerencia">Sugerencia de mejora</mat-option>
+            <mat-option value="institucional">Plan institucional</mat-option>
+            <mat-option value="otro">Otro</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Mensaje</mat-label>
+          <textarea matInput [(ngModel)]="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..."></textarea>
+        </mat-form-field>
+        <button mat-flat-button class="btn-enviar" (click)="enviar()"
+          [disabled]="!nombre || !email || !asunto || !mensaje || enviando">
+          @if (enviando) { Enviando... } @else { <mat-icon>send</mat-icon> Enviar mensaje }
+        </button>
+        } @else {
+        <div class="enviado-ok">
+          <mat-icon>check_circle</mat-icon>
+          <h3>¡Mensaje enviado!</h3>
+          <p>Gracias por contactarnos. Te responderemos en menos de 24h.</p>
+        </div>
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="info-col">
+        <div class="info-item">
+          <mat-icon>email</mat-icon>
+          <div>
+            <h3>Email</h3>
+            <p>hola@madraza.app</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <mat-icon>access_time</mat-icon>
+          <div>
+            <h3>Horario de soporte</h3>
+            <p>Lunes a viernes, 9:00 – 18:00</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <mat-icon>location_on</mat-icon>
+          <div>
+            <h3>Ubicación</h3>
+            <p>España · Proyecto Integrado DAW</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -258,6 +258,20 @@
 
 // ── MEDIA QUERIES ─────────────────────────────────────────
 
+// Botón login en el nav (solo escritorio)
+.btn-login-nav {
+    background: var(--madraza-primary) !important;
+    color: white !important;
+    font-size: 13px !important;
+    height: 36px !important;
+    border-radius: var(--madraza-radius-sm) !important;
+}
+
+// Flecha del avatar (ocultar en móvil)
+.arrow-icon {
+    display: flex;
+}
+
 @media (max-width: 900px) {
     .navbar-title .navbar-title-link h1 {
         font-size: 15px;
@@ -271,7 +285,16 @@
         display: none;
     }
 
+    // En móvil el avatar se muestra (sin flecha)
     .avatar-btn {
+        display: flex;
+
+        .arrow-icon {
+            display: none;
+        }
+    }
+
+    .btn-login-nav {
         display: none;
     }
 

@@ -104,7 +104,7 @@
                     <div class="card-meta">
                         <span>
                             <mat-icon>quiz</mat-icon>
-                            {{ test.preguntas.length }} preguntas
+                            {{ test.preguntas?.length ?? 0 }} preguntas
                         </span>
                         @if (test.tiempoLimite) {
                         <span>

@@ -50,8 +50,14 @@ export class TestService {
   }
 
   /**
+   * Actualiza un test existente (requiere ser el creador)
+   */
+  actualizarTest(id: number, test: any): Observable<Test> {
+    return this.http.put<Test>(`${this.apiUrl}/${id}`, test);
+  }
+
+  /**
    * Elimina un test por su ID
-   * Requiere token JWT
    */
   eliminarTest(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);

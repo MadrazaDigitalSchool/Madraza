@@ -1,0 +1,517 @@
+.crear-container {
+    min-height: 100vh;
+    background: var(--madraza-bg);
+}
+
+// ── CABECERA ──────────────────────────────────────────────
+
+.crear-header {
+    background: var(--madraza-surface);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 24px 0;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .header-info {
+        h1 {
+            color: var(--madraza-text);
+            font-size: clamp(22px, 3vw, 30px);
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        p {
+            color: var(--madraza-text-muted);
+            margin: 0;
+            font-size: 14px;
+        }
+    }
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--madraza-primary-light);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    width: fit-content;
+    transition: color 0.2s;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover {
+        color: var(--madraza-text);
+    }
+}
+
+// ── CUERPO ────────────────────────────────────────────────
+
+.crear-body {
+    padding-top: 40px;
+    padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.alert-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(244, 67, 54, 0.12);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: var(--madraza-radius-md);
+    padding: 14px 18px;
+    color: #ef5350;
+    font-size: 14px;
+}
+
+// ── SECCIONES ─────────────────────────────────────────────
+
+.seccion {
+    background: var(--madraza-surface);
+    border-radius: var(--madraza-radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: clamp(20px, 4vw, 36px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.seccion-titulo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.seccion-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--madraza-text);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+
+    mat-icon {
+        color: var(--madraza-primary-light);
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+    }
+}
+
+// ── GRID DEL FORMULARIO ───────────────────────────────────
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+
+    mat-form-field {
+        width: 100%;
+    }
+
+    .field-full {
+        grid-column: 1 / -1;
+    }
+}
+
+// ── BOTÓN AÑADIR PREGUNTA ─────────────────────────────────
+
+.btn-add-pregunta {
+    background: var(--madraza-primary);
+    color: white;
+    border-radius: var(--madraza-radius-sm);
+
+    &:hover {
+        background: var(--madraza-primary-dark);
+    }
+}
+
+.btn-add-pregunta-bottom {
+    width: 100%;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: var(--madraza-text-muted) !important;
+    padding: 12px !important;
+    transition: border-color 0.2s, color 0.2s;
+
+    &:hover {
+        border-color: var(--madraza-primary-light) !important;
+        color: var(--madraza-primary-light) !important;
+    }
+}
+
+// ── TARJETA DE PREGUNTA ───────────────────────────────────
+
+.pregunta-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--madraza-radius-md);
+    padding: clamp(16px, 3vw, 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pregunta-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    .pregunta-num {
+        width: 32px;
+        height: 32px;
+        background: var(--madraza-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .pregunta-label {
+        color: var(--madraza-text);
+        font-weight: 600;
+        font-size: 14px;
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .pregunta-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-left: auto;
+    }
+
+    .field-tipo {
+        width: 175px;
+    }
+
+    .field-puntos {
+        width: 80px;
+    }
+}
+
+.btn-delete-pregunta {
+    width: 36px;
+    height: 36px;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.25);
+    border-radius: var(--madraza-radius-sm);
+    color: #ef5350;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover {
+        background: rgba(244, 67, 54, 0.2);
+    }
+}
+
+.field-full {
+    width: 100%;
+}
+
+// ── OPCIONES ──────────────────────────────────────────────
+
+.opciones-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.opciones-label {
+    color: var(--madraza-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0;
+
+    .hint-correcta {
+        color: var(--madraza-primary-light);
+        font-style: italic;
+        font-weight: 400;
+    }
+}
+
+.opciones-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.opcion-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--madraza-radius-sm);
+    padding: 8px 12px;
+    transition: border-color 0.2s, background 0.2s;
+
+    &.correcta {
+        border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.06);
+
+        .radio-correcta {
+            color: #22c55e;
+        }
+
+        .opcion-letra {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+    }
+
+    .radio-correcta {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        color: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        transition: color 0.2s;
+        flex-shrink: 0;
+
+        mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        &:hover {
+            color: var(--madraza-primary-light);
+        }
+    }
+
+    .opcion-letra {
+        width: 26px;
+        height: 26px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 50%;
+        color: var(--madraza-text-muted);
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .opcion-input {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--madraza-text);
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+        min-width: 0;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    .btn-delete-opcion {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.25);
+        display: flex;
+        align-items: center;
+        padding: 0;
+        transition: color 0.2s;
+        flex-shrink: 0;
+
+        mat-icon {
+            font-size: 17px;
+            width: 17px;
+            height: 17px;
+        }
+
+        &:hover {
+            color: #ef5350;
+        }
+    }
+}
+
+.btn-add-opcion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: none;
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+    border-radius: var(--madraza-radius-sm);
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.2s, color 0.2s;
+    width: 100%;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        border-color: var(--madraza-primary-light);
+        color: var(--madraza-primary-light);
+    }
+}
+
+// ── ACCIONES FINALES ──────────────────────────────────────
+
+.crear-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+
+    .btn-cancelar {
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: var(--madraza-text-muted) !important;
+    }
+
+    .btn-guardar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--madraza-primary) !important;
+        color: white !important;
+        padding: 0 32px !important;
+        height: 44px;
+        font-size: 15px;
+        font-weight: 600;
+
+        mat-spinner {
+            margin-right: 4px;
+        }
+
+        &:hover:not([disabled]) {
+            background: var(--madraza-primary-dark) !important;
+        }
+
+        &[disabled] {
+            opacity: 0.45 !important;
+        }
+    }
+}
+
+// ── MATERIAL DARK THEME ───────────────────────────────────
+
+::ng-deep .crear-container {
+
+    .mat-mdc-form-field-label,
+    .mat-mdc-floating-label {
+        color: rgba(255, 255, 255, 0.55) !important;
+    }
+
+    .mat-mdc-text-field-wrapper {
+        background: rgba(255, 255, 255, 0.04) !important;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+        border-color: rgba(255, 255, 255, 0.14) !important;
+    }
+
+    .mdc-text-field--focused {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+            border-color: var(--madraza-primary) !important;
+        }
+    }
+
+    input.mat-mdc-input-element,
+    textarea.mat-mdc-input-element {
+        color: var(--madraza-text) !important;
+    }
+
+    .mat-mdc-select-value,
+    .mat-mdc-select-arrow {
+        color: var(--madraza-text) !important;
+    }
+
+    .mat-mdc-hint {
+        color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .mat-mdc-form-field-icon-suffix mat-icon {
+        color: rgba(255, 255, 255, 0.35) !important;
+    }
+}
+
+// ── MEDIA QUERIES ─────────────────────────────────────────
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+
+        .field-full {
+            grid-column: 1;
+        }
+    }
+
+    .pregunta-card-header {
+        .field-tipo {
+            width: 150px;
+        }
+
+        .field-puntos {
+            width: 70px;
+        }
+    }
+
+    .crear-actions {
+        flex-direction: column-reverse;
+
+        button,
+        a {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}

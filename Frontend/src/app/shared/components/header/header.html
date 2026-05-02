@@ -1,9 +1,9 @@
 <header class="navbar" [class.scrolled]="scrolled">
     <nav class="navbar-inner container">
-        
-        <!-- Título a la izquierda -->
+
+        <!-- Logo -->
         <div class="navbar-title">
-            <a href="/" class="navbar-title-link">
+            <a routerLink="/" class="navbar-title-link">
                 @if (!esRutaAuth) {
                 <img src="assets/madraza-vector.svg" alt="Madraza" class="navbar-logo" />
                 }
@@ -11,74 +11,58 @@
             </a>
         </div>
 
-        <!-- Navegación y acciones a la derecha -->
+        <!-- Derecha: nav pública + acciones usuario -->
         <div class="navbar-right">
-            <!-- Navegación principal -->
+
             <ul class="nav-links">
-                <li>
-                    <a routerLink="/que-es-madraza" routerLinkActive="active">
-                        ¿Qué es Madraza?
-                    </a>
-                </li>
-                <li>
-                    <a routerLink="/precios" routerLinkActive="active">
-                        Precios
-                    </a>
-                </li>
-                <li>
-                    <a routerLink="/contacto" routerLinkActive="active">
-                        Contacto
-                    </a>
-                </li>
+                <li><a routerLink="/que-es-madraza" routerLinkActive="active">¿Qué es Madraza?</a></li>
+                <li><a routerLink="/precios" routerLinkActive="active">Precios</a></li>
+                <li><a routerLink="/contacto" routerLinkActive="active">Contacto</a></li>
             </ul>
 
-            <!-- Acciones según autenticación -->
             <div class="nav-actions">
 
-            @if (!authService.isLoggedIn()) {
-            <!-- Usuario NO autenticado - Sin botones de login/registro -->
-            } @else {
-            <!-- Usuario autenticado -->
-            <a routerLink="/tests" mat-button class="nav-link-auth">
-                Tests
-            </a>
-            <a routerLink="/dashboard" mat-button class="nav-link-auth">
-                Dashboard
-            </a>
-
-            <!-- Avatar con menú -->
-            <button class="avatar-btn" [matMenuTriggerFor]="menuUsuario">
-                <div class="avatar">{{ getIniciales() }}</div>
-                <mat-icon>keyboard_arrow_down</mat-icon>
-            </button>
-
-            <mat-menu #menuUsuario="matMenu">
-                <div class="menu-header">
-                    <p class="menu-nombre">{{ usuario?.nombre }}</p>
-                    <p class="menu-email">{{ usuario?.email }}</p>
-                </div>
-                <mat-divider></mat-divider>
-                <button mat-menu-item routerLink="/dashboard">
-                    <mat-icon>dashboard</mat-icon>
-                    Dashboard
+                @if (!authService.isLoggedIn()) {
+                <!-- No autenticado -->
+                <a routerLink="/auth/login" mat-flat-button class="btn-login-nav">Iniciar sesión</a>
+                } @else {
+                <!-- Avatar con menú (escritorio Y móvil) -->
+                <button class="avatar-btn" [matMenuTriggerFor]="menuUsuario">
+                    <div class="avatar">{{ getIniciales() }}</div>
+                    <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
                 </button>
-                <button mat-menu-item routerLink="/tests">
-                    <mat-icon>quiz</mat-icon>
-                    Mis tests
-                </button>
-                <mat-divider></mat-divider>
-                <button mat-menu-item (click)="logout()" class="logout-btn">
-                    <mat-icon>logout</mat-icon>
-                    Cerrar sesión
-                </button>
-            </mat-menu>
-            }
 
-            <!-- Botón menú móvil -->
-            <button class="menu-movil-btn" (click)="toggleMenuMovil()"
-                [attr.aria-label]="menuMovilAbierto ? 'Cerrar menú' : 'Abrir menú'">
-                <mat-icon>{{ menuMovilAbierto ? 'close' : 'menu' }}</mat-icon>
-            </button>
+                <mat-menu #menuUsuario="matMenu">
+                    <div class="menu-header">
+                        <p class="menu-nombre">{{ usuario?.nombre }}</p>
+                        <p class="menu-email">{{ usuario?.email }}</p>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item routerLink="/dashboard">
+                        <mat-icon>dashboard</mat-icon>
+                        Mi panel
+                    </button>
+                    <button mat-menu-item routerLink="/tests">
+                        <mat-icon>quiz</mat-icon>
+                        Mis tests
+                    </button>
+                    <button mat-menu-item routerLink="/perfil">
+                        <mat-icon>person</mat-icon>
+                        Mi perfil
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="logout()" class="logout-btn">
+                        <mat-icon>logout</mat-icon>
+                        Cerrar sesión
+                    </button>
+                </mat-menu>
+                }
+
+                <!-- Botón hamburguesa (solo en móvil) -->
+                <button class="menu-movil-btn" (click)="toggleMenuMovil()"
+                    [attr.aria-label]="menuMovilAbierto ? 'Cerrar menú' : 'Abrir menú'">
+                    <mat-icon>{{ menuMovilAbierto ? 'close' : 'menu' }}</mat-icon>
+                </button>
 
             </div>
         </div>
@@ -94,8 +78,15 @@
         </ul>
         @if (authService.isLoggedIn()) {
         <div class="menu-movil-actions">
-            <a routerLink="/dashboard" (click)="menuMovilAbierto = false">Dashboard</a>
+            <a routerLink="/dashboard" (click)="menuMovilAbierto = false">Mi panel</a>
+            <a routerLink="/tests" (click)="menuMovilAbierto = false">Mis tests</a>
+            <a routerLink="/perfil" (click)="menuMovilAbierto = false">Mi perfil</a>
             <button (click)="logout()">Cerrar sesión</button>
+        </div>
+        } @else {
+        <div class="menu-movil-actions">
+            <a routerLink="/auth/login" (click)="menuMovilAbierto = false">Iniciar sesión</a>
+            <a routerLink="/auth/registro" (click)="menuMovilAbierto = false">Registrarse</a>
         </div>
         }
     </div>
