@@ -32,6 +32,11 @@
                 </mat-icon>
             </mat-form-field>
 
+            <div class="form-extra">
+                <mat-checkbox [(ngModel)]="recordarme" color="primary">Recordarme</mat-checkbox>
+                <a routerLink="/auth/recuperar-password" class="forgot-link">¿Olvidaste la contraseña?</a>
+            </div>
+
             <button mat-flat-button class="btn-login" (click)="login()" [disabled]="cargando">
                 @if (cargando) {
                 <mat-spinner diameter="20"></mat-spinner>
@@ -63,6 +68,11 @@
                     <span>GitHub</span>
                 </a>
             </div>
+
+            <!-- Enlace a registro -->
+            <p class="registro-link">
+                ¿No tienes cuenta? <a routerLink="/auth/registro">Regístrate</a>
+            </p>
 
         </div>
     </div>

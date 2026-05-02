@@ -244,38 +244,6 @@
                 color: white;
             }
         }
-
-    .menu-movil-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-
-        a,
-        button {
-            display: block;
-            text-align: center;
-            padding: 12px;
-            border-radius: var(--madraza-radius-sm);
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            transition: background 0.2s ease;
-        }
-
-        a:first-child {
-            color: var(--madraza-text);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        button {
-            background: var(--madraza-primary);
-            color: white;
-        }
-    }
 }
 
 // ── MEDIA QUERIES ─────────────────────────────────────────

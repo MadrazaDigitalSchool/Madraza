@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../../core/services/auth';
 
 /**
@@ -20,12 +21,13 @@ import { AuthService } from '../../../core/services/auth';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
+    RouterModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatCheckboxModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss'
@@ -37,6 +39,7 @@ export class LoginComponent {
   errorMessage = '';
   cargando = false;
   mostrarPassword = false;
+  recordarme = false;
 
   constructor(
     private authService: AuthService,

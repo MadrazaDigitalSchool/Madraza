@@ -10,6 +10,7 @@
     gap: clamp(32px, 6vw, 80px);
     padding-top: clamp(40px, 6vw, 64px);
     padding-bottom: clamp(40px, 6vw, 64px);
+    align-items: center;
 }
 
 .footer-brand {
@@ -66,6 +67,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    align-items: start;
 }
 
 .footer-col {
