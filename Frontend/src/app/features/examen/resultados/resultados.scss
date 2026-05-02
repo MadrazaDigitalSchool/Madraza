@@ -1,0 +1,214 @@
+.resultados-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--madraza-bg) 0%, #2d1b69 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 32px);
+}
+
+.estado-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    color: var(--madraza-text-muted);
+
+    .icon-error {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: var(--madraza-error);
+    }
+
+    .btn-volver {
+        background: var(--madraza-primary);
+        color: white;
+    }
+}
+
+.resultados-inner {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+// Card de puntuación
+.score-card {
+    background: var(--madraza-surface);
+    border-radius: var(--madraza-radius-lg);
+    padding: clamp(32px, 5vw, 48px);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+}
+
+.mensaje {
+    color: var(--madraza-text);
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 700;
+    margin: 0;
+}
+
+// Círculo de puntuación
+.score-circle {
+    width: clamp(140px, 30vw, 180px);
+    height: clamp(140px, 30vw, 180px);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 8px solid;
+    gap: 4px;
+
+    .score-valor {
+        font-size: clamp(32px, 6vw, 48px);
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .score-label {
+        font-size: 13px;
+        opacity: 0.7;
+    }
+
+    &.color-exito {
+        border-color: var(--madraza-success);
+        color: var(--madraza-success);
+        background: rgba(34, 197, 128, 0.1);
+    }
+
+    &.color-warning {
+        border-color: #eab308;
+        color: #eab308;
+        background: rgba(234, 179, 8, 0.1);
+    }
+
+    &.color-error {
+        border-color: var(--madraza-error);
+        color: var(--madraza-error);
+        background: rgba(244, 67, 54, 0.1);
+    }
+}
+
+// Stats
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+    }
+
+    .stat-valor {
+        color: var(--madraza-text);
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .stat-label {
+        color: var(--madraza-text-muted);
+        font-size: 12px;
+    }
+
+    .icon-correcto {
+        color: var(--madraza-success);
+    }
+
+    .icon-incorrecto {
+        color: var(--madraza-error);
+    }
+
+    .icon-total {
+        color: var(--madraza-primary-light);
+    }
+
+    .icon-puntos {
+        color: #eab308;
+    }
+}
+
+// Acciones
+.acciones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-repetir {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--madraza-text);
+    border-color: rgba(255, 255, 255, 0.2);
+    height: 48px;
+
+    &:hover {
+        border-color: var(--madraza-primary-light);
+        color: var(--madraza-primary-light);
+    }
+}
+
+.btn-tests {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--madraza-surface);
+    color: var(--madraza-text);
+    height: 48px;
+    text-decoration: none;
+    border-radius: var(--madraza-radius-sm);
+}
+
+.btn-dashboard {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--madraza-primary);
+    color: white;
+    height: 48px;
+    text-decoration: none;
+    border-radius: var(--madraza-radius-sm);
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: var(--madraza-primary-dark);
+    }
+}
+
+// ── MEDIA QUERIES ─────────────────────────────────────────
+
+@media (max-width: 480px) {
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .acciones {
+        flex-direction: column;
+    }
+}

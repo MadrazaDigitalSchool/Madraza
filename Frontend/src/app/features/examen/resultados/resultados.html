@@ -1,1 +1,80 @@
-<p>resultados works!</p>
+<div class="resultados-container">
+
+    <!-- Cargando -->
+    @if (cargando) {
+    <div class="estado-center">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Calculando resultados...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+    <div class="estado-center">
+        <mat-icon class="icon-error">error_outline</mat-icon>
+        <p>{{ error }}</p>
+        <a routerLink="/tests" mat-flat-button class="btn-volver">
+            Volver a los tests
+        </a>
+    </div>
+    }
+
+    <!-- Resultados -->
+    @if (!cargando && !error && resultado) {
+
+    <div class="resultados-inner container">
+
+        <!-- Puntuación principal -->
+        <div class="score-card">
+            <p class="mensaje">{{ getMensaje() }}</p>
+
+            <div class="score-circle" [ngClass]="getColorPorcentaje()">
+                <span class="score-valor">{{ resultado.porcentaje | number:'1.0-0' }}%</span>
+                <span class="score-label">Puntuación</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat">
+                    <mat-icon class="icon-correcto">check_circle</mat-icon>
+                    <span class="stat-valor">{{ resultado.correctas }}</span>
+                    <span class="stat-label">Correctas</span>
+                </div>
+                <div class="stat">
+                    <mat-icon class="icon-incorrecto">cancel</mat-icon>
+                    <span class="stat-valor">{{ resultado.incorrectas }}</span>
+                    <span class="stat-label">Incorrectas</span>
+                </div>
+                <div class="stat">
+                    <mat-icon class="icon-total">quiz</mat-icon>
+                    <span class="stat-valor">{{ resultado.totalPreguntas }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="stat">
+                    <mat-icon class="icon-puntos">star</mat-icon>
+                    <span class="stat-valor">{{ resultado.puntuacion }}</span>
+                    <span class="stat-label">Puntos</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="acciones">
+            <button mat-stroked-button class="btn-repetir" (click)="repetirTest()">
+                <mat-icon>replay</mat-icon>
+                Repetir test
+            </button>
+            <a routerLink="/tests" mat-flat-button class="btn-tests">
+                <mat-icon>arrow_back</mat-icon>
+                Ver más tests
+            </a>
+            <a routerLink="/dashboard" mat-flat-button class="btn-dashboard">
+                <mat-icon>dashboard</mat-icon>
+                Mi dashboard
+            </a>
+        </div>
+
+    </div>
+    }
+
+</div>
