@@ -4,6 +4,9 @@
         <!-- Título a la izquierda -->
         <div class="navbar-title">
             <a href="/" class="navbar-title-link">
+                @if (!esRutaAuth) {
+                <img src="assets/madraza-vector.svg" alt="Madraza" class="navbar-logo" />
+                }
                 <h1>Tu plataforma Educativa para hacer tests</h1>
             </a>
         </div>

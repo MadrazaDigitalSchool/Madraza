@@ -1,1 +1,129 @@
-<p>lista-tests works!</p>
+<div class="lista-container">
+
+    <!-- Hero section -->
+    <section class="hero">
+        <h1>Explora los tests</h1>
+        <p>Pon a prueba tus conocimientos con nuestra colección de tests</p>
+    </section>
+
+    <!-- Filtros -->
+    <section class="filtros container">
+
+        <mat-form-field appearance="outline" class="buscador">
+            <mat-label>Buscar test...</mat-label>
+            <input matInput [(ngModel)]="busqueda" placeholder="Java, Historia, Matemáticas..." />
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="select-filtro">
+            <mat-label>Categoría</mat-label>
+            <mat-select [(ngModel)]="categoriaSeleccionada">
+                <mat-option value="">Todas</mat-option>
+                @for (cat of categorias; track cat) {
+                <mat-option [value]="cat">{{ cat }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="select-filtro">
+            <mat-label>Dificultad</mat-label>
+            <mat-select [(ngModel)]="dificultadSeleccionada">
+                <mat-option value="">Todas</mat-option>
+                <mat-option value="BAJA">Fácil</mat-option>
+                <mat-option value="MEDIA">Media</mat-option>
+                <mat-option value="ALTA">Difícil</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        @if (busqueda || categoriaSeleccionada || dificultadSeleccionada) {
+        <button mat-stroked-button class="btn-limpiar" (click)="limpiarFiltros()">
+            <mat-icon>clear</mat-icon>
+            Limpiar
+        </button>
+        }
+
+    </section>
+
+    <!-- Contenido principal -->
+    <section class="contenido container">
+
+        @if (cargando) {
+        <div class="estado-center">
+            <mat-spinner diameter="48"></mat-spinner>
+            <p>Cargando tests...</p>
+        </div>
+        }
+
+        @if (error) {
+        <div class="estado-center">
+            <mat-icon class="icon-error">error_outline</mat-icon>
+            <p>{{ error }}</p>
+            <button mat-flat-button class="btn-reintentar" (click)="cargarTests()">
+                Reintentar
+            </button>
+        </div>
+        }
+
+        @if (!cargando && !error && testsFiltrados.length === 0) {
+        <div class="estado-center">
+            <mat-icon class="icon-vacio">search_off</mat-icon>
+            <p>No se encontraron tests con esos filtros</p>
+            <button mat-stroked-button (click)="limpiarFiltros()">
+                Ver todos los tests
+            </button>
+        </div>
+        }
+
+        @if (!cargando && !error && testsFiltrados.length > 0) {
+        <div class="tests-header">
+            <p class="total">
+                {{ testsFiltrados.length }} test{{ testsFiltrados.length !== 1 ? 's' : '' }} encontrado{{
+                testsFiltrados.length !== 1 ? 's' : '' }}
+            </p>
+        </div>
+
+        <div class="tests-grid">
+            @for (test of testsFiltrados; track test.id) {
+            <div class="test-card">
+
+                <div class="card-header">
+                    <span class="chip-categoria">{{ test.categoria }}</span>
+                    <span class="chip-dificultad" [ngClass]="getDificultadClass(test.dificultad)">
+                        {{ getDificultadLabel(test.dificultad) }}
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <h3>{{ test.titulo }}</h3>
+                    @if (test.descripcion) {
+                    <p class="descripcion">{{ test.descripcion }}</p>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <div class="card-meta">
+                        <span>
+                            <mat-icon>quiz</mat-icon>
+                            {{ test.preguntas.length }} preguntas
+                        </span>
+                        @if (test.tiempoLimite) {
+                        <span>
+                            <mat-icon>timer</mat-icon>
+                            {{ test.tiempoLimite / 60 | number:'1.0-0' }} min
+                        </span>
+                        }
+                    </div>
+                    <a [routerLink]="['/tests', test.id]" class="btn-empezar">
+                        Ver test
+                        <mat-icon>arrow_forward</mat-icon>
+                    </a>
+                </div>
+
+            </div>
+            }
+        </div>
+        }
+
+    </section>
+
+</div>

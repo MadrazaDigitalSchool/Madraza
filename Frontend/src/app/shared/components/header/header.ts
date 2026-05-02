@@ -1,11 +1,13 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../../core/services/auth';
 import { MatDividerModule } from '@angular/material/divider';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 /**
  * Header principal — sticky, responsive
@@ -27,18 +29,33 @@ import { MatDividerModule } from '@angular/material/divider';
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
 
   usuario: any = null;
   menuMovilAbierto = false;
   scrolled = false;
+  esRutaAuth = false;
 
-  constructor(public authService: AuthService) { }
+  private routerSub?: Subscription;
+
+  constructor(public authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
+    this.esRutaAuth = this.router.url.startsWith('/auth/');
+
+    this.routerSub = this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe((e: any) => {
+      this.esRutaAuth = (e.urlAfterRedirects as string).startsWith('/auth/');
+    });
+
     if (this.authService.isLoggedIn()) {
       this.usuario = this.authService.getUsuarioActual();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   // Detecta el scroll para cambiar el estilo del header
