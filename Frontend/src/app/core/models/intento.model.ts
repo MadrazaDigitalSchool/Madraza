@@ -10,6 +10,7 @@ export interface Intento {
     totalPreguntas: number;
     correctas: number;
     incorrectas: number;
+    porcentaje: number;
     tiempoEmpleado: number;
     estado: 'EN_CURSO' | 'COMPLETADO' | 'ABANDONADO';
     inicio: string;

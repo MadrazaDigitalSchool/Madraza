@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth';
 
@@ -23,6 +24,7 @@ import { AuthService } from '../../../core/services/auth';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatIconModule,
     MatProgressSpinnerModule
   ],
@@ -39,7 +41,7 @@ export class RegistroComponent {
   successMessage = '';
   cargando = false;
   mostrarPassword = false;
-recordarme: any;
+  recordarme = false;
 
   constructor(
     private authService: AuthService,

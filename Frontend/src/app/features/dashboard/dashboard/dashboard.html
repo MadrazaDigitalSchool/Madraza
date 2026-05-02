@@ -1,1 +1,155 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+
+    <!-- Header del dashboard -->
+    <section class="dashboard-hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="avatar-grande">{{ getIniciales() }}</div>
+                <div class="hero-info">
+                    <h1>¡Hola, {{ usuario?.nombre }}! 👋</h1>
+                    <p>{{ usuario?.email }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="dashboard-main container">
+
+        <!-- Stats -->
+        <section class="stats-section">
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <mat-icon>quiz</mat-icon>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-valor">{{ totalIntentos }}</span>
+                        <span class="stat-label">Tests realizados</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <mat-icon>bar_chart</mat-icon>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-valor">{{ mediaAciertos }}%</span>
+                        <span class="stat-label">Media de aciertos</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <mat-icon>emoji_events</mat-icon>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-valor">{{ mejorPuntuacion }}%</span>
+                        <span class="stat-label">Mejor puntuación</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <mat-icon>edit_note</mat-icon>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-valor">{{ misTests.length }}</span>
+                        <span class="stat-label">Tests creados</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Contenido en dos columnas -->
+        <div class="dashboard-grid">
+
+            <!-- Historial de intentos -->
+            <section class="seccion-card">
+                <div class="seccion-header">
+                    <h2>Historial de exámenes</h2>
+                    <a routerLink="/tests" class="ver-mas">Ver tests →</a>
+                </div>
+
+                @if (cargando) {
+                <div class="estado-center">
+                    <mat-spinner diameter="36"></mat-spinner>
+                </div>
+                }
+
+                @if (!cargando && historial.length === 0) {
+                <div class="estado-vacio">
+                    <mat-icon>history</mat-icon>
+                    <p>Aún no has realizado ningún test</p>
+                    <a routerLink="/tests" mat-flat-button class="btn-empezar">
+                        Explorar tests
+                    </a>
+                </div>
+                }
+
+                @if (!cargando && historial.length > 0) {
+                <div class="historial-lista">
+                    @for (intento of historial.slice(0, 8); track intento.id) {
+                    <div class="historial-item">
+                        <div class="historial-info">
+                            <p class="historial-titulo">{{ intento.test.titulo }}</p>
+                            <p class="historial-fecha">{{ formatearFecha(intento.inicio) }}</p>
+                        </div>
+                        <div class="historial-resultado">
+                            <span class="porcentaje" [ngClass]="getEstadoClass(intento.porcentaje)">
+                                {{ intento.porcentaje | number:'1.0-0' }}%
+                            </span>
+                            <span class="correctas">
+                                {{ intento.correctas }}/{{ intento.totalPreguntas }}
+                            </span>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </section>
+
+            <!-- Mis tests -->
+            <section class="seccion-card">
+                <div class="seccion-header">
+                    <h2>Mis tests creados</h2>
+                </div>
+
+                @if (misTests.length === 0) {
+                <div class="estado-vacio">
+                    <mat-icon>add_circle_outline</mat-icon>
+                    <p>Aún no has creado ningún test</p>
+                </div>
+                }
+
+                @if (misTests.length > 0) {
+                <div class="mis-tests-lista">
+                    @for (test of misTests.slice(0, 6); track test.id) {
+                    <div class="mis-tests-item">
+                        <div class="test-info">
+                            <p class="test-titulo">{{ test.titulo }}</p>
+                            <div class="test-meta">
+                                <span>{{ test.preguntas.length }} preguntas</span>
+                                <span class="separador">·</span>
+                                <span>{{ test.categoria }}</span>
+                            </div>
+                        </div>
+                        <div class="test-acciones">
+                            <span class="visibilidad" [class.publico]="test.visibilidad === 'PUBLICO'">
+                                {{ test.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                            </span>
+                            <a [routerLink]="['/tests', test.id]" class="btn-ver">
+                                <mat-icon>arrow_forward</mat-icon>
+                            </a>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </section>
+
+        </div>
+    </div>
+
+</div>
