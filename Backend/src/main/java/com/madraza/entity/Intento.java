@@ -1,10 +1,12 @@
 package com.madraza.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ public class Intento {
     private int totalPreguntas = 0;
     private int correctas = 0;
     private int incorrectas = 0;
+    private double porcentaje = 0.0;
 
     // EN_CURSO | COMPLETADO | ABANDONADO
     private String estado = "EN_CURSO";
@@ -34,17 +37,19 @@ public class Intento {
     private LocalDateTime inicio = LocalDateTime.now();
     private LocalDateTime fin;
 
-    // Un intento pertenece a un usuario y a un test
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    // Solo serializa id, titulo, categoria, visibilidad (historial ligero)
+    @JsonIgnoreProperties({"preguntas", "descripcion", "tiempoLimite", "activo", "createdAt", "creador"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_id", nullable = false)
     private Test test;
 
-    // Si borramos el intento, se borran sus respuestas también
+    // Las respuestas no se envían en el historial
+    @JsonIgnore
     @OneToMany(mappedBy = "intento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RespuestaIntento> respuestas = new ArrayList<>();
 }

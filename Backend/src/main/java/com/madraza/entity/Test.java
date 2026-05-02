@@ -1,6 +1,6 @@
 package com.madraza.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,12 +48,13 @@ public class Test {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @JsonIgnore
+    // Serializa solo id y nombre del creador (sin password ni datos sensibles)
+    @JsonIgnoreProperties({"password", "roles", "activo", "emailVerificado",
+                           "createdAt", "proveedorOauth", "avatarUrl", "apellidos"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creador_id", nullable = false)
     private Usuario creador;
 
-    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pregunta> preguntas = new ArrayList<>();
 }

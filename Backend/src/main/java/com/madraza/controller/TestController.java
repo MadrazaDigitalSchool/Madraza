@@ -18,7 +18,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/tests")
-@CrossOrigin(origins = "*")
 public class TestController {
 
     @Autowired private TestService testService;
@@ -49,6 +48,16 @@ public class TestController {
             @Valid @RequestBody TestRequest req,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Test test = testService.crearTest(req, userDetails.getId());
+        return ResponseEntity.ok(test);
+    }
+
+    // PUT /api/tests/{id} — solo el creador puede actualizar su test
+    @PutMapping("/{id}")
+    public ResponseEntity<Test> actualizarTest(
+            @PathVariable Long id,
+            @Valid @RequestBody TestRequest req,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Test test = testService.actualizarTest(id, req, userDetails.getId());
         return ResponseEntity.ok(test);
     }
 

@@ -8,9 +8,11 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    // Spring genera el SQL automáticamente a partir del nombre del método
     Optional<Usuario> findByEmail(String email);
 
-    // Nos dice si ya existe un usuario con ese email (para el registro)
     boolean existsByEmail(String email);
+
+    Optional<Usuario> findByTokenVerificacion(String token);
+
+    Optional<Usuario> findByTokenRecuperacion(String token);
 }

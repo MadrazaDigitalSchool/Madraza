@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirma tu cuenta en Madraza</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f2f5;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#6c63ff 0%,#a855f7 100%);padding:40px 48px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:28px;letter-spacing:-0.5px;">Madraza</h1>
+              <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">Plataforma de tests y exámenes</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:48px;">
+              <h2 style="margin:0 0 16px;color:#1a1a2e;font-size:22px;">¡Bienvenido/a, <span th:text="${nombre}">Usuario</span>!</h2>
+              <p style="color:#555;line-height:1.7;margin:0 0 24px;">Gracias por registrarte en Madraza. Para activar tu cuenta y empezar a estudiar, confirma tu dirección de email haciendo clic en el botón:</p>
+
+              <div style="text-align:center;margin:32px 0;">
+                <a th:href="${verificarUrl}" style="display:inline-block;background:linear-gradient(135deg,#6c63ff,#a855f7);color:#ffffff;padding:16px 40px;border-radius:50px;text-decoration:none;font-weight:700;font-size:16px;letter-spacing:0.3px;">
+                  Verificar mi email
+                </a>
+              </div>
+
+              <p style="color:#888;font-size:14px;line-height:1.6;margin:0 0 12px;">O copia y pega este enlace en tu navegador:</p>
+              <p style="background:#f8f8ff;border:1px solid #e0e0ff;border-radius:8px;padding:12px 16px;word-break:break-all;font-size:13px;color:#6c63ff;margin:0 0 32px;">
+                <span th:text="${verificarUrl}">https://madraza.es/auth/verificar-email?token=...</span>
+              </p>
+
+              <p style="color:#aaa;font-size:13px;margin:0;">Este enlace expira en <strong>24 horas</strong>. Si no te registraste en Madraza, puedes ignorar este mensaje.</p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background:#fafafa;padding:24px 48px;border-top:1px solid #f0f0f0;text-align:center;">
+              <p style="color:#bbb;font-size:12px;margin:0;">© 2026 Madraza · Desarrollado por Hafdala Mehdi Sidi</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -17,21 +17,19 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/intentos")
-@CrossOrigin(origins = "*")
 public class IntentoController {
 
     @Autowired private IntentoService intentoService;
 
-    // POST /api/intentos/test/{testId} — inicia un nuevo intento
+    /** POST /api/intentos/test/{testId} — inicia un nuevo intento */
     @PostMapping("/test/{testId}")
     public ResponseEntity<Intento> iniciar(
             @PathVariable Long testId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Intento intento = intentoService.iniciarIntento(testId, userDetails.getId());
-        return ResponseEntity.ok(intento);
+        return ResponseEntity.ok(intentoService.iniciarIntento(testId, userDetails.getId()));
     }
 
-    // POST /api/intentos/{intentoId}/responder — responde una pregunta
+    /** POST /api/intentos/{intentoId}/responder — registra respuesta de una pregunta */
     @PostMapping("/{intentoId}/responder")
     public ResponseEntity<Void> responder(
             @PathVariable Long intentoId,
@@ -40,14 +38,13 @@ public class IntentoController {
         return ResponseEntity.ok().build();
     }
 
-    // POST /api/intentos/{intentoId}/finalizar — termina el examen
+    /** POST /api/intentos/{intentoId}/finalizar — termina el examen (idempotente) */
     @PostMapping("/{intentoId}/finalizar")
-    public ResponseEntity<ResultadoResponse> finalizar(
-            @PathVariable Long intentoId) {
+    public ResponseEntity<ResultadoResponse> finalizar(@PathVariable Long intentoId) {
         return ResponseEntity.ok(intentoService.finalizar(intentoId));
     }
 
-    // GET /api/intentos/historial — historial del usuario
+    /** GET /api/intentos/historial — historial del usuario autenticado */
     @GetMapping("/historial")
     public ResponseEntity<List<Intento>> getHistorial(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {

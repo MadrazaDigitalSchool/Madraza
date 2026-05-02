@@ -46,6 +46,29 @@ public class Usuario {
     @Column(name = "email_verificado", nullable = false)
     private boolean emailVerificado = false;
 
+    @JsonIgnore
+    @Column(name = "token_verificacion", length = 100)
+    private String tokenVerificacion;
+
+    @Column(name = "token_verificacion_expiry")
+    private LocalDateTime tokenVerificacionExpiry;
+
+    @JsonIgnore
+    @Column(name = "token_recuperacion", length = 100)
+    private String tokenRecuperacion;
+
+    @Column(name = "token_recuperacion_expiry")
+    private LocalDateTime tokenRecuperacionExpiry;
+
+    @Column(name = "suscripcion_activa", nullable = false)
+    private boolean suscripcionActiva = false;
+
+    @Column(name = "suscripcion_expiry")
+    private LocalDateTime suscripcionExpiry;
+
+    @Column(name = "stripe_customer_id", length = 100)
+    private String stripeCustomerId;
+
     @Column(nullable = false)
     private boolean activo = true;
 
