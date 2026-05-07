@@ -10,10 +10,10 @@
   </div>
 
   <!-- Error banner -->
-  @if (errorMessage) {
+  @if (errorMessage()) {
     <div class="error-banner">
       <mat-icon>error_outline</mat-icon>
-      <span>{{ errorMessage }}</span>
+      <span>{{ errorMessage() }}</span>
     </div>
   }
 
@@ -64,8 +64,8 @@
           class="btn-pagar"
           [class.btn-destacado]="plan.id === 'anual'"
           (click)="pagar(plan.id)"
-          [disabled]="cargandoPlan !== null">
-          @if (cargandoPlan === plan.id) {
+          [disabled]="cargandoPlan() !== null">
+          @if (cargandoPlan() === plan.id) {
             <mat-spinner diameter="20"></mat-spinner>
           } @else {
             Suscribirme ahora

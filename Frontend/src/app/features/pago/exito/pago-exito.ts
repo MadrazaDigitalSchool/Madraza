@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,36 +16,34 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class PagoExitoComponent implements OnInit {
 
-  estado: 'verificando' | 'exito' | 'error' = 'verificando';
-  mensaje = '';
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private paymentService = inject(PaymentService);
+  private authService = inject(AuthService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private paymentService: PaymentService,
-    private authService: AuthService
-  ) {}
+  estado = signal<'verificando' | 'exito' | 'error'>('verificando');
+  mensaje = signal('');
 
   ngOnInit(): void {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');
 
     if (!sessionId) {
-      this.estado = 'error';
-      this.mensaje = 'No se recibió el ID de sesión de pago.';
+      this.estado.set('error');
+      this.mensaje.set('No se recibió el ID de sesión de pago.');
       return;
     }
 
     this.paymentService.verificarSesion(sessionId).subscribe({
       next: (res) => {
-        this.estado = 'exito';
-        this.mensaje = res.mensaje;
-        // Actualizar el usuario en storage con suscripción activa
+        this.estado.set('exito');
+        this.mensaje.set(res.mensaje);
         this.authService.getPerfil().subscribe();
       },
       error: (err) => {
-        this.estado = 'error';
-        this.mensaje = err.error?.mensaje
-          || 'No se pudo verificar el pago. Contacta con soporte si el problema persiste.';
+        this.estado.set('error');
+        this.mensaje.set(
+          err.error?.mensaje || 'No se pudo verificar el pago. Contacta con soporte si el problema persiste.'
+        );
       }
     });
   }

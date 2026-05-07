@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PaymentService } from '../../core/services/payment.service';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-pago',
@@ -15,8 +16,12 @@ import { PaymentService } from '../../core/services/payment.service';
 })
 export class PagoComponent {
 
-  cargandoPlan: 'mensual' | 'anual' | null = null;
-  errorMessage = '';
+  private paymentService = inject(PaymentService);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
+  cargandoPlan = signal<'mensual' | 'anual' | null>(null);
+  errorMessage = signal('');
 
   planes = [
     {
@@ -53,21 +58,25 @@ export class PagoComponent {
     }
   ];
 
-  constructor(private paymentService: PaymentService, private router: Router) {}
+  constructor() {
+    if (this.authService.tieneSubscripcion()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   pagar(plan: 'mensual' | 'anual'): void {
-    this.cargandoPlan = plan;
-    this.errorMessage = '';
+    this.cargandoPlan.set(plan);
+    this.errorMessage.set('');
 
     this.paymentService.crearSesion(plan).subscribe({
       next: ({ url }) => {
-        // Redirige a Stripe Checkout
         window.location.href = url;
       },
       error: (err) => {
-        this.cargandoPlan = null;
-        this.errorMessage = err.error?.mensaje
-          || 'Error al iniciar el pago. Por favor, inténtalo de nuevo.';
+        this.cargandoPlan.set(null);
+        this.errorMessage.set(
+          err.error?.mensaje || 'Error al iniciar el pago. Por favor, inténtalo de nuevo.'
+        );
       }
     });
   }

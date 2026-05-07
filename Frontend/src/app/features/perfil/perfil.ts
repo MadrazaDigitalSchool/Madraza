@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,13 +8,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
 import { AuthService } from '../../core/services/auth';
 import { Usuario } from '../../core/models/usuario.model';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule],
+  imports: [CommonModule, DatePipe, FormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, MatChipsModule],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss'
 })
@@ -52,6 +53,15 @@ export class PerfilComponent implements OnInit {
     return this.nombre.charAt(0).toUpperCase();
   }
 
+  esPremium(): boolean {
+    return this.usuario?.suscripcionActiva === true;
+  }
+
+  getFechaExpiry(): Date | null {
+    if (!this.usuario?.suscripcionExpiry) return null;
+    return new Date(this.usuario.suscripcionExpiry);
+  }
+
   guardarPerfil(): void {
     if (!this.nombre.trim()) return;
     this.guardando = true;
@@ -62,14 +72,12 @@ export class PerfilComponent implements OnInit {
         this.guardado = true;
         const datosActuales = this.authService.getUsuarioActual();
         const nuevo: Usuario = {
-          id: datosActuales?.id ?? 0,
+          ...datosActuales!,
           nombre: u.nombre,
           apellidos: u.apellidos,
-          email: datosActuales?.email ?? '',
-          emailVerificado: datosActuales?.emailVerificado ?? false,
-          roles: datosActuales?.roles ?? []
         };
         this.authService.guardarUsuarioLocal(nuevo);
+        this.usuario = { ...this.usuario!, nombre: u.nombre, apellidos: u.apellidos };
         setTimeout(() => (this.guardado = false), 3000);
       },
       error: () => { this.guardando = false; this.error = 'No se pudo actualizar el perfil.'; }

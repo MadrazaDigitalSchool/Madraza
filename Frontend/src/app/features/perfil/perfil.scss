@@ -40,6 +40,29 @@
   .accion-desc { color: var(--madraza-text-muted); font-size: 13px; margin: 0; }
 }
 .btn-logout { border-color: rgba(244,67,54,0.3) !important; color: var(--madraza-error) !important; flex-shrink: 0; }
+.suscripcion-activa, .suscripcion-inactiva {
+  display: flex; align-items: center; gap: 16px; padding: 16px;
+  border-radius: var(--madraza-radius-sm);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.suscripcion-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 50px; font-size: 13px; font-weight: 700; flex-shrink: 0;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &.premium { background: rgba(108,99,255,0.15); color: #a78bfa; border: 1px solid rgba(108,99,255,0.3); }
+  &.free { background: rgba(255,255,255,0.05); color: var(--madraza-text-muted); border: 1px solid rgba(255,255,255,0.1); }
+}
+.suscripcion-info {
+  .suscripcion-titulo { color: var(--madraza-text); font-size: 15px; font-weight: 500; margin: 0 0 2px; }
+  .suscripcion-desc { color: var(--madraza-text-muted); font-size: 13px; margin: 0; }
+}
+.btn-premium {
+  display: flex; align-items: center; gap: 8px; align-self: flex-start;
+  background: linear-gradient(135deg, #6c63ff, #a855f7) !important;
+  color: white !important; border-radius: 50px !important;
+  height: 44px !important; font-weight: 600 !important; padding: 0 24px !important;
+}
 ::ng-deep .perfil-container {
   .mat-mdc-text-field-wrapper { background: rgba(255,255,255,0.04) !important; }
   .mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing { border-color: rgba(255,255,255,0.14) !important; }

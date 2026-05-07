@@ -48,6 +48,43 @@
       </button>
     </section>
 
+    <!-- Suscripción -->
+    <section class="seccion">
+      <h2><mat-icon>star</mat-icon> Suscripción</h2>
+
+      @if (esPremium()) {
+        <div class="suscripcion-activa">
+          <div class="suscripcion-badge premium">
+            <mat-icon>verified</mat-icon>
+            <span>Premium</span>
+          </div>
+          <div class="suscripcion-info">
+            <p class="suscripcion-titulo">Plan activo</p>
+            @if (getFechaExpiry()) {
+              <p class="suscripcion-desc">
+                Renovación el {{ getFechaExpiry() | date:'d \'de\' MMMM \'de\' yyyy':'':'es' }}
+              </p>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="suscripcion-inactiva">
+          <div class="suscripcion-badge free">
+            <mat-icon>person</mat-icon>
+            <span>Gratuito</span>
+          </div>
+          <div class="suscripcion-info">
+            <p class="suscripcion-titulo">Sin suscripción activa</p>
+            <p class="suscripcion-desc">Accede a todos los tests y funcionalidades con Premium</p>
+          </div>
+        </div>
+        <a mat-flat-button routerLink="/pago" class="btn-premium">
+          <mat-icon>star</mat-icon>
+          Actualizar a Premium
+        </a>
+      }
+    </section>
+
     <!-- Acciones de cuenta -->
     <section class="seccion">
       <h2><mat-icon>settings</mat-icon> Cuenta</h2>
