@@ -24,8 +24,8 @@
           <li><mat-icon>check</mat-icon> {{ f }}</li>
           }
         </ul>
-        <button [routerLink]="plan.link" mat-flat-button class="plan-cta" [class.cta-destacado]="plan.destacado">
-          {{ plan.cta }}
+        <button (click)="irAPagar(plan.id)" mat-flat-button class="plan-cta" [class.cta-destacado]="plan.destacado">
+          {{ getCtaLabel(plan.id) }}
         </button>
       </div>
       }
