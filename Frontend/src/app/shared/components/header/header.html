@@ -42,6 +42,13 @@
                         <p class="menu-email">{{ usuario()?.email }}</p>
                     </div>
                     <mat-divider></mat-divider>
+                    @if (isAdmin()) {
+                    <button mat-menu-item routerLink="/admin">
+                        <mat-icon>admin_panel_settings</mat-icon>
+                        Panel Admin
+                    </button>
+                    <mat-divider></mat-divider>
+                    }
                     <button mat-menu-item routerLink="/dashboard">
                         <mat-icon>dashboard</mat-icon>
                         Mi panel
@@ -82,6 +89,9 @@
         </ul>
         @if (isLoggedIn()) {
         <div class="menu-movil-actions">
+            @if (isAdmin()) {
+            <a routerLink="/admin">Panel Admin</a>
+            }
             <a routerLink="/perfil">Mi perfil</a>
             <a routerLink="/dashboard">Mi panel</a>
             <a routerLink="/tests">Mis tests</a>

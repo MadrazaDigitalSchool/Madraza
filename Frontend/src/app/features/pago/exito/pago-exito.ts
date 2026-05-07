@@ -21,7 +21,7 @@ export class PagoExitoComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private authService = inject(AuthService);
 
-  estado = signal<'verificando' | 'exito' | 'error'>('verificando');
+  estado = signal<'verificando' | 'activando' | 'exito' | 'error'>('verificando');
   mensaje = signal('');
 
   ngOnInit(): void {
@@ -35,9 +35,13 @@ export class PagoExitoComponent implements OnInit {
 
     this.paymentService.verificarSesion(sessionId).subscribe({
       next: (res) => {
-        this.estado.set('exito');
         this.mensaje.set(res.mensaje);
-        this.authService.getPerfil().subscribe();
+        this.estado.set('activando');
+        // Refrescar perfil antes de mostrar el botón al dashboard
+        this.authService.getPerfil().subscribe({
+          next: () => this.estado.set('exito'),
+          error: () => this.estado.set('exito')
+        });
       },
       error: (err) => {
         this.estado.set('error');

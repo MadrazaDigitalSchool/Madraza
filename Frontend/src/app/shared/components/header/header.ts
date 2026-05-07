@@ -34,6 +34,7 @@ export class HeaderComponent {
   scrolled = signal(false);
   esRutaAuth = signal(false);
   isLoggedIn = computed(() => this.usuario() !== null);
+  isAdmin = computed(() => this.authService.tieneRol('ROLE_ADMIN'));
 
   constructor() {
     this.esRutaAuth.set(this.router.url.startsWith('/auth/'));

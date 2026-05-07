@@ -8,6 +8,12 @@
       <p class="texto">Por favor, espera un momento</p>
     }
 
+    @if (estado() === 'activando') {
+      <mat-spinner diameter="56"></mat-spinner>
+      <h2>Activando tu suscripción...</h2>
+      <p class="texto">Un momento, estamos preparando tu cuenta</p>
+    }
+
     @if (estado() === 'exito') {
       <div class="icono-exito">
         <mat-icon>check_circle</mat-icon>

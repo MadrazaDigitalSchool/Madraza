@@ -58,7 +58,11 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.cargando = false;
-          this.router.navigate(['/dashboard']);
+          if (this.authService.tieneSubscripcion()) {
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/pago']);
+          }
         },
         error: () => {
           this.cargando = false;

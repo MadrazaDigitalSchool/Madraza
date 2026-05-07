@@ -9,14 +9,6 @@
     <p class="subtitulo">Accede a todos los tests y funcionalidades de Madraza</p>
   </div>
 
-  <!-- Error banner -->
-  @if (errorMessage()) {
-    <div class="error-banner">
-      <mat-icon>error_outline</mat-icon>
-      <span>{{ errorMessage() }}</span>
-    </div>
-  }
-
   <!-- Métodos de pago -->
   <div class="metodos-pago">
     <span class="metodos-label">Pago seguro con</span>
@@ -63,13 +55,8 @@
           mat-flat-button
           class="btn-pagar"
           [class.btn-destacado]="plan.id === 'anual'"
-          (click)="pagar(plan.id)"
-          [disabled]="cargandoPlan() !== null">
-          @if (cargandoPlan() === plan.id) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            Suscribirme ahora
-          }
+          (click)="seleccionarPlan(plan.id)">
+          Elegir este plan
         </button>
 
       </div>

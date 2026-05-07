@@ -54,7 +54,11 @@ export class PerfilComponent implements OnInit {
   }
 
   esPremium(): boolean {
-    return this.usuario?.suscripcionActiva === true;
+    if (!this.usuario?.suscripcionActiva) return false;
+    if (this.usuario.suscripcionExpiry) {
+      return new Date(this.usuario.suscripcionExpiry) > new Date();
+    }
+    return true;
   }
 
   getFechaExpiry(): Date | null {

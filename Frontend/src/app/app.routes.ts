@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { subscriptionGuard } from './core/guards/subscription-guard';
+import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
   // ── Página principal ────────────────────────────────────
@@ -57,6 +58,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/pago/pago').then(m => m.PagoComponent)
       },
       {
+        path: 'checkout',
+        loadComponent: () =>
+          import('./features/pago/checkout/pago-checkout').then(m => m.PagoCheckoutComponent)
+      },
+      {
         path: 'exito',
         loadComponent: () =>
           import('./features/pago/exito/pago-exito').then(m => m.PagoExitoComponent)
@@ -67,6 +73,14 @@ export const routes: Routes = [
           import('./features/pago/cancelar/pago-cancelar').then(m => m.PagoCancelarComponent)
       }
     ]
+  },
+
+  // ── Admin (requiere ROLE_ADMIN) ───────────────────────────
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-dashboard').then(m => m.AdminDashboardComponent)
   },
 
   // ── Tests (requiere login + suscripción) ──────────────────

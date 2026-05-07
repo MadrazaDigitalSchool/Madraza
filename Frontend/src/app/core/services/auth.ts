@@ -42,7 +42,8 @@ export class AuthService {
           nombre: response.nombre,
           email: response.email,
           roles: response.roles,
-          suscripcionActiva: response.suscripcionActiva
+          suscripcionActiva: response.suscripcionActiva,
+          suscripcionExpiry: response.suscripcionExpiry
         };
 
         storage.setItem('token', response.token);
@@ -91,7 +92,11 @@ export class AuthService {
 
   tieneSubscripcion(): boolean {
     const u = this.getUsuarioActual();
-    return u?.suscripcionActiva === true;
+    if (!u?.suscripcionActiva) return false;
+    if (u.suscripcionExpiry) {
+      return new Date(u.suscripcionExpiry) > new Date();
+    }
+    return true;
   }
 
   getUsuarioActual(): Usuario | null {

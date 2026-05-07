@@ -1,0 +1,101 @@
+<div class="checkout-container">
+
+  <!-- Cabecera -->
+  <div class="checkout-header">
+    <a routerLink="/" class="logo-link">
+      <img src="/assets/madraza-vector.svg" alt="Madraza" class="logo" />
+    </a>
+    <h1>Confirma tu pedido</h1>
+    <p class="subtitulo">Revisa el plan seleccionado antes de proceder al pago</p>
+  </div>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Contenido -->
+  <div class="checkout-content">
+
+    <!-- Tarjeta del plan -->
+    <div class="plan-card" [class.anual]="plan() === 'anual'">
+      @if (plan() === 'anual') {
+        <div class="plan-badge">Más popular</div>
+      }
+      <div class="plan-top">
+        <div class="plan-info">
+          <h2>{{ planInfo().nombre }}</h2>
+          @if (planInfo().ahorro) {
+            <span class="ahorro-tag">{{ planInfo().ahorro }}</span>
+          }
+        </div>
+        <div class="plan-precio">
+          <span class="precio-num">{{ planInfo().precio }}</span>
+          <span class="precio-per">{{ planInfo().periodo }}</span>
+        </div>
+      </div>
+      <hr class="divider" />
+      <ul class="features-list">
+        @for (feature of planInfo().features; track feature) {
+          <li>
+            <mat-icon class="check-icon">check_circle</mat-icon>
+            <span>{{ feature }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Resumen de pago -->
+    <div class="pago-resumen">
+
+      <h3>Resumen del pedido</h3>
+      <div class="resumen-row">
+        <span>{{ planInfo().nombre }}</span>
+        <span class="resumen-precio">{{ planInfo().precio }}{{ planInfo().periodo }}</span>
+      </div>
+      <div class="resumen-row total">
+        <span>Total hoy</span>
+        <span class="resumen-precio">{{ planInfo().precio }}</span>
+      </div>
+
+      <!-- Métodos de pago -->
+      <div class="metodos-pago">
+        <p class="metodos-titulo">Métodos de pago disponibles</p>
+        <div class="metodos-grid">
+          <span class="metodo-badge"><mat-icon>credit_card</mat-icon> Tarjeta</span>
+          <span class="metodo-badge"><mat-icon>phone_android</mat-icon> Bizum</span>
+          <span class="metodo-badge"><mat-icon>account_balance_wallet</mat-icon> PayPal</span>
+        </div>
+      </div>
+
+      <!-- Botón de pago -->
+      <button
+        mat-flat-button
+        class="btn-pagar"
+        (click)="pagar()"
+        [disabled]="cargando()">
+        @if (cargando()) {
+          <mat-spinner diameter="22"></mat-spinner>
+          <span>Redirigiendo a Stripe...</span>
+        } @else {
+          <mat-icon>lock</mat-icon>
+          <span>Pagar con Stripe</span>
+        }
+      </button>
+
+      <p class="seguridad">
+        <mat-icon>verified_user</mat-icon>
+        Pago 100% seguro — No almacenamos datos de tu tarjeta
+      </p>
+
+      <button class="btn-cambiar" (click)="cambiarPlan()">
+        Cambiar de plan
+      </button>
+    </div>
+
+  </div>
+
+</div>

@@ -75,15 +75,20 @@ export class PreciosComponent {
       this.router.navigate(['/contacto']);
       return;
     }
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/pago']);
-    } else {
+    if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/registro']);
+      return;
+    }
+    if (this.authService.tieneSubscripcion()) {
+      this.router.navigate(['/perfil']);
+    } else {
+      this.router.navigate(['/pago/checkout'], { queryParams: { plan: planId } });
     }
   }
 
   getCtaLabel(planId: string): string {
     if (planId === 'institucional') return 'Contactar';
-    return this.authService.isLoggedIn() ? 'Suscribirme' : 'Empezar ahora';
+    if (!this.authService.isLoggedIn()) return 'Empezar ahora';
+    return this.authService.tieneSubscripcion() ? 'Gestionar suscripción' : 'Suscribirme';
   }
 }

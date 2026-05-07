@@ -1,27 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { PaymentService } from '../../core/services/payment.service';
 import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-pago',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './pago.html',
   styleUrl: './pago.scss'
 })
 export class PagoComponent {
 
-  private paymentService = inject(PaymentService);
   private router = inject(Router);
   private authService = inject(AuthService);
-
-  cargandoPlan = signal<'mensual' | 'anual' | null>(null);
-  errorMessage = signal('');
 
   planes = [
     {
@@ -64,20 +58,7 @@ export class PagoComponent {
     }
   }
 
-  pagar(plan: 'mensual' | 'anual'): void {
-    this.cargandoPlan.set(plan);
-    this.errorMessage.set('');
-
-    this.paymentService.crearSesion(plan).subscribe({
-      next: ({ url }) => {
-        window.location.href = url;
-      },
-      error: (err) => {
-        this.cargandoPlan.set(null);
-        this.errorMessage.set(
-          err.error?.mensaje || 'Error al iniciar el pago. Por favor, inténtalo de nuevo.'
-        );
-      }
-    });
+  seleccionarPlan(plan: 'mensual' | 'anual'): void {
+    this.router.navigate(['/pago/checkout'], { queryParams: { plan } });
   }
 }

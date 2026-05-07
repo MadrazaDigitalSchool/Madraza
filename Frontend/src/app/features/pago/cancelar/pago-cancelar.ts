@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-pago-cancelar',
@@ -15,8 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
         <div class="icono"><mat-icon>cancel</mat-icon></div>
         <h2>Pago cancelado</h2>
         <p>No se ha realizado ningún cargo. Puedes volver a suscribirte cuando quieras.</p>
-        <a mat-flat-button routerLink="/pago" class="btn-volver">Ver planes</a>
-        <a routerLink="/auth/login" class="link-logout">Cerrar sesión</a>
+        <a mat-flat-button routerLink="/precios" class="btn-volver">Ver planes</a>
+        <button type="button" class="link-logout" (click)="authService.logout()">Cerrar sesión</button>
       </div>
     </div>
   `,
@@ -56,8 +57,10 @@ import { MatIconModule } from '@angular/material/icon';
       font-size: 15px;
       padding: 0 32px;
     }
-    .link-logout { color: #999; font-size: 13px; text-decoration: none; }
+    .link-logout { background: none; border: none; padding: 0; cursor: pointer; color: #999; font-size: 13px; font-family: inherit; }
     .link-logout:hover { color: #6c63ff; }
   `]
 })
-export class PagoCancelarComponent {}
+export class PagoCancelarComponent {
+  public authService = inject(AuthService);
+}

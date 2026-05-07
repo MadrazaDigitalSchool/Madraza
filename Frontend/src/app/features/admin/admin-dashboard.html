@@ -1,0 +1,320 @@
+<div class="admin-page">
+
+  <!-- Cabecera -->
+  <div class="admin-hero">
+    <div class="container">
+      <div class="hero-badge">
+        <mat-icon>admin_panel_settings</mat-icon>
+        Panel de Administración
+      </div>
+      <h1>Gestión de Madraza</h1>
+      <p>Control total de usuarios, suscripciones y contenido</p>
+    </div>
+  </div>
+
+  <div class="container admin-body">
+
+    <!-- Tarjetas de estadísticas -->
+    @if (cargandoStats()) {
+      <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
+    } @else if (stats()) {
+      <div class="stats-grid">
+        <div class="stat-card">
+          <mat-icon class="stat-icon blue">people</mat-icon>
+          <div class="stat-data">
+            <span class="stat-num">{{ stats()!.totalUsuarios | number }}</span>
+            <span class="stat-label">Usuarios totales</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <mat-icon class="stat-icon purple">star</mat-icon>
+          <div class="stat-data">
+            <span class="stat-num">{{ stats()!.suscripcionesActivas | number }}</span>
+            <span class="stat-label">Suscripciones activas</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <mat-icon class="stat-icon green">quiz</mat-icon>
+          <div class="stat-data">
+            <span class="stat-num">{{ stats()!.totalTests | number }}</span>
+            <span class="stat-label">Tests creados</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <mat-icon class="stat-icon orange">assignment_turned_in</mat-icon>
+          <div class="stat-data">
+            <span class="stat-num">{{ stats()!.totalIntentos | number }}</span>
+            <span class="stat-label">Exámenes realizados</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tabs de navegación -->
+    <div class="tabs-nav">
+      <button class="tab-btn" [class.active]="tabActiva() === 'resumen'" (click)="setTab('resumen')">
+        <mat-icon>dashboard</mat-icon> Resumen
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva() === 'usuarios'" (click)="setTab('usuarios')">
+        <mat-icon>people</mat-icon> Usuarios
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva() === 'tests'" (click)="setTab('tests')">
+        <mat-icon>quiz</mat-icon> Tests
+      </button>
+    </div>
+
+    <!-- TAB: Resumen -->
+    @if (tabActiva() === 'resumen') {
+      <div class="tab-content">
+        <div class="resumen-cards">
+          <div class="info-card">
+            <mat-icon>trending_up</mat-icon>
+            <h3>Tasa de conversión</h3>
+            <p class="big-num">
+              @if (stats() && stats()!.totalUsuarios > 0) {
+                {{ ((stats()!.suscripcionesActivas / stats()!.totalUsuarios) * 100) | number:'1.1-1' }}%
+              } @else {
+                —
+              }
+            </p>
+            <p class="sub">Usuarios con suscripción activa</p>
+          </div>
+          <div class="info-card">
+            <mat-icon>assignment</mat-icon>
+            <h3>Media de intentos</h3>
+            <p class="big-num">
+              @if (stats() && stats()!.totalUsuarios > 0) {
+                {{ (stats()!.totalIntentos / stats()!.totalUsuarios) | number:'1.1-1' }}
+              } @else {
+                —
+              }
+            </p>
+            <p class="sub">Intentos por usuario de media</p>
+          </div>
+          <div class="info-card">
+            <mat-icon>quiz</mat-icon>
+            <h3>Media de preguntas</h3>
+            <p class="big-num">—</p>
+            <p class="sub">Accede a la pestaña Tests para ver detalles</p>
+          </div>
+        </div>
+        <div class="acciones-rapidas">
+          <h2>Acciones rápidas</h2>
+          <div class="acciones-grid">
+            <button mat-flat-button class="accion-btn" (click)="setTab('usuarios')">
+              <mat-icon>manage_accounts</mat-icon>
+              Gestionar usuarios
+            </button>
+            <button mat-flat-button class="accion-btn" (click)="setTab('tests')">
+              <mat-icon>edit_note</mat-icon>
+              Gestionar tests
+            </button>
+            <button mat-flat-button class="accion-btn" routerLink="/dashboard">
+              <mat-icon>arrow_back</mat-icon>
+              Mi dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- TAB: Usuarios -->
+    @if (tabActiva() === 'usuarios') {
+      <div class="tab-content">
+        <div class="tab-toolbar">
+          <h2>Gestión de usuarios</h2>
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input
+              type="text"
+              placeholder="Buscar por nombre o email..."
+              [value]="busquedaUsuario()"
+              (input)="busquedaUsuario.set($any($event.target).value)" />
+          </div>
+          <button mat-icon-button (click)="cargarUsuarios()" matTooltip="Recargar">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+
+        @if (cargandoUsuarios()) {
+          <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Verificado</th>
+                  <th>Suscripción</th>
+                  <th>Expiry</th>
+                  <th>Estado</th>
+                  <th>Rol</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (u of usuariosFiltrados(); track u.id) {
+                  <tr [class.inactivo]="!u.activo">
+                    <td>
+                      <div class="user-cell">
+                        <div class="avatar-mini">{{ u.nombre.charAt(0) }}</div>
+                        <div>
+                          <span class="user-nombre">{{ u.nombre }} {{ u.apellidos }}</span>
+                          @if (u.proveedorOauth) {
+                            <span class="oauth-tag">{{ u.proveedorOauth }}</span>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <td class="email-cell">{{ u.email }}</td>
+                    <td>
+                      <mat-icon [class.verde]="u.emailVerificado" [class.rojo]="!u.emailVerificado">
+                        {{ u.emailVerificado ? 'check_circle' : 'cancel' }}
+                      </mat-icon>
+                    </td>
+                    <td>
+                      <span class="badge" [class.badge-activo]="u.suscripcionActiva" [class.badge-inactivo]="!u.suscripcionActiva">
+                        {{ u.suscripcionActiva ? 'Premium' : 'Gratuito' }}
+                      </span>
+                    </td>
+                    <td class="text-muted text-sm">
+                      @if (getExpiryDate(u.suscripcionExpiry); as fecha) {
+                        {{ fecha | date:'dd/MM/yy' }}
+                      } @else {
+                        —
+                      }
+                    </td>
+                    <td>
+                      <span class="badge" [class.badge-activo]="u.activo" [class.badge-inactivo]="!u.activo">
+                        {{ u.activo ? 'Activo' : 'Bloqueado' }}
+                      </span>
+                    </td>
+                    <td>
+                      @if (esAdmin(u)) {
+                        <span class="badge badge-admin">Admin</span>
+                      } @else {
+                        <span class="text-muted text-sm">Usuario</span>
+                      }
+                    </td>
+                    <td>
+                      <div class="acciones-cell">
+                        @if (!u.suscripcionActiva) {
+                          <button mat-icon-button class="icon-btn-green" (click)="activarSuscripcion(u, 30)" matTooltip="Activar 30 días">
+                            <mat-icon>calendar_today</mat-icon>
+                          </button>
+                          <button mat-icon-button class="icon-btn-green" (click)="activarSuscripcion(u, 365)" matTooltip="Activar 365 días">
+                            <mat-icon>event_available</mat-icon>
+                          </button>
+                        } @else {
+                          <button mat-icon-button class="icon-btn-warn" (click)="desactivarSuscripcion(u)" matTooltip="Desactivar suscripción">
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        }
+                        <button mat-icon-button [class.icon-btn-danger]="u.activo" [class.icon-btn-green]="!u.activo"
+                          (click)="toggleUsuarioActivo(u)" [matTooltip]="u.activo ? 'Bloquear usuario' : 'Activar usuario'">
+                          <mat-icon>{{ u.activo ? 'block' : 'check' }}</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @if (usuariosFiltrados().length === 0 && !cargandoUsuarios()) {
+              <div class="empty-state">
+                <mat-icon>search_off</mat-icon>
+                <p>No se encontraron usuarios</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB: Tests -->
+    @if (tabActiva() === 'tests') {
+      <div class="tab-content">
+        <div class="tab-toolbar">
+          <h2>Gestión de tests</h2>
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input
+              type="text"
+              placeholder="Buscar por título, categoría o creador..."
+              [value]="busquedaTest()"
+              (input)="busquedaTest.set($any($event.target).value)" />
+          </div>
+          <button mat-icon-button (click)="cargarTests()" matTooltip="Recargar">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+
+        @if (cargandoTests()) {
+          <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Categoría</th>
+                  <th>Dificultad</th>
+                  <th>Visibilidad</th>
+                  <th>Preguntas</th>
+                  <th>Creador</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (t of testsFiltrados(); track t.id) {
+                  <tr [class.inactivo]="!t.activo">
+                    <td class="titulo-cell">{{ t.titulo }}</td>
+                    <td><span class="categoria-tag">{{ t.categoria }}</span></td>
+                    <td>
+                      <span class="dificultad" [class]="'dif-' + t.dificultad.toLowerCase()">
+                        {{ t.dificultad }}
+                      </span>
+                    </td>
+                    <td>
+                      <mat-icon class="text-sm" [class.verde]="t.visibilidad === 'PUBLICO'" [class.text-muted]="t.visibilidad !== 'PUBLICO'">
+                        {{ t.visibilidad === 'PUBLICO' ? 'public' : 'lock' }}
+                      </mat-icon>
+                      {{ t.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                    </td>
+                    <td class="text-center">{{ t.totalPreguntas }}</td>
+                    <td class="text-muted text-sm">{{ t.creador }}</td>
+                    <td>
+                      <span class="badge" [class.badge-activo]="t.activo" [class.badge-inactivo]="!t.activo">
+                        {{ t.activo ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="acciones-cell">
+                        <button mat-icon-button [class.icon-btn-warn]="t.activo" [class.icon-btn-green]="!t.activo"
+                          (click)="toggleTestActivo(t)" [matTooltip]="t.activo ? 'Desactivar' : 'Activar'">
+                          <mat-icon>{{ t.activo ? 'visibility_off' : 'visibility' }}</mat-icon>
+                        </button>
+                        <button mat-icon-button class="icon-btn-danger" (click)="eliminarTest(t)" matTooltip="Eliminar test">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @if (testsFiltrados().length === 0 && !cargandoTests()) {
+              <div class="empty-state">
+                <mat-icon>search_off</mat-icon>
+                <p>No se encontraron tests</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

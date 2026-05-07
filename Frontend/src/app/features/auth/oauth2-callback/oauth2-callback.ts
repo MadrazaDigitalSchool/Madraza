@@ -69,8 +69,9 @@ export class OAuth2CallbackComponent implements OnInit {
 
     // Cargar el perfil completo y actualizar el storage
     this.authService.getPerfil().subscribe({
-      next: (usuario) => {
-        if (usuario.suscripcionActiva) {
+      next: () => {
+        // Usar tieneSubscripcion() para comprobar también la fecha de expiración
+        if (this.authService.tieneSubscripcion()) {
           this.router.navigate(['/dashboard']);
         } else {
           this.router.navigate(['/pago']);

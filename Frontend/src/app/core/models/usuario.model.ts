@@ -22,6 +22,7 @@ export interface JwtResponse {
     email: string;
     roles: string[];
     suscripcionActiva: boolean;
+    suscripcionExpiry?: string;
 }
 
 export interface Usuario {
