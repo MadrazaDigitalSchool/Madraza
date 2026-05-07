@@ -61,7 +61,7 @@ export class NuevaPasswordComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.errorMessage = err.error?.mensaje || 'El enlace ha expirado o es inválido';
+        this.errorMessage = err.error?.message || err.error?.mensaje || 'El enlace ha expirado o es inválido';
       }
     });
   }

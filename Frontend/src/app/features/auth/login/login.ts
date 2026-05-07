@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -28,7 +28,7 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   email = '';
   password = '';
@@ -45,6 +45,14 @@ export class LoginComponent {
     private router: Router
   ) { }
 
+  ngOnInit(): void {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      this.email = savedEmail;
+      this.recordarme = true;
+    }
+  }
+
   login(): void {
     if (!this.email || !this.password) {
       this.errorMessage = 'Por favor, rellena todos los campos';
@@ -58,6 +66,11 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.cargando = false;
+          if (this.recordarme) {
+            localStorage.setItem('rememberedEmail', this.email);
+          } else {
+            localStorage.removeItem('rememberedEmail');
+          }
           if (this.authService.tieneSubscripcion()) {
             this.router.navigate(['/dashboard']);
           } else {

@@ -6,7 +6,7 @@
       <img src="/assets/madraza-vector.svg" alt="Madraza" class="logo" />
     </a>
     <h1>Confirma tu pedido</h1>
-    <p class="subtitulo">Revisa el plan seleccionado antes de proceder al pago</p>
+    <p class="subtitulo">Revisa el plan seleccionado y completa el pago</p>
   </div>
 
   <!-- Error -->
@@ -48,7 +48,7 @@
       </ul>
     </div>
 
-    <!-- Resumen de pago -->
+    <!-- Panel de pago -->
     <div class="pago-resumen">
 
       <h3>Resumen del pedido</h3>
@@ -61,37 +61,87 @@
         <span class="resumen-precio">{{ planInfo().precio }}</span>
       </div>
 
-      <!-- Métodos de pago -->
-      <div class="metodos-pago">
-        <p class="metodos-titulo">Métodos de pago disponibles</p>
-        <div class="metodos-grid">
-          <span class="metodo-badge"><mat-icon>credit_card</mat-icon> Tarjeta</span>
-          <span class="metodo-badge"><mat-icon>phone_android</mat-icon> Bizum</span>
-          <span class="metodo-badge"><mat-icon>account_balance_wallet</mat-icon> PayPal</span>
+      <!-- Estado: resumen inicial -->
+      @if (estado() === 'resumen') {
+        <div class="metodo-pago-selector">
+          <p class="selector-label">Método de pago</p>
+          <label class="metodo-option" [class.active]="metodoPago() === 'tarjeta'">
+            <input type="radio" name="metodoPago" value="tarjeta"
+                   [checked]="metodoPago() === 'tarjeta'"
+                   (change)="metodoPago.set('tarjeta')" />
+            <span class="metodo-icon">💳</span>
+            <span class="metodo-texto">
+              <strong>Tarjeta / PayPal</strong>
+              <small>Visa, Mastercard, PayPal</small>
+            </span>
+          </label>
+          <label class="metodo-option" [class.active]="metodoPago() === 'bizum'">
+            <input type="radio" name="metodoPago" value="bizum"
+                   [checked]="metodoPago() === 'bizum'"
+                   (change)="metodoPago.set('bizum')" />
+            <span class="metodo-icon">📱</span>
+            <span class="metodo-texto">
+              <strong>Bizum</strong>
+              <small>Pago inmediato desde tu banco</small>
+            </span>
+          </label>
         </div>
-      </div>
 
-      <!-- Botón de pago -->
-      <button
-        mat-flat-button
-        class="btn-pagar"
-        (click)="pagar()"
-        [disabled]="cargando()">
-        @if (cargando()) {
-          <mat-spinner diameter="22"></mat-spinner>
-          <span>Redirigiendo a Stripe...</span>
-        } @else {
+        <button
+          mat-flat-button
+          class="btn-pagar"
+          (click)="iniciarPago()">
           <mat-icon>lock</mat-icon>
-          <span>Pagar con Stripe</span>
-        }
-      </button>
+          <span>Proceder al pago</span>
+        </button>
+      }
+
+      <!-- Estado: cargando Stripe -->
+      @if (estado() === 'cargando') {
+        <div class="cargando-stripe">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Preparando formulario de pago...</span>
+        </div>
+      }
+
+      <!-- Estado: redirigiendo a Bizum -->
+      @if (estado() === 'redirigiendo') {
+        <div class="cargando-stripe">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Redirigiendo a Bizum...</span>
+        </div>
+      }
+
+      <!-- Estado: formulario Stripe Elements -->
+      @if (estado() === 'formulario' || estado() === 'pagando') {
+        <div class="stripe-element-container">
+          <div id="stripe-payment-element"></div>
+        </div>
+
+        <button
+          mat-flat-button
+          class="btn-pagar"
+          (click)="confirmarPago()"
+          [disabled]="estado() === 'pagando'">
+          @if (estado() === 'pagando') {
+            <mat-spinner diameter="22"></mat-spinner>
+            <span>Procesando...</span>
+          } @else {
+            <ng-container>
+              <mat-icon>lock</mat-icon>
+              <span>Confirmar pago</span>
+            </ng-container>
+          }
+        </button>
+      }
 
       <p class="seguridad">
         <mat-icon>verified_user</mat-icon>
-        Pago 100% seguro — No almacenamos datos de tu tarjeta
+        Pago 100% seguro — procesado por Stripe
       </p>
 
-      <button class="btn-cambiar" (click)="cambiarPlan()">
+      <button class="btn-cambiar" (click)="cambiarPlan()" type="button"
+              [disabled]="estado() === 'pagando'">
         Cambiar de plan
       </button>
     </div>

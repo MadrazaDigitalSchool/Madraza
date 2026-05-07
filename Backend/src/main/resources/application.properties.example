@@ -5,8 +5,8 @@ spring.profiles.active=${SPRING_PROFILES_ACTIVE:dev}
 # ── APLICACIÓN ────────────────────────────────────────────────────────────────
 spring.application.name=Madraza
 
-# ── JWT (sobreescribibles por variable de entorno) ────────────────────────────
-app.jwt.secret=${JWT_SECRET:MiClaveSecretaSuperSeguraParaMadraza2026ProjectoIntegradoDAW}
+# ── JWT (sobreescribible por variable de entorno) ────────────────────────────
+app.jwt.secret=${JWT_SECRET:}
 app.jwt.expiration-ms=${JWT_EXPIRATION_MS:86400000}
 
 # ── JACKSON ───────────────────────────────────────────────────────────────────
@@ -24,26 +24,25 @@ app.mail.from=${MAIL_FROM:noreply@madraza.es}
 
 # ── STRIPE ────────────────────────────────────────────────────────────────────
 # Obtén tus claves en https://dashboard.stripe.com/apikeys
-stripe.api.key=${STRIPE_SECRET_KEY:sk_test_PLACEHOLDER}
-stripe.webhook.secret=${STRIPE_WEBHOOK_SECRET:whsec_PLACEHOLDER}
-# Crea los precios en https://dashboard.stripe.com/products
-stripe.price.mensual=${STRIPE_PRICE_MENSUAL:price_PLACEHOLDER_mensual}
-stripe.price.anual=${STRIPE_PRICE_ANUAL:price_PLACEHOLDER_anual}
-stripe.price.mensual.bizum=${STRIPE_PRICE_MENSUAL_BIZUM:price_PLACEHOLDER_mensual_bizum}
-stripe.price.anual.bizum=${STRIPE_PRICE_ANUAL_BIZUM:price_PLACEHOLDER_anual_bizum}
+stripe.api.key=${STRIPE_SECRET_KEY:}
+stripe.webhook.secret=${STRIPE_WEBHOOK_SECRET:}
+stripe.price.mensual=${STRIPE_PRICE_MENSUAL:}
+stripe.price.anual=${STRIPE_PRICE_ANUAL:}
+stripe.price.mensual.bizum=${STRIPE_PRICE_MENSUAL_BIZUM:}
+stripe.price.anual.bizum=${STRIPE_PRICE_ANUAL_BIZUM:}
 
 # ── FRONTEND URL ──────────────────────────────────────────────────────────────
 app.frontend.url=${FRONTEND_URL:http://localhost:4200}
 
 # ── OAUTH2 ────────────────────────────────────────────────────────────────────
 # Google: https://console.cloud.google.com/apis/credentials
-spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID:PLACEHOLDER}
-spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET:PLACEHOLDER}
+spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID:}
+spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET:}
 spring.security.oauth2.client.registration.google.scope=email,profile
 spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
 
 # GitHub: https://github.com/settings/developers
-spring.security.oauth2.client.registration.github.client-id=${GITHUB_CLIENT_ID:PLACEHOLDER}
-spring.security.oauth2.client.registration.github.client-secret=${GITHUB_CLIENT_SECRET:PLACEHOLDER}
+spring.security.oauth2.client.registration.github.client-id=${GITHUB_CLIENT_ID:}
+spring.security.oauth2.client.registration.github.client-secret=${GITHUB_CLIENT_SECRET:}
 spring.security.oauth2.client.registration.github.scope=user:email
 spring.security.oauth2.client.registration.github.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}

@@ -16,40 +16,74 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class PagoExitoComponent implements OnInit {
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private route          = inject(ActivatedRoute);
+  private router         = inject(Router);
   private paymentService = inject(PaymentService);
-  private authService = inject(AuthService);
+  private authService    = inject(AuthService);
 
-  estado = signal<'verificando' | 'activando' | 'exito' | 'error'>('verificando');
+  estado  = signal<'verificando' | 'activando' | 'exito' | 'error'>('verificando');
   mensaje = signal('');
 
   ngOnInit(): void {
-    const sessionId = this.route.snapshot.queryParamMap.get('session_id');
+    const params       = this.route.snapshot.queryParamMap;
+    const activada     = params.get('activada');           // flujo directo (sin redirect)
+    const subscriptionId = params.get('subscription_id');  // flujo redirect (3DS)
+    const redirectStatus = params.get('redirect_status');  // valor 'succeeded' de Stripe
+    const sessionId     = params.get('session_id');        // flujo Checkout Session (Bizum)
 
-    if (!sessionId) {
-      this.estado.set('error');
-      this.mensaje.set('No se recibió el ID de sesión de pago.');
+    if (activada === 'true') {
+      this.estado.set('activando');
+      this.authService.getPerfil().subscribe({
+        next: () => this.estado.set('exito'),
+        error: () => this.estado.set('exito')
+      });
       return;
     }
 
-    this.paymentService.verificarSesion(sessionId).subscribe({
-      next: (res) => {
-        this.mensaje.set(res.mensaje);
-        this.estado.set('activando');
-        // Refrescar perfil antes de mostrar el botón al dashboard
-        this.authService.getPerfil().subscribe({
-          next: () => this.estado.set('exito'),
-          error: () => this.estado.set('exito')
-        });
-      },
-      error: (err) => {
-        this.estado.set('error');
-        this.mensaje.set(
-          err.error?.mensaje || 'No se pudo verificar el pago. Contacta con soporte si el problema persiste.'
-        );
-      }
-    });
+    if (subscriptionId && redirectStatus === 'succeeded') {
+      this.estado.set('activando');
+      this.paymentService.confirmarSuscripcion(subscriptionId).subscribe({
+        next: (res) => {
+          this.mensaje.set(res.mensaje);
+          this.authService.getPerfil().subscribe({
+            next: () => this.estado.set('exito'),
+            error: () => this.estado.set('exito')
+          });
+        },
+        error: (err) => {
+          this.estado.set('error');
+          this.mensaje.set(
+            err.error?.message || err.error?.mensaje ||
+            'No se pudo activar la suscripción. Contacta con soporte si el cargo fue realizado.'
+          );
+        }
+      });
+      return;
+    }
+
+    if (sessionId) {
+      this.estado.set('activando');
+      this.paymentService.verificarSesion(sessionId).subscribe({
+        next: (res) => {
+          this.mensaje.set(res.mensaje);
+          this.authService.getPerfil().subscribe({
+            next: () => this.estado.set('exito'),
+            error: () => this.estado.set('exito')
+          });
+        },
+        error: (err) => {
+          this.estado.set('error');
+          this.mensaje.set(
+            err.error?.message || err.error?.mensaje ||
+            'No se pudo verificar el pago. Contacta con soporte si el cargo fue realizado.'
+          );
+        }
+      });
+      return;
+    }
+
+    this.estado.set('error');
+    this.mensaje.set('No se pudo verificar el pago. Si realizaste un pago, contacta con soporte.');
   }
 
   irAlDashboard(): void {

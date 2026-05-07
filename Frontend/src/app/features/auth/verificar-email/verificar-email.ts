@@ -35,7 +35,7 @@ export class VerificarEmailComponent implements OnInit {
       },
       error: (err) => {
         this.estado = 'error';
-        this.mensaje = err.error?.mensaje || 'El enlace es inválido o ha expirado';
+        this.mensaje = err.error?.message || err.error?.mensaje || 'El enlace es inválido o ha expirado';
       }
     });
   }

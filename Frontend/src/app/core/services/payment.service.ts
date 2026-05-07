@@ -10,12 +10,26 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  /** Crea una sesión de Stripe Checkout y devuelve la URL de pago */
-  crearSesion(plan: 'mensual' | 'anual'): Observable<{ url: string }> {
-    return this.http.post<{ url: string }>(`${this.apiUrl}/crear-sesion`, { plan });
+  /** Crea Customer + Subscription incompleta; devuelve clientSecret y subscriptionId para Stripe.js */
+  crearIntencion(plan: 'mensual' | 'anual'): Observable<{ clientSecret: string; subscriptionId: string }> {
+    return this.http.post<{ clientSecret: string; subscriptionId: string }>(
+      `${this.apiUrl}/crear-intencion`, { plan }
+    );
   }
 
-  /** Verifica el pago con el sessionId de Stripe y activa la suscripción */
+  /** Verifica con Stripe que la suscripción está activa y activa la cuenta */
+  confirmarSuscripcion(subscriptionId: string): Observable<{ suscripcionActiva: boolean; mensaje: string }> {
+    return this.http.post<{ suscripcionActiva: boolean; mensaje: string }>(
+      `${this.apiUrl}/confirmar-suscripcion`, { subscriptionId }
+    );
+  }
+
+  /** @deprecated Usar crearIntencion(). Mantener para compatibilidad con webhook */
+  crearSesion(plan: 'mensual' | 'anual', metodoPago: string = 'tarjeta'): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.apiUrl}/crear-sesion`, { plan, metodoPago });
+  }
+
+  /** @deprecated Usar confirmarSuscripcion(). Mantener para flujo de redirect 3DS */
   verificarSesion(sessionId: string): Observable<{ suscripcionActiva: boolean; mensaje: string }> {
     return this.http.post<{ suscripcionActiva: boolean; mensaje: string }>(
       `${this.apiUrl}/verificar-sesion`, { sessionId }
