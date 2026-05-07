@@ -47,9 +47,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Environments con datos sensibles
+# Environments con datos sensibles (solo producción)
 src/environments/environment.prod.ts
-src/environments/environment*.ts
 
 # Logs
 logs
