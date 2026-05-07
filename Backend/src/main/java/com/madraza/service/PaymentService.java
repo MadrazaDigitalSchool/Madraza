@@ -4,9 +4,13 @@ import com.madraza.entity.Usuario;
 import com.madraza.repository.UsuarioRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.Customer;
 import com.stripe.model.Event;
+import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.SubscriptionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionRetrieveParams;
 import jakarta.annotation.PostConstruct;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Hafdala Mehdi Sidi
@@ -47,6 +52,12 @@ public class PaymentService {
     @Value("${stripe.price.anual}")
     private String priceAnual;
 
+    @Value("${stripe.price.mensual.bizum}")
+    private String priceMensualBizum;
+
+    @Value("${stripe.price.anual.bizum}")
+    private String priceAnualBizum;
+
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
@@ -56,18 +67,89 @@ public class PaymentService {
     }
 
     /**
-     * Crea una sesión de Stripe Checkout y devuelve la URL de pago.
-     * Soporta card, Bizum y PayPal según lo configurado en el dashboard de Stripe.
+     * Crea un Customer de Stripe (o reutiliza el existente) y una Subscription incompleta.
+     * Devuelve el clientSecret del PaymentIntent y el subscriptionId para confirmar desde el frontend.
      */
-    public String crearSesionCheckout(Long usuarioId, String plan) throws Exception {
-        String priceId = "anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual;
+    public Map<String, String> crearIntencionPago(Long usuarioId, String plan) throws Exception {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        String customerId = usuario.getStripeCustomerId();
+        if (customerId == null || customerId.isBlank()) {
+            CustomerCreateParams customerParams = CustomerCreateParams.builder()
+                    .setEmail(usuario.getEmail())
+                    .setName(usuario.getNombre() + (usuario.getApellidos() != null ? " " + usuario.getApellidos() : ""))
+                    .putMetadata("usuarioId", usuarioId.toString())
+                    .build();
+            Customer customer = Customer.create(customerParams);
+            customerId = customer.getId();
+            usuario.setStripeCustomerId(customerId);
+            usuarioRepository.save(usuario);
+        }
+
+        String priceId   = "anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual;
         String planLabel = "anual".equalsIgnoreCase(plan) ? "Premium Anual" : "Premium Mensual";
 
-        SessionCreateParams params = SessionCreateParams.builder()
-                // Métodos de pago automáticos según dashboard de Stripe
-                // (incluye card; activa Bizum y PayPal en https://dashboard.stripe.com/settings/payment_methods)
-                .setMode(SessionCreateParams.Mode.PAYMENT)
-                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+        SubscriptionCreateParams subParams = SubscriptionCreateParams.builder()
+                .setCustomer(customerId)
+                .addItem(SubscriptionCreateParams.Item.builder().setPrice(priceId).build())
+                .setPaymentBehavior(SubscriptionCreateParams.PaymentBehavior.DEFAULT_INCOMPLETE)
+                .setPaymentSettings(SubscriptionCreateParams.PaymentSettings.builder()
+                        .setSaveDefaultPaymentMethod(
+                                SubscriptionCreateParams.PaymentSettings.SaveDefaultPaymentMethod.ON_SUBSCRIPTION)
+                        .addPaymentMethodType(SubscriptionCreateParams.PaymentSettings.PaymentMethodType.CARD)
+                        .addPaymentMethodType(SubscriptionCreateParams.PaymentSettings.PaymentMethodType.PAYPAL)
+                        .build())
+                .addExpand("latest_invoice.payment_intent")
+                .putMetadata("usuarioId", usuarioId.toString())
+                .putMetadata("plan", plan)
+                .putMetadata("planLabel", planLabel)
+                .build();
+
+        Subscription subscription = Subscription.create(subParams);
+        String clientSecret = subscription.getLatestInvoiceObject()
+                .getPaymentIntentObject()
+                .getClientSecret();
+
+        log.info("Intención de pago creada: suscripción {} para usuario {}", subscription.getId(), usuarioId);
+        return Map.of("clientSecret", clientSecret, "subscriptionId", subscription.getId());
+    }
+
+    /**
+     * Verifica con Stripe que la suscripción está activa y activa la cuenta del usuario.
+     * Se llama desde el frontend tras confirmar el pago con Stripe.js.
+     */
+    @Transactional
+    public void confirmarSuscripcion(Long usuarioId, String subscriptionId) throws Exception {
+        Subscription subscription = Subscription.retrieve(subscriptionId);
+
+        String metaUsuarioId = subscription.getMetadata().get("usuarioId");
+        if (metaUsuarioId == null || !metaUsuarioId.equals(usuarioId.toString())) {
+            throw new SecurityException("La suscripción no corresponde al usuario autenticado");
+        }
+
+        if (!"active".equals(subscription.getStatus())) {
+            throw new IllegalStateException("La suscripción aún no está activa (estado: " + subscription.getStatus() + ")");
+        }
+
+        activarSuscripcion(usuarioId,
+                subscription.getMetadata().get("plan"),
+                subscription.getMetadata().get("planLabel"));
+    }
+
+    /**
+     * Crea una sesión de Stripe Checkout y devuelve la URL de pago.
+     * Acepta metodoPago: "tarjeta", "bizum" "Klarna" o "paypal".
+     */
+    public String crearSesionCheckout(Long usuarioId, String plan, String metodoPago) throws Exception {
+        boolean esBizum  = "bizum".equalsIgnoreCase(metodoPago);
+        String planLabel = "anual".equalsIgnoreCase(plan) ? "Premium Anual" : "Premium Mensual";
+        String priceId   = esBizum
+                ? ("anual".equalsIgnoreCase(plan) ? priceAnualBizum : priceMensualBizum)
+                : ("anual".equalsIgnoreCase(plan) ? priceAnual      : priceMensual);
+
+        SessionCreateParams.Builder builder = SessionCreateParams.builder()
+                .setMode(esBizum ? SessionCreateParams.Mode.PAYMENT : SessionCreateParams.Mode.SUBSCRIPTION)
                 .setSuccessUrl(frontendUrl + "/pago/exito?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl(frontendUrl + "/pago/cancelar")
                 .addLineItem(
@@ -79,10 +161,18 @@ public class PaymentService {
                 .putMetadata("usuarioId", usuarioId.toString())
                 .putMetadata("plan", plan)
                 .putMetadata("planLabel", planLabel)
-                .build();
+                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "tarjeta");
 
-        Session session = Session.create(params);
-        log.info("Sesión Stripe creada: {} para usuario {}", session.getId(), usuarioId);
+        if (esBizum) {
+            builder.putExtraParam("payment_method_types", List.of("bizum"));
+        } else {
+            builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                   .addPaymentMethodType(SessionCreateParams.PaymentMethodType.PAYPAL)
+                   .addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
+        }
+
+        Session session = Session.create(builder.build());
+        log.info("Sesión Stripe creada: {} para usuario {} método: {}", session.getId(), usuarioId, metodoPago);
         return session.getUrl();
     }
 
@@ -95,7 +185,7 @@ public class PaymentService {
         Session session = Session.retrieve(sessionId,
                 SessionRetrieveParams.builder().build(), null);
 
-        if (!"complete".equals(session.getStatus()) && !"paid".equals(session.getPaymentStatus())) {
+        if (!"complete".equals(session.getStatus()) || !"paid".equals(session.getPaymentStatus())) {
             throw new IllegalStateException("El pago no se ha completado");
         }
 

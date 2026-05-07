@@ -30,6 +30,59 @@ public class PaymentController {
     @Autowired private UsuarioRepository usuarioRepository;
 
     /**
+     * POST /api/pago/crear-intencion
+     * Crea un Customer de Stripe + Subscription incompleta, devuelve clientSecret y subscriptionId.
+     * El frontend usa estos datos con Stripe.js para mostrar el Payment Element sin redirección.
+     */
+    @PostMapping("/crear-intencion")
+    public ResponseEntity<?> crearIntencion(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody Map<String, String> body) {
+        try {
+            String plan = body.getOrDefault("plan", "mensual");
+            Map<String, String> result = paymentService.crearIntencionPago(userDetails.getId(), plan);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("Error al crear intención de pago: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error al iniciar el pago: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/pago/confirmar-suscripcion
+     * Verifica con Stripe que la suscripción está activa y activa la cuenta del usuario.
+     * Body: { "subscriptionId": "sub_xxx" }
+     */
+    @PostMapping("/confirmar-suscripcion")
+    public ResponseEntity<?> confirmarSuscripcion(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody Map<String, String> body) {
+        try {
+            String subscriptionId = body.get("subscriptionId");
+            if (subscriptionId == null || subscriptionId.isBlank())
+                return ResponseEntity.badRequest().body(new MessageResponse("subscriptionId requerido"));
+
+            paymentService.confirmarSuscripcion(userDetails.getId(), subscriptionId);
+
+            Usuario usuario = usuarioRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            return ResponseEntity.ok(Map.of(
+                    "suscripcionActiva", usuario.isSuscripcionActiva(),
+                    "mensaje", "¡Pago confirmado! Tu suscripción está activa"
+            ));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al confirmar suscripción: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error al confirmar el pago"));
+        }
+    }
+
+    /**
      * POST /api/pago/crear-sesion
      * Crea una sesión de Stripe Checkout. Requiere autenticación.
      * Body: { "plan": "mensual" | "anual" }
@@ -40,7 +93,8 @@ public class PaymentController {
             @RequestBody Map<String, String> body) {
         try {
             String plan = body.getOrDefault("plan", "mensual");
-            String url = paymentService.crearSesionCheckout(userDetails.getId(), plan);
+            String metodoPago = body.getOrDefault("metodoPago", "tarjeta");
+            String url = paymentService.crearSesionCheckout(userDetails.getId(), plan, metodoPago);
             return ResponseEntity.ok(Map.of("url", url));
         } catch (Exception e) {
             log.error("Error al crear sesión de pago: {}", e.getMessage());
