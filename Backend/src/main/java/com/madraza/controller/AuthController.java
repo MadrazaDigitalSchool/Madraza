@@ -55,13 +55,28 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        // Incluir el estado de suscripción en la respuesta
-        boolean suscripcionActiva = usuarioRepository.findById(userDetails.getId())
-                .map(Usuario::isSuscripcionActiva)
-                .orElse(false);
+        // Calcular estado de suscripción real (flag + expiración)
+        boolean suscripcionActiva = false;
+        String suscripcionExpiry = "";
+        var usuarioOpt = usuarioRepository.findById(userDetails.getId());
+        if (usuarioOpt.isPresent()) {
+            Usuario u = usuarioOpt.get();
+            LocalDateTime expiry = u.getSuscripcionExpiry();
+            if (u.isSuscripcionActiva()) {
+                if (expiry == null || expiry.isAfter(LocalDateTime.now())) {
+                    suscripcionActiva = true;
+                } else {
+                    // Suscripción expirada: desactivar en BD
+                    u.setSuscripcionActiva(false);
+                    usuarioRepository.save(u);
+                }
+            }
+            suscripcionExpiry = expiry != null ? expiry.toString() : "";
+        }
 
         return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(),
-                userDetails.getNombre(), userDetails.getUsername(), roles, suscripcionActiva));
+                userDetails.getNombre(), userDetails.getUsername(), roles,
+                suscripcionActiva, suscripcionExpiry));
     }
 
     /** POST /api/auth/registro */
@@ -164,6 +179,13 @@ public class AuthController {
     public ResponseEntity<?> getPerfil(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return usuarioRepository.findById(userDetails.getId())
                 .map(usuario -> {
+                    // Auto-expirar suscripción si ha vencido
+                    LocalDateTime expiry = usuario.getSuscripcionExpiry();
+                    if (usuario.isSuscripcionActiva() && expiry != null && expiry.isBefore(LocalDateTime.now())) {
+                        usuario.setSuscripcionActiva(false);
+                        usuarioRepository.save(usuario);
+                    }
+
                     Map<String, Object> resp = new LinkedHashMap<>();
                     resp.put("id",                usuario.getId());
                     resp.put("nombre",            usuario.getNombre());
@@ -172,8 +194,7 @@ public class AuthController {
                     resp.put("avatarUrl",         usuario.getAvatarUrl() != null ? usuario.getAvatarUrl() : "");
                     resp.put("emailVerificado",   usuario.isEmailVerificado());
                     resp.put("suscripcionActiva", usuario.isSuscripcionActiva());
-                    resp.put("suscripcionExpiry", usuario.getSuscripcionExpiry() != null
-                            ? usuario.getSuscripcionExpiry().toString() : "");
+                    resp.put("suscripcionExpiry", expiry != null ? expiry.toString() : "");
                     resp.put("proveedorOauth",    usuario.getProveedorOauth() != null
                             ? usuario.getProveedorOauth() : "");
                     resp.put("roles",             userDetails.getAuthorities().stream()

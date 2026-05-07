@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -43,6 +44,12 @@ public class TestService {
     public Test crearTest(TestRequest req, Long creadorId) {
         Usuario creador = usuarioRepository.findById(creadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (!creador.isSuscripcionActiva() ||
+                (creador.getSuscripcionExpiry() != null &&
+                 creador.getSuscripcionExpiry().isBefore(LocalDateTime.now()))) {
+            throw new AccessDeniedException("Se requiere una suscripción activa para crear tests");
+        }
 
         Test test = new Test();
         test.setTitulo(req.titulo());

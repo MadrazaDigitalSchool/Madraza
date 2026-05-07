@@ -1,5 +1,6 @@
 package com.madraza.security.oauth2;
 
+import com.madraza.entity.Usuario;
 import com.madraza.repository.UsuarioRepository;
 import com.madraza.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 /**
  * Se ejecuta tras el login exitoso con Google o GitHub.
@@ -47,9 +49,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtUtils.generateTokenFromEmail(email);
 
-        // Incluir suscripcionActiva en la redirección para que el frontend lo conozca
+        // Calcular estado de suscripción real (flag + expiración)
         boolean suscripcionActiva = usuarioRepository.findByEmail(email)
-                .map(u -> u.isSuscripcionActiva())
+                .map(u -> {
+                    if (!u.isSuscripcionActiva()) return false;
+                    LocalDateTime expiry = u.getSuscripcionExpiry();
+                    if (expiry != null && expiry.isBefore(LocalDateTime.now())) {
+                        u.setSuscripcionActiva(false);
+                        usuarioRepository.save(u);
+                        return false;
+                    }
+                    return true;
+                })
                 .orElse(false);
 
         String redirectUrl = frontendUrl + "/auth/oauth2/callback?token=" + token

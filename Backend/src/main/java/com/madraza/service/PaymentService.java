@@ -14,11 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * @author Hafdala Mehdi Sidi
@@ -136,10 +138,21 @@ public class PaymentService {
         }
     }
 
+    /** Tarea programada: desactiva suscripciones que hayan expirado (cada hora). */
+    @Scheduled(cron = "0 0 * * * *")
+    @Transactional
+    public void expirarSuscripciones() {
+        List<Usuario> expirados = usuarioRepository
+                .findBySuscripcionActivaTrueAndSuscripcionExpiryBefore(LocalDateTime.now());
+        if (!expirados.isEmpty()) {
+            expirados.forEach(u -> u.setSuscripcionActiva(false));
+            usuarioRepository.saveAll(expirados);
+            log.info("Suscripciones expiradas desactivadas: {}", expirados.size());
+        }
+    }
+
     private void activarSuscripcion(Long usuarioId, String plan, String planLabel) {
         usuarioRepository.findById(usuarioId).ifPresent(usuario -> {
-            if (usuario.isSuscripcionActiva()) return; // idempotente
-
             boolean esAnual = "anual".equalsIgnoreCase(plan);
             LocalDateTime expiry = LocalDateTime.now().plusDays(esAnual ? 365 : 30);
 

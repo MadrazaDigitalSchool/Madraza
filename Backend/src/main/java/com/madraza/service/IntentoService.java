@@ -6,6 +6,7 @@ import com.madraza.entity.*;
 import com.madraza.exception.ResourceNotFoundException;
 import com.madraza.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,12 @@ public class IntentoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Test no encontrado"));
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (!usuario.isSuscripcionActiva() ||
+                (usuario.getSuscripcionExpiry() != null &&
+                 usuario.getSuscripcionExpiry().isBefore(LocalDateTime.now()))) {
+            throw new AccessDeniedException("Se requiere una suscripción activa para realizar exámenes");
+        }
 
         Intento intento = new Intento();
         intento.setTest(test);
