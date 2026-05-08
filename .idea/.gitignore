@@ -10,4 +10,4 @@
 /dataSources.local.xml
 
 #.idea folder is used to store project-specific settings and configurations for JetBrains IDEs. The .gitignore file in this folder specifies which files and directories should be ignored by Git version control.  
-.idea/ is the directory that contains project-specific settings and configurations for JetBrains IDEs. The .gitignore file in this directory specifies which files and directories should be ignored by Git version control.
+/.idea
