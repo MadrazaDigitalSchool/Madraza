@@ -14,7 +14,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,29 +26,33 @@ public class TestService {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private IntentoRepository intentoRepository;
 
+    @Transactional(readOnly = true)
     public List<Test> getTestsPublicos() {
-        return testRepository.findByVisibilidadAndActivoTrue("PUBLICO");
+        List<Test> tests = testRepository.findPublicosConPreguntas();
+        // Inicializar opciones dentro de la transacción para evitar LazyInitializationException
+        tests.forEach(t -> t.getPreguntas().forEach(p -> p.getOpciones().size()));
+        return tests;
     }
 
+    @Transactional(readOnly = true)
     public List<Test> getTestsDelUsuario(Long usuarioId) {
-        return testRepository.findByCreadorId(usuarioId);
+        List<Test> tests = testRepository.findByCreadorIdConPreguntas(usuarioId);
+        tests.forEach(t -> t.getPreguntas().forEach(p -> p.getOpciones().size()));
+        return tests;
     }
 
+    @Transactional(readOnly = true)
     public Test getTestById(Long id) {
-        return testRepository.findById(id)
+        Test test = testRepository.findByIdConPreguntas(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Test no encontrado"));
+        test.getPreguntas().forEach(p -> p.getOpciones().size());
+        return test;
     }
 
     @Transactional
     public Test crearTest(TestRequest req, Long creadorId) {
         Usuario creador = usuarioRepository.findById(creadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-
-        if (!creador.isSuscripcionActiva() ||
-                (creador.getSuscripcionExpiry() != null &&
-                 creador.getSuscripcionExpiry().isBefore(LocalDateTime.now()))) {
-            throw new AccessDeniedException("Se requiere una suscripción activa para crear tests");
-        }
 
         Test test = new Test();
         test.setTitulo(req.titulo());
@@ -61,6 +64,7 @@ public class TestService {
         test.setCreador(creador);
 
         poblarPreguntas(test, req);
+        // Las preguntas y opciones quedan en memoria tras poblarPreguntas → save no las desvincula
         return testRepository.save(test);
     }
 

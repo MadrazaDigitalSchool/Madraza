@@ -11,5 +11,6 @@ public record ResultadoResponse(
         int correctas,
         int incorrectas,
         double porcentaje,
-        String estado
+        String estado,
+        long tiempoEmpleado
 ) {}

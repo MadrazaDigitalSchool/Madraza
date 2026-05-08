@@ -69,6 +69,12 @@ public class Usuario {
     @Column(name = "stripe_customer_id", length = 100)
     private String stripeCustomerId;
 
+    @Column(name = "plan_tipo", length = 20)
+    private String planTipo;
+
+    @Column(name = "metodo_pago", length = 50)
+    private String metodoPago;
+
     @Column(nullable = false)
     private boolean activo = true;
 

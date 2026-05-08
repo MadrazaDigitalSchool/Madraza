@@ -33,15 +33,18 @@ public class IntentoController {
     @PostMapping("/{intentoId}/responder")
     public ResponseEntity<Void> responder(
             @PathVariable Long intentoId,
-            @RequestBody RespuestaRequest req) {
-        intentoService.responder(intentoId, req);
+            @RequestBody RespuestaRequest req,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        intentoService.responder(intentoId, req, userDetails.getId());
         return ResponseEntity.ok().build();
     }
 
     /** POST /api/intentos/{intentoId}/finalizar — termina el examen (idempotente) */
     @PostMapping("/{intentoId}/finalizar")
-    public ResponseEntity<ResultadoResponse> finalizar(@PathVariable Long intentoId) {
-        return ResponseEntity.ok(intentoService.finalizar(intentoId));
+    public ResponseEntity<ResultadoResponse> finalizar(
+            @PathVariable Long intentoId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(intentoService.finalizar(intentoId, userDetails.getId()));
     }
 
     /** GET /api/intentos/historial — historial del usuario autenticado */

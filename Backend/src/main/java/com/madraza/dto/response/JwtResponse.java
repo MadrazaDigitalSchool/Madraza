@@ -12,5 +12,7 @@ public record JwtResponse(
         String email,
         List<String> roles,
         boolean suscripcionActiva,
-        String suscripcionExpiry
+        String suscripcionExpiry,
+        String planTipo,
+        String metodoPago
 ) {}

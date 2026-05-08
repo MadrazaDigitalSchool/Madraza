@@ -26,6 +26,7 @@ public class Intento {
     private Long id;
 
     private int puntuacion = 0;
+    private long tiempoEmpleado; // en segundos, calculado al finalizar
     private int totalPreguntas = 0;
     private int correctas = 0;
     private int incorrectas = 0;

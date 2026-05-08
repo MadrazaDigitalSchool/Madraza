@@ -110,6 +110,7 @@ public class PaymentService {
                 .putMetadata("usuarioId", usuarioId.toString())
                 .putMetadata("plan", plan)
                 .putMetadata("planLabel", planLabel)
+                .putMetadata("metodoPago", metodoPago)
                 .build();
 
         Subscription subscription = Subscription.create(subParams);
@@ -141,7 +142,8 @@ public class PaymentService {
 
         activarSuscripcion(usuarioId,
                 subscription.getMetadata().get("plan"),
-                subscription.getMetadata().get("planLabel"));
+                subscription.getMetadata().get("planLabel"),
+                subscription.getMetadata().get("metodoPago"));
     }
 
     /**
@@ -226,7 +228,8 @@ public class PaymentService {
         }
 
         activarSuscripcion(usuarioId, session.getMetadata().get("plan"),
-                session.getMetadata().get("planLabel"));
+                session.getMetadata().get("planLabel"),
+                session.getMetadata().get("metodoPago"));
     }
 
     /**
@@ -252,7 +255,8 @@ public class PaymentService {
                 if (usuarioIdStr != null) {
                     Long usuarioId = Long.parseLong(usuarioIdStr);
                     activarSuscripcion(usuarioId, session.getMetadata().get("plan"),
-                            session.getMetadata().get("planLabel"));
+                            session.getMetadata().get("planLabel"),
+                            session.getMetadata().get("metodoPago"));
                 }
             }
         }
@@ -271,13 +275,15 @@ public class PaymentService {
         }
     }
 
-    private void activarSuscripcion(Long usuarioId, String plan, String planLabel) {
+    private void activarSuscripcion(Long usuarioId, String plan, String planLabel, String metodoPago) {
         usuarioRepository.findById(usuarioId).ifPresent(usuario -> {
             boolean esAnual = "anual".equalsIgnoreCase(plan);
             LocalDateTime expiry = LocalDateTime.now().plusDays(esAnual ? 365 : 30);
 
             usuario.setSuscripcionActiva(true);
             usuario.setSuscripcionExpiry(expiry);
+            usuario.setPlanTipo(plan != null ? plan : (esAnual ? "anual" : "mensual"));
+            usuario.setMetodoPago(metodoPago != null ? metodoPago : "tarjeta");
             usuarioRepository.save(usuario);
 
             emailService.enviarConfirmacionPago(

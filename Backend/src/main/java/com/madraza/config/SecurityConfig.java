@@ -103,7 +103,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/pago/webhook").permitAll()
                 // OAuth2 endpoints gestionados por Spring Security
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                // Tests: lectura pública
+                // Contacto: público
+                .requestMatchers(HttpMethod.POST, "/api/contacto").permitAll()
+                // Tests: lectura pública (ambos con y sin path adicional)
+                .requestMatchers(HttpMethod.GET, "/api/tests").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tests/**").permitAll()
                 // Admin: solo ROLE_ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

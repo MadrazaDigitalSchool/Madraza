@@ -73,6 +73,23 @@ public class EmailService {
         }
     }
 
+    @Async
+    public void enviarContacto(String nombre, String email, String asunto, String mensaje) {
+        String body = """
+            <h2>Nuevo mensaje de contacto</h2>
+            <p><strong>Nombre:</strong> %s</p>
+            <p><strong>Email:</strong> %s</p>
+            <p><strong>Asunto:</strong> %s</p>
+            <hr/>
+            <p>%s</p>
+            """.formatted(nombre, email, asunto, mensaje);
+        try {
+            enviar("hola@madraza.app", "Contacto: " + asunto, body);
+        } catch (Exception e) {
+            log.error("Error al enviar email de contacto: {}", e.getMessage());
+        }
+    }
+
     private void enviar(String destinatario, String asunto, String html) throws Exception {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

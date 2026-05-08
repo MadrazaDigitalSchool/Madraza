@@ -58,6 +58,8 @@ public class AuthController {
         // Calcular estado de suscripción real (flag + expiración)
         boolean suscripcionActiva = false;
         String suscripcionExpiry = "";
+        String planTipo = "";
+        String metodoPago = "";
         var usuarioOpt = usuarioRepository.findById(userDetails.getId());
         if (usuarioOpt.isPresent()) {
             Usuario u = usuarioOpt.get();
@@ -72,11 +74,13 @@ public class AuthController {
                 }
             }
             suscripcionExpiry = expiry != null ? expiry.toString() : "";
+            planTipo = u.getPlanTipo() != null ? u.getPlanTipo() : "";
+            metodoPago = u.getMetodoPago() != null ? u.getMetodoPago() : "";
         }
 
         return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(),
                 userDetails.getNombre(), userDetails.getUsername(), roles,
-                suscripcionActiva, suscripcionExpiry));
+                suscripcionActiva, suscripcionExpiry, planTipo, metodoPago));
     }
 
     /** POST /api/auth/registro */
@@ -195,6 +199,8 @@ public class AuthController {
                     resp.put("emailVerificado",   usuario.isEmailVerificado());
                     resp.put("suscripcionActiva", usuario.isSuscripcionActiva());
                     resp.put("suscripcionExpiry", expiry != null ? expiry.toString() : "");
+                    resp.put("planTipo",          usuario.getPlanTipo() != null ? usuario.getPlanTipo() : "");
+                    resp.put("metodoPago",        usuario.getMetodoPago() != null ? usuario.getMetodoPago() : "");
                     resp.put("proveedorOauth",    usuario.getProveedorOauth() != null
                             ? usuario.getProveedorOauth() : "");
                     resp.put("roles",             userDetails.getAuthorities().stream()

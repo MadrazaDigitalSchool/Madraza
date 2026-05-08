@@ -32,12 +32,6 @@ public class IntentoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        if (!usuario.isSuscripcionActiva() ||
-                (usuario.getSuscripcionExpiry() != null &&
-                 usuario.getSuscripcionExpiry().isBefore(LocalDateTime.now()))) {
-            throw new AccessDeniedException("Se requiere una suscripción activa para realizar exámenes");
-        }
-
         Intento intento = new Intento();
         intento.setTest(test);
         intento.setUsuario(usuario);
@@ -48,9 +42,13 @@ public class IntentoService {
     }
 
     @Transactional
-    public void responder(Long intentoId, RespuestaRequest req) {
+    public void responder(Long intentoId, RespuestaRequest req, Long usuarioId) {
         Intento intento = intentoRepository.findById(intentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Intento no encontrado"));
+
+        if (!intento.getUsuario().getId().equals(usuarioId)) {
+            throw new AccessDeniedException("No tienes permiso para responder este intento");
+        }
 
         if (!"EN_CURSO".equals(intento.getEstado())) {
             throw new IllegalArgumentException("El intento ya está " + intento.getEstado());
@@ -83,9 +81,13 @@ public class IntentoService {
      * Es idempotente: si ya está COMPLETADO devuelve el resultado guardado.
      */
     @Transactional
-    public ResultadoResponse finalizar(Long intentoId) {
+    public ResultadoResponse finalizar(Long intentoId, Long usuarioId) {
         Intento intento = intentoRepository.findById(intentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Intento no encontrado"));
+
+        if (!intento.getUsuario().getId().equals(usuarioId)) {
+            throw new AccessDeniedException("No tienes permiso para finalizar este intento");
+        }
 
         // Idempotencia: si ya está completado, devolver el resultado existente
         if ("COMPLETADO".equals(intento.getEstado())) {
@@ -110,6 +112,9 @@ public class IntentoService {
         intento.setPorcentaje(porcentaje);
         intento.setEstado("COMPLETADO");
         intento.setFin(LocalDateTime.now());
+        intento.setTiempoEmpleado(
+            java.time.Duration.between(intento.getInicio(), intento.getFin()).getSeconds()
+        );
         intentoRepository.save(intento);
 
         return buildResultado(intento);
@@ -122,6 +127,13 @@ public class IntentoService {
     // ── Privado ───────────────────────────────────────────────
 
     private ResultadoResponse buildResultado(Intento intento) {
+        long tiempo = intento.getTiempoEmpleado();
+        if (tiempo == 0 && intento.getInicio() != null) {
+            tiempo = java.time.Duration.between(
+                intento.getInicio(),
+                intento.getFin() != null ? intento.getFin() : LocalDateTime.now()
+            ).getSeconds();
+        }
         return new ResultadoResponse(
                 intento.getId(),
                 intento.getPuntuacion(),
@@ -129,7 +141,8 @@ public class IntentoService {
                 intento.getCorrectas(),
                 intento.getIncorrectas(),
                 intento.getPorcentaje(),
-                intento.getEstado()
+                intento.getEstado(),
+                tiempo
         );
     }
 }
