@@ -149,7 +149,7 @@ public class PaymentService {
                 : ("anual".equalsIgnoreCase(plan) ? priceAnual      : priceMensual);
 
         SessionCreateParams.Builder builder = SessionCreateParams.builder()
-                .setMode(esBizum ? SessionCreateParams.Mode.PAYMENT : SessionCreateParams.Mode.SUBSCRIPTION)
+                .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                 .setSuccessUrl(frontendUrl + "/pago/exito?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl(frontendUrl + "/pago/cancelar")
                 .addLineItem(
@@ -161,15 +161,10 @@ public class PaymentService {
                 .putMetadata("usuarioId", usuarioId.toString())
                 .putMetadata("plan", plan)
                 .putMetadata("planLabel", planLabel)
-                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "tarjeta");
-
-        if (esBizum) {
-            builder.putExtraParam("payment_method_types", List.of("bizum"));
-        } else {
-            builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
-                   .addPaymentMethodType(SessionCreateParams.PaymentMethodType.PAYPAL)
-                   .addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
-        }
+                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "tarjeta")
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.PAYPAL)
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
 
         Session session = Session.create(builder.build());
         log.info("Sesión Stripe creada: {} para usuario {} método: {}", session.getId(), usuarioId, metodoPago);
