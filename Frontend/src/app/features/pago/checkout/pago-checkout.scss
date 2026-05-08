@@ -248,6 +248,59 @@
   }
 }
 
+// ── Método activo (indicador mientras el form está cargado) ─
+.metodo-activo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f8f7ff;
+  border: 1.5px solid #6c63ff;
+  border-radius: 10px;
+
+  .btn-volver-metodo {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #6c63ff;
+    padding: 0;
+    transition: opacity 0.2s;
+
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+    &:hover:not(:disabled) { opacity: 0.7; }
+    &:disabled { opacity: 0.4; cursor: default; }
+  }
+
+  .metodo-activo-nombre {
+    font-size: 14px;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+// ── Express Checkout (Apple Pay / Google Pay) ──────────────
+.express-checkout-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .express-checkout-hint {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    text-align: center;
+  }
+
+  #express-checkout-element {
+    min-height: 52px;
+  }
+}
+
 // ── Stripe Elements ────────────────────────────────────────
 .stripe-element-container {
   border: 1.5px solid #e0e0e0;

@@ -11,65 +11,80 @@
             </a>
         </div>
 
-        <!-- Derecha: nav pública + acciones usuario -->
+        <!-- Derecha -->
         <div class="navbar-right">
 
             <ul class="nav-links">
                 <li><a routerLink="/que-es-madraza" routerLinkActive="active">¿Qué es Madraza?</a></li>
-                <li><a routerLink="/precios" routerLinkActive="active">Precios</a></li>
-                <li><a routerLink="/contacto" routerLinkActive="active">Contacto</a></li>
+                <li><a routerLink="/precios"         routerLinkActive="active">Precios</a></li>
+                <li><a routerLink="/contacto"        routerLinkActive="active">Contacto</a></li>
             </ul>
 
             <div class="nav-actions">
 
                 @if (!isLoggedIn()) {
-                <!-- No autenticado -->
                 <a routerLink="/auth/login" mat-flat-button class="btn-login-nav">Iniciar sesión</a>
                 } @else {
-                <!-- Avatar con menú (escritorio Y móvil) -->
-                <div class="avatar-wrapper">
-                    <button class="avatar-btn" [matMenuTriggerFor]="menuUsuario" type="button" aria-label="Abrir menú de usuario">
-                        <div class="avatar">{{ getIniciales() }}</div>
-                        <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
-                    </button>
-                </div>
 
-                <mat-menu #menuUsuario="matMenu">
-                    <div class="menu-header">
-                        <p class="menu-nombre">{{ usuario()?.nombre }}</p>
-                        <p class="menu-email">{{ usuario()?.email }}</p>
+                <!-- Dropdown de usuario (sin MatMenu) -->
+                <div class="avatar-wrapper">
+                    <button class="avatar-btn"
+                            type="button"
+                            aria-label="Abrir menú de usuario"
+                            [class.open]="menuUsuarioOpen()"
+                            (click)="toggleMenuUsuario($event)">
+                        <span class="avatar">{{ getIniciales() }}</span>
+                        <mat-icon class="arrow-icon"
+                                  [class.rotated]="menuUsuarioOpen()">keyboard_arrow_down</mat-icon>
+                    </button>
+
+                    @if (menuUsuarioOpen()) {
+                    <!-- Backdrop: cierra el menú al clicar fuera (position:fixed cubre toda la pantalla) -->
+                    <div class="dropdown-backdrop" (click)="menuUsuarioOpen.set(false)"></div>
+                    <div class="dropdown" role="menu"
+                         [style.top]="dropdownTop()"
+                         [style.right]="dropdownRight()">
+                        <!-- Cabecera -->
+                        <div class="dropdown-header">
+                            <p class="menu-nombre">{{ usuario()?.nombre }}</p>
+                            <p class="menu-email">{{ usuario()?.email }}</p>
+                        </div>
+                        <div class="dropdown-divider"></div>
+
+                        @if (isAdmin()) {
+                        <a class="dropdown-item" routerLink="/admin"
+                           (click)="menuUsuarioOpen.set(false)">
+                            <mat-icon>admin_panel_settings</mat-icon> Panel Admin
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        }
+
+                        <a class="dropdown-item" routerLink="/dashboard"
+                           (click)="menuUsuarioOpen.set(false)">
+                            <mat-icon>dashboard</mat-icon> Mi panel
+                        </a>
+                        <a class="dropdown-item" routerLink="/tests"
+                           (click)="menuUsuarioOpen.set(false)">
+                            <mat-icon>quiz</mat-icon> Mis tests
+                        </a>
+                        <a class="dropdown-item" routerLink="/perfil"
+                           (click)="menuUsuarioOpen.set(false)">
+                            <mat-icon>person</mat-icon> Mi perfil
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item dropdown-item--danger"
+                                type="button" (click)="logout()">
+                            <mat-icon>logout</mat-icon> Cerrar sesión
+                        </button>
                     </div>
-                    <mat-divider></mat-divider>
-                    @if (isAdmin()) {
-                    <button mat-menu-item routerLink="/admin">
-                        <mat-icon>admin_panel_settings</mat-icon>
-                        Panel Admin
-                    </button>
-                    <mat-divider></mat-divider>
                     }
-                    <button mat-menu-item routerLink="/dashboard">
-                        <mat-icon>dashboard</mat-icon>
-                        Mi panel
-                    </button>
-                    <button mat-menu-item routerLink="/tests">
-                        <mat-icon>quiz</mat-icon>
-                        Mis tests
-                    </button>
-                    <button mat-menu-item routerLink="/perfil">
-                        <mat-icon>person</mat-icon>
-                        Mi perfil
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="logout()" class="logout-btn">
-                        <mat-icon>logout</mat-icon>
-                        Cerrar sesión
-                    </button>
-                </mat-menu>
+                </div>
                 }
 
-                <!-- Botón hamburguesa (solo en móvil) -->
+                <!-- Hamburguesa (móvil) -->
                 <button class="menu-movil-btn" (click)="toggleMenuMovil()"
-                    [attr.aria-label]="menuMovilAbierto() ? 'Cerrar menú' : 'Abrir menú'">
+                        [attr.aria-label]="menuMovilAbierto() ? 'Cerrar menú' : 'Abrir menú'">
                     <mat-icon>{{ menuMovilAbierto() ? 'close' : 'menu' }}</mat-icon>
                 </button>
 
@@ -77,7 +92,7 @@
         </div>
     </nav>
 
-    <!-- Menú móvil desplegable -->
+    <!-- Menú móvil -->
     @if (menuMovilAbierto()) {
     <div class="menu-movil">
         <ul>

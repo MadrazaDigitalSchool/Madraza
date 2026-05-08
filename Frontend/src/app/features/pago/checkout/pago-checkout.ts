@@ -4,20 +4,22 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import { loadStripe, Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
 import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth';
 import { environment } from '../../../../environments/environment';
 
-type MetodoPago = 'tarjeta' | 'bizum' | 'paypal' | 'klarna';
+type MetodoPago = 'tarjeta' | 'paypal' | 'apple_pay' | 'google_pay' | 'sepa' | 'klarna';
 type Estado = 'resumen' | 'cargando' | 'formulario' | 'pagando';
 
-// Mapeo de método seleccionado → tipo de método en Stripe
+// Apple Pay y Google Pay son wallets de tarjeta en Stripe
 const METODO_STRIPE: Record<MetodoPago, string> = {
-  tarjeta: 'card',
-  bizum: 'bizum',
-  paypal: 'paypal',
-  klarna: 'klarna',
+  tarjeta:    'card',
+  paypal:     'paypal',
+  apple_pay:  'card',
+  google_pay: 'card',
+  sepa:       'sepa_debit',
+  klarna:     'klarna',
 };
 
 const PLANES = {
@@ -70,7 +72,7 @@ export class PagoCheckoutComponent implements OnInit {
   private authService    = inject(AuthService);
 
   plan         = signal<'mensual' | 'anual'>('mensual');
-  metodoPago   = signal<MetodoPago>('tarjeta');
+  metodoPago = signal<MetodoPago>('tarjeta');
   estado       = signal<Estado>('resumen');
   errorMessage = signal('');
 
@@ -79,6 +81,9 @@ export class PagoCheckoutComponent implements OnInit {
   private stripe: Stripe | null = null;
   private elements: StripeElements | null = null;
   private subscriptionId = '';
+  private paymentElement: StripePaymentElement | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private expressCheckoutElement: any = null;
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
@@ -97,12 +102,42 @@ export class PagoCheckoutComponent implements OnInit {
     this.router.navigate(['/precios']);
   }
 
-  // Todos los métodos usan el Payment Element embebido (sin redirección a Stripe Checkout)
+  volverAlMetodo(): void {
+    this.paymentElement?.unmount();
+    this.paymentElement = null;
+    this.expressCheckoutElement?.unmount();
+    this.expressCheckoutElement = null;
+    this.stripe = null;
+    this.elements = null;
+    this.subscriptionId = '';
+    this.errorMessage.set('');
+    this.estado.set('resumen');
+  }
+
   iniciarPago(): void {
     this.estado.set('cargando');
     this.errorMessage.set('');
 
-    this.paymentService.crearIntencion(this.plan()).subscribe({
+    const metodo = this.metodoPago();
+
+    // Klarna usa Checkout Session (restricción de Stripe: no se puede modificar
+    // payment_method_types en PaymentIntents generados por facturas de suscripción).
+    if (metodo === 'klarna') {
+      this.guardarInfoPago();
+      this.paymentService.crearSesion(this.plan(), 'klarna').subscribe({
+        next: ({ url }) => { window.location.href = url; },
+        error: (err) => {
+          this.errorMessage.set(err.error?.message || err.error?.mensaje || 'Error al conectar con Klarna.');
+          this.estado.set('resumen');
+        }
+      });
+      return;
+    }
+
+    const metodoStripe = METODO_STRIPE[metodo];
+    const esWallet     = metodo === 'apple_pay' || metodo === 'google_pay';
+
+    this.paymentService.crearIntencion(this.plan(), metodoStripe).subscribe({
       next: async ({ clientSecret, subscriptionId }) => {
         this.subscriptionId = subscriptionId;
 
@@ -113,17 +148,38 @@ export class PagoCheckoutComponent implements OnInit {
           return;
         }
 
-        this.stripe = stripe;
+        this.stripe   = stripe;
         this.elements = stripe.elements({ clientSecret, locale: 'es' });
 
-        const paymentElement = this.elements.create('payment', {
-          layout: 'tabs',
-          // Prioriza el método seleccionado por el usuario
-          paymentMethodOrder: [METODO_STRIPE[this.metodoPago()]],
-        } as any);
+        if (esWallet) {
+          // Express Checkout Element: muestra el botón nativo del wallet
+          // sin formulario de tarjeta (Touch ID / Face ID / Google Pay sheet)
+          this.expressCheckoutElement = this.elements.create('expressCheckout', {
+            wallets: {
+              applePay:  metodo === 'apple_pay'  ? 'always' : 'never',
+              googlePay: metodo === 'google_pay' ? 'always' : 'never',
+            },
+            buttonType:   { applePay: 'subscribe', googlePay: 'subscribe' },
+            buttonHeight: 52,
+          } as any);
 
-        this.estado.set('formulario');
-        setTimeout(() => paymentElement.mount('#stripe-payment-element'), 0);
+          this.estado.set('formulario');
+          setTimeout(() => {
+            this.expressCheckoutElement.mount('#express-checkout-element');
+            this.expressCheckoutElement.on('confirm', () => this.confirmarPagoWallet());
+          }, 0);
+
+        } else {
+          // Payment Element para Tarjeta, PayPal y SEPA (oculta los wallets)
+          this.paymentElement = this.elements.create('payment', {
+            layout: { type: 'tabs', defaultCollapsed: false },
+            paymentMethodOrder: [metodoStripe],
+            wallets: { applePay: 'never', googlePay: 'never' },
+          } as any);
+
+          this.estado.set('formulario');
+          setTimeout(() => this.paymentElement!.mount('#stripe-payment-element'), 0);
+        }
       },
       error: (err) => {
         this.errorMessage.set(err.error?.message || err.error?.mensaje || 'Error al iniciar el pago. Inténtalo de nuevo.');
@@ -132,13 +188,12 @@ export class PagoCheckoutComponent implements OnInit {
     });
   }
 
+  // Confirmación para Tarjeta, PayPal, SEPA (botón manual "Confirmar pago")
   async confirmarPago(): Promise<void> {
     if (!this.stripe || !this.elements) return;
 
     this.estado.set('pagando');
     this.errorMessage.set('');
-
-    // Persiste el método e plan seleccionados para mostrarlos en el perfil
     this.guardarInfoPago();
 
     const { error } = await this.stripe.confirmPayment({
@@ -155,11 +210,38 @@ export class PagoCheckoutComponent implements OnInit {
       return;
     }
 
-    // Pago completado sin redirección (tarjeta sin 3DS)
+    this.activarSuscripcion();
+  }
+
+  // Confirmación para Apple Pay / Google Pay (llamada desde el evento 'confirm' del Express Checkout)
+  private async confirmarPagoWallet(): Promise<void> {
+    if (!this.stripe || !this.elements) return;
+
+    this.estado.set('pagando');
+    this.guardarInfoPago();
+
+    const { error } = await this.stripe.confirmPayment({
+      elements: this.elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/pago/exito?subscription_id=${this.subscriptionId}`,
+      },
+      redirect: 'if_required',
+    });
+
+    if (error) {
+      this.errorMessage.set(error.message || 'Error al procesar el pago.');
+      this.estado.set('formulario');
+      return;
+    }
+
+    this.activarSuscripcion();
+  }
+
+  private activarSuscripcion(): void {
     this.paymentService.confirmarSuscripcion(this.subscriptionId).subscribe({
       next: () => {
         this.authService.getPerfil().subscribe({
-          next: () => this.router.navigate(['/pago/exito'], { queryParams: { activada: 'true' } }),
+          next:  () => this.router.navigate(['/pago/exito'], { queryParams: { activada: 'true' } }),
           error: () => this.router.navigate(['/pago/exito'], { queryParams: { activada: 'true' } })
         });
       },

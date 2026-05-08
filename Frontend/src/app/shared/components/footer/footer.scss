@@ -104,6 +104,96 @@
     }
 }
 
+.footer-pago-seguro {
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 0;
+
+    .pago-seguro-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .pago-seguro-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        white-space: nowrap;
+
+        svg { color: #10b981; flex-shrink: 0; }
+    }
+
+    .metodos-pago-badges {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        height: 28px;
+        line-height: 1;
+        color: #374151;
+
+        svg { display: block; }
+    }
+
+    .badge-visa {
+        font-family: 'Segoe UI', sans-serif;
+        font-style: italic;
+        color: #1a1f71;
+        letter-spacing: -0.5px;
+        font-size: 13px;
+        padding: 3px 10px;
+    }
+
+    .badge-mc { padding: 3px 6px; }
+
+    .badge-paypal { padding: 3px 8px; }
+
+    .badge-applepay {
+        color: #000;
+        padding: 3px 8px;
+    }
+
+    .badge-googlepay {
+        padding: 3px 6px;
+    }
+
+    .badge-sepa {
+        color: #003399;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-klarna {
+        color: #000;
+        background: #FFB3C7;
+        border-color: #FFB3C7;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .badge-stripe { padding: 3px 8px; border-color: #e5e7eb; }
+}
+
 .footer-bottom {
     border-top: 1px solid #e5e7eb;
     padding: 20px 0;

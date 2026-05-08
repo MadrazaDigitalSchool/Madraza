@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/services/auth';
 import { Usuario } from '../../../core/models/usuario.model';
@@ -19,22 +18,25 @@ import { filter } from 'rxjs/operators';
     RouterLinkActive,
     MatButtonModule,
     MatIconModule,
-    MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
-  private router = inject(Router);
+  private router      = inject(Router);
 
-  usuario = signal<Usuario | null>(null);
+  usuario          = signal<Usuario | null>(null);
   menuMovilAbierto = signal(false);
-  scrolled = signal(false);
-  esRutaAuth = signal(false);
+  menuUsuarioOpen  = signal(false);
+  dropdownTop      = signal('64px');
+  dropdownRight    = signal('16px');
+  scrolled         = signal(false);
+  esRutaAuth       = signal(false);
+
   isLoggedIn = computed(() => this.usuario() !== null);
-  isAdmin = computed(() => this.authService.tieneRol('ROLE_ADMIN'));
+  isAdmin    = computed(() => this.authService.tieneRol('ROLE_ADMIN'));
 
   constructor() {
     this.esRutaAuth.set(this.router.url.startsWith('/auth/'));
@@ -49,6 +51,7 @@ export class HeaderComponent {
     ).subscribe((e: NavigationEnd) => {
       this.esRutaAuth.set(e.urlAfterRedirects.startsWith('/auth/'));
       this.menuMovilAbierto.set(false);
+      this.menuUsuarioOpen.set(false);
       if (this.authService.isLoggedIn()) {
         this.usuario.set(this.authService.getUsuarioActual());
       } else {
@@ -60,6 +63,18 @@ export class HeaderComponent {
   @HostListener('window:scroll')
   onScroll(): void {
     this.scrolled.set(window.scrollY > 20);
+  }
+
+  toggleMenuUsuario(event: MouseEvent): void {
+    this.menuUsuarioOpen.update(v => !v);
+    if (this.menuUsuarioOpen()) {
+      const btn = (event.currentTarget as HTMLElement) ?? (event.target as HTMLElement)?.closest('.avatar-btn');
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        this.dropdownTop.set(`${rect.bottom + 6}px`);
+        this.dropdownRight.set(`${window.innerWidth - rect.right}px`);
+      }
+    }
   }
 
   getIniciales(): string {
@@ -76,6 +91,6 @@ export class HeaderComponent {
     this.authService.logout();
     this.usuario.set(null);
     this.menuMovilAbierto.set(false);
+    this.menuUsuarioOpen.set(false);
   }
-
 }

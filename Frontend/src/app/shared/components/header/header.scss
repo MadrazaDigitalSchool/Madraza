@@ -175,25 +175,67 @@
     }
 }
 
-.menu-header {
-    padding: 12px 16px 8px;
+// ── Dropdown de usuario ───────────────────────────────────
+// Backdrop: cubre toda la pantalla, cierra el menú al clicar fuera
+.dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+}
+
+// position:fixed con coordenadas calculadas por JS → siempre encima de cualquier contenido
+.dropdown {
+    position: fixed;
+    min-width: 220px;
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+    z-index: 9999;
+    overflow: hidden;
+    animation: dropdownIn 0.15s ease;
+}
+
+@keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+    padding: 14px 16px 10px;
 
     .menu-nombre {
-        font-weight: 600;
-        font-size: 14px;
-        color: #1e1839;
-        margin: 0 0 2px;
+        font-weight: 600; font-size: 14px; color: #111827; margin: 0 0 2px;
     }
-
     .menu-email {
-        font-size: 12px;
-        color: #6b7280;
-        margin: 0;
+        font-size: 12px; color: #6b7280; margin: 0;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 }
 
-.logout-btn {
-    color: var(--madraza-error);
+.dropdown-divider {
+    height: 1px; background: rgba(0,0,0,0.07); margin: 2px 0;
+}
+
+.dropdown-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 16px;
+    font-size: 14px; font-weight: 500; color: #1f2937;
+    text-decoration: none; background: none; border: none;
+    cursor: pointer; text-align: left;
+    transition: background 0.15s;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; color: #6b7280; flex-shrink: 0; }
+
+    &:hover { background: rgba(108,99,255,0.07); color: var(--madraza-primary); mat-icon { color: var(--madraza-primary); } }
+
+    &--danger { color: #dc2626;  mat-icon { color: #dc2626; } &:hover { background: rgba(220,38,38,0.07); color: #dc2626; } }
+}
+
+// Flecha del avatar gira al abrir
+.arrow-icon {
+    transition: transform 0.2s ease;
+    &.rotated { transform: rotate(180deg); }
 }
 
 .menu-movil-btn {

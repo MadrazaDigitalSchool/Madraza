@@ -11,9 +11,12 @@ export class PaymentService {
   constructor(private http: HttpClient) {}
 
   /** Crea Customer + Subscription incompleta; devuelve clientSecret y subscriptionId para Stripe.js */
-  crearIntencion(plan: 'mensual' | 'anual'): Observable<{ clientSecret: string; subscriptionId: string }> {
+  crearIntencion(
+    plan: 'mensual' | 'anual',
+    metodoPago: string = 'card'
+  ): Observable<{ clientSecret: string; subscriptionId: string }> {
     return this.http.post<{ clientSecret: string; subscriptionId: string }>(
-      `${this.apiUrl}/crear-intencion`, { plan }
+      `${this.apiUrl}/crear-intencion`, { plan, metodoPago }
     );
   }
 
@@ -24,8 +27,8 @@ export class PaymentService {
     );
   }
 
-  /** @deprecated Usar crearIntencion(). Mantener para compatibilidad con webhook */
-  crearSesion(plan: 'mensual' | 'anual', metodoPago: string = 'tarjeta'): Observable<{ url: string }> {
+  /** Crea una sesión Stripe Checkout para Bizum y Klarna (métodos que requieren redirección externa) */
+  crearSesion(plan: 'mensual' | 'anual', metodoPago: string): Observable<{ url: string }> {
     return this.http.post<{ url: string }>(`${this.apiUrl}/crear-sesion`, { plan, metodoPago });
   }
 

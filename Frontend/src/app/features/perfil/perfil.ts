@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -25,6 +26,7 @@ import { Usuario } from '../../core/models/usuario.model';
 })
 export class PerfilComponent implements OnInit {
   public authService = inject(AuthService);
+  private destroyRef  = inject(DestroyRef);
 
   usuario: Usuario | null = null;
   nombre = '';
@@ -35,30 +37,37 @@ export class PerfilComponent implements OnInit {
   guardando = false;
   guardado = false;
   error = '';
+  cargando = !this.authService.getUsuarioActual();
 
   ngOnInit(): void {
-    this.usuario = this.authService.getUsuarioActual();
-    if (this.usuario) {
-      this.nombre = this.usuario.nombre ?? '';
-      this.apellidos = this.usuario.apellidos ?? '';
-      this.email = this.usuario.email ?? '';
-    }
-    this.authService.getPerfil().subscribe({
-      next: (u: Usuario) => {
-        this.usuario = u;
-        this.nombre = u.nombre ?? '';
-        this.apellidos = u.apellidos ?? '';
-        this.email = u.email ?? '';
-      },
-      error: () => {}
-    });
-
-    // Lee el método de pago y plan guardados en localStorage al completar el checkout
     try {
       const pagoInfo = JSON.parse(localStorage.getItem('madraza_pago_info') || '{}');
       this.metodoPago = pagoInfo.metodoPago || '';
       this.planTipo   = pagoInfo.plan || '';
-    } catch { /* ignore parse errors */ }
+    } catch { /* ignore */ }
+
+    const cached = this.authService.getUsuarioActual();
+    if (cached) {
+      this.usuario   = cached;
+      this.nombre    = cached.nombre    ?? '';
+      this.apellidos = cached.apellidos ?? '';
+      this.email     = cached.email     ?? '';
+      this.cargando  = false;
+    }
+
+    // Solo refresca desde la API si la caché no tiene datos completos (ej: OAuth)
+    if (!cached?.nombre && !cached?.email) {
+      this.authService.getPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (u: Usuario) => {
+          this.usuario   = u;
+          this.nombre    = u.nombre    ?? '';
+          this.apellidos = u.apellidos ?? '';
+          this.email     = u.email     ?? '';
+          this.cargando  = false;
+        },
+        error: () => { this.cargando = false; }
+      });
+    }
   }
 
   getIniciales(): string {
@@ -87,12 +96,21 @@ export class PerfilComponent implements OnInit {
 
   getMetodoPagoLabel(): string {
     const labels: Record<string, string> = {
-      tarjeta: '💳 Tarjeta',
-      bizum:   '📱 Bizum',
-      paypal:  '🅿 PayPal',
-      klarna:  '🛍 Klarna',
+      tarjeta:    '💳 Tarjeta',
+      paypal:     '🅿 PayPal',
+      apple_pay:  '🍎 Apple Pay',
+      google_pay: '🔵 Google Pay',
+      sepa:       '🏦 Adeudo SEPA',
+      klarna:     '🛍 Klarna',
     };
     return labels[this.metodoPago] || this.metodoPago;
+  }
+
+  getDiasRestantes(): number | null {
+    const expiry = this.getFechaExpiry();
+    if (!expiry) return null;
+    const diff = expiry.getTime() - new Date().getTime();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }
 
   isAdmin(): boolean {

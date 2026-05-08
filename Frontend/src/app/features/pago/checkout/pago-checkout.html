@@ -81,21 +81,57 @@
             <input type="radio" name="metodoPago" value="paypal"
                    [checked]="metodoPago() === 'paypal'"
                    (change)="metodoPago.set('paypal')" />
-            <span class="metodo-icon">🅿</span>
+            <span class="metodo-icon metodo-icon--paypal">
+              <svg viewBox="0 0 24 24" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.5 7.5c.3 2.1-.6 4.3-2.4 5.6-1.5 1.1-3.4 1.4-5.1 1.4H11l-.9 5H7.5l2.4-14h5c1.7 0 3.3.4 4.1 1.4.3.4.5.9.5 1.6z" fill="#003087"/>
+                <path d="M8.6 19.5H6l.6-3.5h1.1l-.1 3.5zM20.3 5.2C19.4 4.2 17.7 3.5 15.5 3.5H9.8L7 19.5h3.1l.9-5h1c1.9 0 4-.3 5.6-1.5 2-1.5 3-4 2.6-6.4-.1-.9-.5-1.7-1-2.4z" fill="#009cde"/>
+              </svg>
+            </span>
             <span class="metodo-texto">
               <strong>PayPal</strong>
               <small>Paga con tu cuenta PayPal</small>
             </span>
           </label>
 
-          <label class="metodo-option" [class.active]="metodoPago() === 'bizum'">
-            <input type="radio" name="metodoPago" value="bizum"
-                   [checked]="metodoPago() === 'bizum'"
-                   (change)="metodoPago.set('bizum')" />
-            <span class="metodo-icon">📱</span>
+          <label class="metodo-option" [class.active]="metodoPago() === 'apple_pay'">
+            <input type="radio" name="metodoPago" value="apple_pay"
+                   [checked]="metodoPago() === 'apple_pay'"
+                   (change)="metodoPago.set('apple_pay')" />
+            <span class="metodo-icon">
+              <svg viewBox="0 0 24 24" height="20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 3.5c.7-.9 1.9-1.5 2.9-1.5.1 1.2-.4 2.4-1.1 3.2-.7.8-1.8 1.4-2.9 1.3-.1-1.1.4-2.3 1.1-3zm4.7 13.3c-.5.7-1 1.4-1.8 1.4s-1.1-.5-2.1-.5c-1 0-1.3.5-2.1.5-.8 0-1.3-.7-1.8-1.4-1.3-1.8-2.3-4.9-1-7.2.6-1.1 1.8-1.9 3-1.9 1 0 1.6.5 2.4.5.8 0 1.3-.5 2.4-.5 1.1 0 2.2.7 2.8 1.7-2.5 1.4-2.1 4.9.2 6.4z"/>
+              </svg>
+            </span>
             <span class="metodo-texto">
-              <strong>Bizum</strong>
-              <small>Pago inmediato desde tu banco</small>
+              <strong>Apple Pay</strong>
+              <small>Paga con Touch ID o Face ID</small>
+            </span>
+          </label>
+
+          <label class="metodo-option" [class.active]="metodoPago() === 'google_pay'">
+            <input type="radio" name="metodoPago" value="google_pay"
+                   [checked]="metodoPago() === 'google_pay'"
+                   (change)="metodoPago.set('google_pay')" />
+            <span class="metodo-icon">
+              <svg viewBox="0 0 24 24" height="20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 10.8v2.6h4.2c-.2 1-1.3 3-4.2 3-2.5 0-4.6-2.1-4.6-4.6s2.1-4.6 4.6-4.6c1.4 0 2.4.6 2.9 1.1l2-1.9C15.5 5.6 13.9 5 12 5 8.1 5 5 8.1 5 12s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H12z" fill="#4285F4"/>
+                <path d="M12 10.8v2.6h4.2c-.2 1-1.3 3-4.2 3-2.5 0-4.6-2.1-4.6-4.6" fill="none"/>
+              </svg>
+            </span>
+            <span class="metodo-texto">
+              <strong>Google Pay</strong>
+              <small>Paga con tu cuenta de Google</small>
+            </span>
+          </label>
+
+          <label class="metodo-option" [class.active]="metodoPago() === 'sepa'">
+            <input type="radio" name="metodoPago" value="sepa"
+                   [checked]="metodoPago() === 'sepa'"
+                   (change)="metodoPago.set('sepa')" />
+            <span class="metodo-icon">🏦</span>
+            <span class="metodo-texto">
+              <strong>Adeudo SEPA</strong>
+              <small>Débito bancario en zona euro</small>
             </span>
           </label>
 
@@ -103,10 +139,15 @@
             <input type="radio" name="metodoPago" value="klarna"
                    [checked]="metodoPago() === 'klarna'"
                    (change)="metodoPago.set('klarna')" />
-            <span class="metodo-icon">🛍</span>
+            <span class="metodo-icon metodo-icon--klarna">
+              <svg viewBox="0 0 40 16" height="16" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="16" rx="3" fill="#FFB3C7"/>
+                <text x="6" y="12" font-family="Arial" font-weight="bold" font-size="9" fill="#000">klarna</text>
+              </svg>
+            </span>
             <span class="metodo-texto">
               <strong>Klarna</strong>
-              <small>Compra ahora, paga después</small>
+              <small>Financia en cuotas sin intereses</small>
             </span>
           </label>
         </div>
@@ -121,31 +162,71 @@
       @if (estado() === 'cargando') {
         <div class="cargando-stripe">
           <mat-spinner diameter="32"></mat-spinner>
-          <span>Preparando formulario de pago...</span>
+          @switch (metodoPago()) {
+            @case ('paypal')     { <span>Conectando con PayPal...</span> }
+            @case ('apple_pay')  { <span>Preparando Apple Pay...</span> }
+            @case ('google_pay') { <span>Preparando Google Pay...</span> }
+            @case ('sepa')       { <span>Preparando adeudo SEPA...</span> }
+            @case ('klarna')     { <span>Conectando con Klarna...</span> }
+            @default             { <span>Preparando formulario de pago...</span> }
+          }
         </div>
       }
 
       <!-- Formulario Stripe Elements embebido -->
       @if (estado() === 'formulario' || estado() === 'pagando') {
-        <div class="stripe-element-container">
-          <div id="stripe-payment-element"></div>
+        <div class="metodo-activo">
+          <button class="btn-volver-metodo" type="button"
+                  [disabled]="estado() === 'pagando'"
+                  (click)="volverAlMetodo()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="metodo-activo-nombre">
+            @switch (metodoPago()) {
+              @case ('tarjeta')    { 💳 <strong>Tarjeta</strong> }
+              @case ('paypal')     { <strong>PayPal</strong> }
+              @case ('apple_pay')  { <strong>Apple Pay</strong> }
+              @case ('google_pay') { <strong>Google Pay</strong> }
+              @case ('sepa')       { 🏦 <strong>Adeudo SEPA</strong> }
+              @case ('klarna')     { <strong>Klarna</strong> }
+            }
+          </span>
         </div>
 
-        <button
-          mat-flat-button
-          class="btn-pagar"
-          (click)="confirmarPago()"
-          [disabled]="estado() === 'pagando'">
-          @if (estado() === 'pagando') {
-            <mat-spinner diameter="22"></mat-spinner>
-            <span>Procesando...</span>
-          } @else {
-            <ng-container>
-              <mat-icon>lock</mat-icon>
-              <span>Confirmar pago</span>
-            </ng-container>
-          }
-        </button>
+        @if (metodoPago() === 'apple_pay' || metodoPago() === 'google_pay') {
+          <!-- Express Checkout: botón nativo del wallet, sin formulario de tarjeta -->
+          <div class="express-checkout-container">
+            <p class="express-checkout-hint">
+              @if (metodoPago() === 'apple_pay') {
+                Pulsa el botón para pagar con Apple Pay
+              } @else {
+                Pulsa el botón para pagar con Google Pay
+              }
+            </p>
+            <div id="express-checkout-element"></div>
+          </div>
+        } @else {
+          <!-- Payment Element: Tarjeta, PayPal, SEPA -->
+          <div class="stripe-element-container">
+            <div id="stripe-payment-element"></div>
+          </div>
+
+          <button
+            mat-flat-button
+            class="btn-pagar"
+            (click)="confirmarPago()"
+            [disabled]="estado() === 'pagando'">
+            @if (estado() === 'pagando') {
+              <mat-spinner diameter="22"></mat-spinner>
+              <span>Procesando...</span>
+            } @else {
+              <ng-container>
+                <mat-icon>lock</mat-icon>
+                <span>Confirmar pago</span>
+              </ng-container>
+            }
+          </button>
+        }
       }
 
       <p class="seguridad">

@@ -1,129 +1,189 @@
 <div class="perfil-container">
-  <div class="perfil-header">
+
+  <!-- Cabecera -->
+  <div class="perfil-hero">
     <div class="container">
       <a routerLink="/dashboard" class="btn-back">
         <mat-icon>arrow_back</mat-icon> Volver al panel
       </a>
-      <div class="header-content">
+      <div class="hero-content">
         <div class="avatar-grande">{{ getIniciales() }}</div>
-        <div>
-          <h1>Mi perfil</h1>
+        <div class="hero-info">
+          <h1>{{ nombre || 'Mi perfil' }}</h1>
           <p>{{ email }}</p>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="perfil-body container">
+  <!-- Cuerpo -->
+  <div class="perfil-main container">
     <div class="perfil-grid">
 
-      <!-- ── CONTENIDO PRINCIPAL ── -->
-      <div class="perfil-main">
+      <!-- Columna principal -->
+      <div class="perfil-col">
 
         <!-- Datos personales -->
-        <section class="seccion">
-          <h2><mat-icon>person</mat-icon> Datos personales</h2>
-          @if (guardado) {
-            <div class="alert-ok"><mat-icon>check_circle</mat-icon> Perfil actualizado correctamente</div>
-          }
-          @if (error) {
-            <div class="alert-error"><mat-icon>error_outline</mat-icon> {{ error }}</div>
-          }
-          <div class="form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Nombre</mat-label>
-              <input matInput [(ngModel)]="nombre" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Apellidos</mat-label>
-              <input matInput [(ngModel)]="apellidos" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>Email</mat-label>
-              <input matInput [value]="email" disabled />
-              <mat-hint>El email no se puede cambiar</mat-hint>
-            </mat-form-field>
-          </div>
-          <button mat-flat-button class="btn-guardar" (click)="guardarPerfil()"
-            [disabled]="guardando || !nombre.trim()">
-            @if (guardando) { <mat-spinner diameter="20"></mat-spinner> }
-            @if (!guardando) { <mat-icon>save</mat-icon> }
-            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
-          </button>
-        </section>
-
-        <!-- Cuenta -->
-        <section class="seccion">
-          <h2><mat-icon>settings</mat-icon> Cuenta</h2>
-          <div class="acciones-lista">
-            <div class="accion-item">
-              <div>
-                <p class="accion-titulo">Cerrar sesión</p>
-                <p class="accion-desc">Cerrar la sesión actual en este dispositivo</p>
-              </div>
-              <button mat-stroked-button class="btn-logout" (click)="authService.logout()">
-                <mat-icon>logout</mat-icon> Cerrar sesión
-              </button>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><mat-icon>person</mat-icon></div>
+            <div>
+              <h2>Datos personales</h2>
+              <p class="card-desc">Actualiza tu nombre y apellidos</p>
             </div>
           </div>
-        </section>
+
+          @if (guardado) {
+            <div class="alert alert--ok">
+              <mat-icon>check_circle</mat-icon> Perfil actualizado correctamente
+            </div>
+          }
+          @if (error) {
+            <div class="alert alert--error">
+              <mat-icon>error_outline</mat-icon> {{ error }}
+            </div>
+          }
+
+          @if (cargando) {
+            <div class="skeleton-grid">
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton full"></div>
+            </div>
+          } @else {
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <mat-icon matPrefix>person</mat-icon>
+                <input matInput [(ngModel)]="nombre" placeholder="Tu nombre" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Apellidos</mat-label>
+                <mat-icon matPrefix>badge</mat-icon>
+                <input matInput [(ngModel)]="apellidos" placeholder="Tus apellidos" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>Correo electrónico</mat-label>
+                <mat-icon matPrefix>mail</mat-icon>
+                <input matInput [value]="email" disabled />
+                <mat-icon matSuffix>lock</mat-icon>
+                <mat-hint>El correo no se puede cambiar</mat-hint>
+              </mat-form-field>
+            </div>
+          }
+
+          <div class="card-footer">
+            <button mat-flat-button class="btn-guardar" (click)="guardarPerfil()"
+                    [disabled]="guardando || !nombre.trim()">
+              @if (guardando) {
+                <mat-spinner diameter="18"></mat-spinner> Guardando...
+              } @else {
+                <ng-container><mat-icon>save</mat-icon> Guardar cambios</ng-container>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Cuenta -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><mat-icon>settings</mat-icon></div>
+            <div>
+              <h2>Cuenta</h2>
+              <p class="card-desc">Gestiona el acceso a tu cuenta</p>
+            </div>
+          </div>
+          <div class="accion-row">
+            <div>
+              <p class="accion-titulo">Cerrar sesión</p>
+              <p class="accion-desc">Cerrar la sesión actual en este dispositivo</p>
+            </div>
+            <button mat-stroked-button class="btn-logout" (click)="authService.logout()">
+              <mat-icon>logout</mat-icon> Cerrar sesión
+            </button>
+          </div>
+        </div>
 
       </div>
 
-      <!-- ── SIDEBAR ── -->
+      <!-- Sidebar -->
       <aside class="perfil-sidebar">
 
         <!-- Suscripción -->
-        <div class="sidebar-card">
-          <h3><mat-icon>star</mat-icon> Suscripción</h3>
+        <div class="card" [class.card--premium]="esPremium()">
+          <h3 class="sidebar-title">
+            <mat-icon>{{ esPremium() ? 'workspace_premium' : 'star_outline' }}</mat-icon>
+            Suscripción
+          </h3>
 
           @if (esPremium()) {
-            <div class="sub-status premium">
-              <mat-icon>verified</mat-icon>
-              <span>Activa</span>
-            </div>
-            <div class="sub-details">
-              <div class="sub-row">
-                <span class="sub-label">Plan</span>
-                <span class="sub-value">{{ getPlanLabel() }}</span>
+            <span class="badge badge--activa">
+              <mat-icon>verified</mat-icon> Plan activo
+            </span>
+
+            <div class="sub-list">
+              <div class="sub-item">
+                <div class="sub-item-icon"><mat-icon>loyalty</mat-icon></div>
+                <div>
+                  <span class="sub-label">Plan</span>
+                  <span class="sub-value">{{ getPlanLabel() }}</span>
+                </div>
               </div>
+
               @if (getFechaExpiry()) {
-                <div class="sub-row">
-                  <span class="sub-label">Expira el</span>
-                  <span class="sub-value">{{ getFechaExpiry() | date:"dd 'de' MMMM 'de' yyyy":'':'es' }}</span>
+                <div class="sub-item">
+                  <div class="sub-item-icon"><mat-icon>event</mat-icon></div>
+                  <div>
+                    <span class="sub-label">Expira el</span>
+                    <span class="sub-value sub-value--purple">
+                      {{ getFechaExpiry() | date:"d 'de' MMMM yyyy":'':'es' }}
+                    </span>
+                    @if (getDiasRestantes() !== null) {
+                      <span class="dias-badge"
+                            [class.dias-badge--ok]="(getDiasRestantes() ?? 0) > 7"
+                            [class.dias-badge--warn]="(getDiasRestantes() ?? 0) <= 7">
+                        {{ getDiasRestantes() }} días restantes
+                      </span>
+                    }
+                  </div>
                 </div>
               }
+
               @if (metodoPago) {
-                <div class="sub-row">
-                  <span class="sub-label">Método de pago</span>
-                  <span class="sub-value">{{ getMetodoPagoLabel() }}</span>
+                <div class="sub-item">
+                  <div class="sub-item-icon"><mat-icon>payment</mat-icon></div>
+                  <div>
+                    <span class="sub-label">Método de pago</span>
+                    <span class="sub-value">{{ getMetodoPagoLabel() }}</span>
+                  </div>
                 </div>
               }
             </div>
+
           } @else {
-            <div class="sub-status free">
-              <mat-icon>person</mat-icon>
-              <span>Sin suscripción</span>
-            </div>
-            <p class="sub-desc">Accede a todos los tests y funcionalidades con Premium</p>
-            <a mat-flat-button routerLink="/pago" class="btn-premium-sidebar">
-              <mat-icon>star</mat-icon>
-              Ir a Premium
+            <span class="badge badge--free">
+              <mat-icon>person_outline</mat-icon> Sin suscripción
+            </span>
+            <p class="sub-desc">Accede a todos los tests con Premium</p>
+            <a mat-flat-button routerLink="/pago" class="btn-premium">
+              <mat-icon>workspace_premium</mat-icon> Activar Premium
             </a>
           }
         </div>
 
         <!-- Acciones rápidas -->
-        <div class="sidebar-card">
-          <h3><mat-icon>flash_on</mat-icon> Acciones rápidas</h3>
+        <div class="card">
+          <h3 class="sidebar-title">
+            <mat-icon>flash_on</mat-icon> Acciones rápidas
+          </h3>
           <div class="acciones-rapidas">
-            <a routerLink="/tests/crear" mat-stroked-button class="accion-rapida-btn">
-              <mat-icon>add_circle_outline</mat-icon>
-              Crear examen
+            <a routerLink="/tests/crear" mat-stroked-button class="accion-btn">
+              <mat-icon>add_circle_outline</mat-icon> Crear examen
             </a>
-            <a routerLink="/admin" mat-stroked-button class="accion-rapida-btn">
-              <mat-icon>category</mat-icon>
-              Crear nueva categoría
+            <a routerLink="/admin" mat-stroked-button class="accion-btn">
+              <mat-icon>category</mat-icon> Nueva categoría
             </a>
           </div>
         </div>
