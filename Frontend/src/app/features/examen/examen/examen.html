@@ -13,6 +13,14 @@
     <div class="estado-center">
         <mat-icon class="icon-error">error_outline</mat-icon>
         <p>{{ error }}</p>
+        <div class="error-actions">
+            <button mat-flat-button (click)="reintentar()">
+                <mat-icon>refresh</mat-icon> Reintentar
+            </button>
+            <a routerLink="/tests" mat-stroked-button>
+                <mat-icon>arrow_back</mat-icon> Volver a los tests
+            </a>
+        </div>
     </div>
     }
 

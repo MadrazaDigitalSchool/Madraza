@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, computed, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,8 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth';
+import { TestService } from '../../core/services/test';
 import { Usuario } from '../../core/models/usuario.model';
+import { Test } from '../../core/models/test.model';
+import { CrearCategoriaDialogComponent } from '../../shared/components/crear-categoria-dialog/crear-categoria-dialog';
 
 @Component({
   selector: 'app-perfil',
@@ -25,67 +30,121 @@ import { Usuario } from '../../core/models/usuario.model';
   styleUrl: './perfil.scss'
 })
 export class PerfilComponent implements OnInit {
-  public authService = inject(AuthService);
-  private destroyRef  = inject(DestroyRef);
+  authService = inject(AuthService);
+  private testService = inject(TestService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
-  usuario: Usuario | null = null;
+  usuario = signal<Usuario | null>(null);
   nombre = '';
   apellidos = '';
   email = '';
   metodoPago = '';
   planTipo = '';
-  guardando = false;
-  guardado = false;
-  error = '';
-  cargando = !this.authService.getUsuarioActual();
+  guardando = signal(false);
+  guardado = signal(false);
+  error = signal('');
+  cargando = signal(true);
+
+  misTests: Test[] = [];
+  misTestsCargando = true;
+  eliminandoId: number | null = null;
+
+  fechaExpiry = computed(() => {
+    const u = this.usuario();
+    if (!u?.suscripcionExpiry) return null;
+    return new Date(u.suscripcionExpiry);
+  });
+
+  esPremium = computed(() => {
+    const u = this.usuario();
+    if (!u?.suscripcionActiva) return false;
+    const expiry = this.fechaExpiry();
+    if (expiry) return expiry > new Date();
+    return true;
+  });
+
+  diasRestantes = computed(() => {
+    const expiry = this.fechaExpiry();
+    if (!expiry) return null;
+    const diff = expiry.getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  });
 
   ngOnInit(): void {
-    try {
-      const pagoInfo = JSON.parse(localStorage.getItem('madraza_pago_info') || '{}');
-      this.metodoPago = pagoInfo.metodoPago || '';
-      this.planTipo   = pagoInfo.plan || '';
-    } catch { /* ignore */ }
-
     const cached = this.authService.getUsuarioActual();
-    if (cached) {
-      this.usuario   = cached;
-      this.nombre    = cached.nombre    ?? '';
-      this.apellidos = cached.apellidos ?? '';
-      this.email     = cached.email     ?? '';
-      this.cargando  = false;
-    }
+    if (cached) this.aplicarUsuario(cached);
 
-    // Solo refresca desde la API si la caché no tiene datos completos (ej: OAuth)
-    if (!cached?.nombre && !cached?.email) {
-      this.authService.getPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (u: Usuario) => {
-          this.usuario   = u;
-          this.nombre    = u.nombre    ?? '';
-          this.apellidos = u.apellidos ?? '';
-          this.email     = u.email     ?? '';
-          this.cargando  = false;
+    this.authService.getPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (u) => this.aplicarUsuario(u),
+      error: () => this.cargando.set(false)
+    });
+
+    this.cargarMisTests();
+  }
+
+  private aplicarUsuario(u: Usuario): void {
+    this.usuario.set(u);
+    this.nombre = u.nombre ?? '';
+    this.apellidos = u.apellidos ?? '';
+    this.email = u.email ?? '';
+    this.metodoPago = u.metodoPago ?? '';
+    this.planTipo = u.planTipo ?? '';
+    this.cargando.set(false);
+  }
+
+  cargarMisTests(): void {
+    this.misTestsCargando = true;
+    this.testService.getMisTests().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (tests) => {
+        this.misTests = tests;
+        this.misTestsCargando = false;
+      },
+      error: () => { this.misTestsCargando = false; }
+    });
+  }
+
+  editarTest(test: Test): void {
+    this.router.navigate(['/tests/editar', test.id]);
+  }
+
+  eliminarTest(test: Test): void {
+    this.eliminandoId = test.id;
+    this.testService.eliminarTest(test.id).subscribe({
+      next: () => {
+        this.misTests = this.misTests.filter(t => t.id !== test.id);
+        this.eliminandoId = null;
+        this.snackBar.open(`Test "${test.titulo}" eliminado.`, 'Cerrar', { duration: 3000 });
+      },
+      error: () => {
+        this.eliminandoId = null;
+        this.snackBar.open('Error al eliminar el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
+      }
+    });
+  }
+
+  abrirDialogoCategoria(): void {
+    const ref = this.dialog.open(CrearCategoriaDialogComponent, { width: '400px' });
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.testService.crearCategoria(result).subscribe({
+        next: () => {
+          this.snackBar.open(`Categoría "${result}" creada.`, 'Cerrar', { duration: 3000 });
         },
-        error: () => { this.cargando = false; }
+        error: (err) => {
+          const msg = err.error?.error || 'No se pudo crear la categoría.';
+          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        }
       });
-    }
+    });
   }
 
   getIniciales(): string {
-    if (!this.nombre) return 'U';
-    return this.nombre.charAt(0).toUpperCase();
-  }
-
-  esPremium(): boolean {
-    if (!this.usuario?.suscripcionActiva) return false;
-    if (this.usuario.suscripcionExpiry) {
-      return new Date(this.usuario.suscripcionExpiry) > new Date();
-    }
-    return true;
-  }
-
-  getFechaExpiry(): Date | null {
-    if (!this.usuario?.suscripcionExpiry) return null;
-    return new Date(this.usuario.suscripcionExpiry);
+    if (this.nombre) return this.nombre.charAt(0).toUpperCase();
+    if (this.apellidos) return this.apellidos.charAt(0).toUpperCase();
+    return 'U';
   }
 
   getPlanLabel(): string {
@@ -96,42 +155,56 @@ export class PerfilComponent implements OnInit {
 
   getMetodoPagoLabel(): string {
     const labels: Record<string, string> = {
-      tarjeta:    '💳 Tarjeta',
-      paypal:     '🅿 PayPal',
-      apple_pay:  '🍎 Apple Pay',
-      google_pay: '🔵 Google Pay',
-      sepa:       '🏦 Adeudo SEPA',
-      klarna:     '🛍 Klarna',
+      tarjeta: 'Tarjeta',
+      paypal: 'PayPal',
+      card: 'Tarjeta',
+      apple_pay: 'Apple Pay',
+      google_pay: 'Google Pay',
+      sepa: 'Adeudo SEPA',
+      sepa_debit: 'Adeudo SEPA',
+      klarna: 'Klarna',
+      bizum: 'Bizum'
     };
     return labels[this.metodoPago] || this.metodoPago;
-  }
-
-  getDiasRestantes(): number | null {
-    const expiry = this.getFechaExpiry();
-    if (!expiry) return null;
-    const diff = expiry.getTime() - new Date().getTime();
-    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }
 
   isAdmin(): boolean {
     return this.authService.tieneRol('ROLE_ADMIN');
   }
 
+  getDificultadClass(dificultad: string): string {
+    const clases: Record<string, string> = { 'BAJA': 'chip-baja', 'MEDIA': 'chip-media', 'ALTA': 'chip-alta' };
+    return clases[dificultad] ?? '';
+  }
+
+  getDificultadLabel(dificultad: string): string {
+    const labels: Record<string, string> = { 'BAJA': 'Fácil', 'MEDIA': 'Media', 'ALTA': 'Difícil' };
+    return labels[dificultad] ?? dificultad;
+  }
+
   guardarPerfil(): void {
     if (!this.nombre.trim()) return;
-    this.guardando = true;
-    this.error = '';
-    this.authService.actualizarPerfil({ nombre: this.nombre.trim(), apellidos: this.apellidos.trim() }).subscribe({
-      next: (u: Usuario) => {
-        this.guardando = false;
-        this.guardado = true;
-        const datosActuales = this.authService.getUsuarioActual();
-        const nuevo: Usuario = { ...datosActuales!, nombre: u.nombre, apellidos: u.apellidos };
-        this.authService.guardarUsuarioLocal(nuevo);
-        this.usuario = { ...this.usuario!, nombre: u.nombre, apellidos: u.apellidos };
-        setTimeout(() => (this.guardado = false), 3000);
+
+    this.guardando.set(true);
+    this.error.set('');
+
+    this.authService.actualizarPerfil({
+      nombre: this.nombre.trim(),
+      apellidos: this.apellidos.trim()
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (u) => {
+        this.guardando.set(false);
+        this.guardado.set(true);
+        const actual = this.authService.getUsuarioActual();
+        const actualizado: Usuario = { ...actual!, nombre: u.nombre, apellidos: u.apellidos };
+        this.authService.guardarUsuarioLocal(actualizado);
+        this.usuario.update(us => ({ ...us!, nombre: u.nombre, apellidos: u.apellidos }));
+        setTimeout(() => this.guardado.set(false), 3000);
       },
-      error: () => { this.guardando = false; this.error = 'No se pudo actualizar el perfil.'; }
+      error: () => {
+        this.guardando.set(false);
+        this.error.set('No se pudo actualizar el perfil. Inténtalo de nuevo.');
+      }
     });
   }
 }

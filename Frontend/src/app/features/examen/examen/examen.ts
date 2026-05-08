@@ -8,7 +8,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TestService } from '../../../core/services/test';
 import { IntentoService } from '../../../core/services/intento';
 import { Test } from '../../../core/models/test.model';
-import { RespuestaRequest } from '../../../core/models/intento.model';
+import { RespuestaRequest, Intento } from '../../../core/models/intento.model';
+import { forkJoin, of } from 'rxjs';
+import { timeout, catchError } from 'rxjs/operators';
 
 interface RespuestaUsuario {
   preguntaId: number;
@@ -56,34 +58,62 @@ export class ExamenComponent implements OnInit, OnDestroy {
     private intentoService: IntentoService
   ) {}
 
+  private timeoutGlobal: any;
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.cargarTest(Number(id));
+    if (id) this.iniciarExamen(Number(id));
   }
 
   ngOnDestroy(): void {
     this.pararTemporizador();
+    clearTimeout(this.timeoutGlobal);
   }
 
-  cargarTest(testId: number): void {
-    this.testService.getTestById(testId).subscribe({
-      next: (test) => { this.test = test; this.iniciarIntento(testId); },
-      error: () => { this.error = 'No se pudo cargar el test'; this.cargando = false; }
-    });
-  }
-
-  iniciarIntento(testId: number): void {
-    this.intentoService.iniciarIntento(testId).subscribe({
-      next: (intento) => {
-        this.intentoId = intento.id;
+  iniciarExamen(testId: number): void {
+    // Timeout global: si en 30s no ha cargado, mostramos error
+    this.timeoutGlobal = setTimeout(() => {
+      if (this.cargando) {
         this.cargando = false;
-        if (this.test?.tiempoLimite) {
-          this.tiempoRestante = this.test.tiempoLimite;
-          this.tiempoTotal = this.test.tiempoLimite;
-          this.iniciarTemporizador();
+        this.error = 'El examen está tardando demasiado. Comprueba tu conexión e inténtalo de nuevo.';
+      }
+    }, 30_000);
+
+    const test$ = this.testService.getTestById(testId).pipe(
+      timeout(15_000),
+      catchError(() => of(null as Test | null))
+    );
+
+    const intento$ = this.intentoService.iniciarIntento(testId).pipe(
+      timeout(15_000),
+      catchError(() => of(null as Intento | null))
+    );
+
+    forkJoin({ test: test$, intento: intento$ }).subscribe({
+      next: ({ test, intento }) => {
+        clearTimeout(this.timeoutGlobal);
+        this.cargando = false;
+        if (!test && !intento) {
+          this.error = 'Error de conexión con el servidor. Inténtalo de nuevo más tarde.';
+        } else if (!test) {
+          this.error = 'No se pudo cargar el test. Inténtalo de nuevo.';
+        } else if (!intento) {
+          this.error = 'No se pudo iniciar el examen. Inténtalo de nuevo.';
+        } else {
+          this.test = test;
+          this.intentoId = intento.id;
+          if (this.test?.tiempoLimite) {
+            this.tiempoRestante = this.test.tiempoLimite;
+            this.tiempoTotal = this.test.tiempoLimite;
+            this.iniciarTemporizador();
+          }
         }
       },
-      error: () => { this.error = 'No se pudo iniciar el examen'; this.cargando = false; }
+      error: () => {
+        clearTimeout(this.timeoutGlobal);
+        this.cargando = false;
+        this.error = 'Error inesperado al preparar el examen.';
+      }
     });
   }
 
@@ -161,6 +191,22 @@ export class ExamenComponent implements OnInit, OnDestroy {
       },
       error: () => { this.respondiendo = false; }
     });
+  }
+
+  reintentar(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.error = '';
+      this.cargando = true;
+      this.test = null;
+      this.intentoId = null;
+      this.preguntaIndex = 0;
+      this.opcionSeleccionada = null;
+      this.respuestasUsuario = [];
+      this.pararTemporizador();
+      clearTimeout(this.timeoutGlobal);
+      this.iniciarExamen(Number(id));
+    }
   }
 
   finalizarExamen(): void {

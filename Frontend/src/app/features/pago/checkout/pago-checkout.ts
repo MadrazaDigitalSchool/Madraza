@@ -137,7 +137,7 @@ export class PagoCheckoutComponent implements OnInit {
     const metodoStripe = METODO_STRIPE[metodo];
     const esWallet     = metodo === 'apple_pay' || metodo === 'google_pay';
 
-    this.paymentService.crearIntencion(this.plan(), metodoStripe).subscribe({
+    this.paymentService.crearIntencion(this.plan(), metodo).subscribe({
       next: async ({ clientSecret, subscriptionId }) => {
         this.subscriptionId = subscriptionId;
 

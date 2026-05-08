@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Test } from '../models/test.model';
 
+export interface Categoria {
+  id: number;
+  nombre: string;
+}
+
 /**
  * Servicio de tests — gestiona todas las llamadas al backend
  * relacionadas con los tests, preguntas y opciones.
@@ -78,5 +83,19 @@ export class TestService {
    */
   eliminarTest(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Obtiene todas las categorías disponibles
+   */
+  getCategorias(): Observable<Categoria[]> {
+    return this.http.get<Categoria[]>(`${environment.apiUrl}/categorias`);
+  }
+
+  /**
+   * Crea una nueva categoría
+   */
+  crearCategoria(nombre: string): Observable<Categoria> {
+    return this.http.post<Categoria>(`${environment.apiUrl}/categorias`, { nombre });
   }
 }

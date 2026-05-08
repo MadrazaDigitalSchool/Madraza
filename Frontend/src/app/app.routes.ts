@@ -83,17 +83,16 @@ export const routes: Routes = [
       import('./features/admin/admin-dashboard').then(m => m.AdminDashboardComponent)
   },
 
-  // ── Tests (requiere login + suscripción) ──────────────────
+  // ── Tests (lista pública; crear/editar ya tienen authGuard en tests.routes.ts) ─
   {
     path: 'tests',
-    canActivate: [authGuard, subscriptionGuard],
     loadChildren: () => import('./features/tests/tests.routes').then(m => m.TESTS_ROUTES)
   },
 
-  // ── Examen (requiere login + suscripción) ────────────────
+  // ── Examen (requiere login) ───────────────────────────────
   {
     path: 'examen',
-    canActivate: [authGuard, subscriptionGuard],
+    canActivate: [authGuard],
     loadChildren: () => import('./features/examen/examen.routes').then(m => m.EXAMEN_ROUTES)
   },
 
@@ -104,10 +103,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
   },
 
-  // ── Perfil (requiere login + suscripción) ────────────────
+  // ── Perfil (requiere login, NO suscripción) ──────────────
   {
     path: 'perfil',
-    canActivate: [authGuard, subscriptionGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
   },
 

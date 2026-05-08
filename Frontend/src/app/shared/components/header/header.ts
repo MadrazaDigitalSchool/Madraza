@@ -66,9 +66,12 @@ export class HeaderComponent {
   }
 
   toggleMenuUsuario(event: MouseEvent): void {
-    this.menuUsuarioOpen.update(v => !v);
-    if (this.menuUsuarioOpen()) {
-      const btn = (event.currentTarget as HTMLElement) ?? (event.target as HTMLElement)?.closest('.avatar-btn');
+    event.stopPropagation();
+    const nuevoEstado = !this.menuUsuarioOpen();
+    this.menuUsuarioOpen.set(nuevoEstado);
+    if (nuevoEstado) {
+      const target = event.target as HTMLElement | null;
+      const btn = target?.closest('.avatar-btn') ?? document.querySelector('.avatar-btn');
       if (btn) {
         const rect = btn.getBoundingClientRect();
         this.dropdownTop.set(`${rect.bottom + 6}px`);

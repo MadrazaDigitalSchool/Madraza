@@ -8,7 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestService } from '../../../core/services/test';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 interface OpcionForm { texto: string; esCorrecta: boolean; orden: number; id?: number; }
 interface PreguntaForm {
@@ -46,6 +49,8 @@ export class EditarTestComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private testService = inject(TestService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   constructor() {}
 
@@ -75,7 +80,10 @@ export class EditarTestComponent implements OnInit {
         }));
         this.cargando = false;
       },
-      error: () => { alert('No se pudo cargar el test.'); this.cargando = false; }
+      error: () => {
+        this.snackBar.open('No se pudo cargar el test.', 'Cerrar', { duration: 4000 });
+        this.cargando = false;
+      }
     });
   }
 
@@ -135,32 +143,37 @@ export class EditarTestComponent implements OnInit {
 
   guardar(): void {
     if (!this.esValido || this.enviando || !this.testId) return;
-    if (!confirm('¿Guardar los cambios en este test?')) return;
-    this.enviando = true;
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: { titulo: 'Guardar cambios', mensaje: '¿Guardar los cambios en este test?' }
+    });
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.enviando = true;
 
-    const payload = {
-      titulo: this.titulo.trim(),
-      descripcion: this.descripcion.trim() || null,
-      categoria: this.categoria.trim(),
-      dificultad: this.dificultad,
-      tiempoLimite: this.tiempoLimite ? this.tiempoLimite * 60 : null,
-      visibilidad: this.visibilidad,
-      preguntas: this.preguntas.map(p => ({
-        enunciado: p.enunciado.trim(), tipo: p.tipo, orden: p.orden, puntos: p.puntos,
-        explicacion: p.explicacion.trim() || null,
-        opciones: p.opciones.map(o => ({ texto: o.texto.trim(), esCorrecta: o.esCorrecta, orden: o.orden }))
-      }))
-    };
+      const payload = {
+        titulo: this.titulo.trim(),
+        descripcion: this.descripcion.trim() || null,
+        categoria: this.categoria.trim(),
+        dificultad: this.dificultad,
+        tiempoLimite: this.tiempoLimite ? this.tiempoLimite * 60 : null,
+        visibilidad: this.visibilidad,
+        preguntas: this.preguntas.map(p => ({
+          enunciado: p.enunciado.trim(), tipo: p.tipo, orden: p.orden, puntos: p.puntos,
+          explicacion: p.explicacion.trim() || null,
+          opciones: p.opciones.map(o => ({ texto: o.texto.trim(), esCorrecta: o.esCorrecta, orden: o.orden }))
+        }))
+      };
 
-    this.testService.actualizarTest(this.testId, payload).subscribe({
-      next: (test) => {
-        alert('Test actualizado correctamente.');
-        this.router.navigate(['/tests', test.id]);
-      },
-      error: () => {
-        alert('No se pudo actualizar el test. Inténtalo de nuevo.');
-        this.enviando = false;
-      }
+      this.testService.actualizarTest(this.testId!, payload).subscribe({
+        next: (test) => {
+          this.snackBar.open('Test actualizado correctamente.', 'Cerrar', { duration: 3000 });
+          this.router.navigate(['/tests', test.id]);
+        },
+        error: () => {
+          this.snackBar.open('No se pudo actualizar el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
+          this.enviando = false;
+        }
+      });
     });
   }
 }

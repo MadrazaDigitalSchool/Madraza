@@ -43,7 +43,9 @@ export class AuthService {
           email: response.email,
           roles: response.roles,
           suscripcionActiva: response.suscripcionActiva,
-          suscripcionExpiry: response.suscripcionExpiry
+          suscripcionExpiry: response.suscripcionExpiry,
+          planTipo: response.planTipo,
+          metodoPago: response.metodoPago
         };
 
         storage.setItem('token', response.token);

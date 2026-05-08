@@ -36,4 +36,5 @@ export interface ResultadoResponse {
     incorrectas: number;
     porcentaje: number;
     estado: string;
+    tiempoEmpleado: number;
 }

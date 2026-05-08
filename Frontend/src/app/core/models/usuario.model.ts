@@ -23,6 +23,8 @@ export interface JwtResponse {
     roles: string[];
     suscripcionActiva: boolean;
     suscripcionExpiry?: string;
+    planTipo?: string;
+    metodoPago?: string;
 }
 
 export interface Usuario {
@@ -34,6 +36,8 @@ export interface Usuario {
     emailVerificado: boolean;
     suscripcionActiva: boolean;
     suscripcionExpiry?: string;
+    planTipo?: string;
+    metodoPago?: string;
     proveedorOauth?: string;
     roles: string[];
 }

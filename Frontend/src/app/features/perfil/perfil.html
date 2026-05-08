@@ -1,6 +1,5 @@
 <div class="perfil-container">
 
-  <!-- Cabecera -->
   <div class="perfil-hero">
     <div class="container">
       <a routerLink="/dashboard" class="btn-back">
@@ -16,14 +15,11 @@
     </div>
   </div>
 
-  <!-- Cuerpo -->
   <div class="perfil-main container">
     <div class="perfil-grid">
 
-      <!-- Columna principal -->
       <div class="perfil-col">
 
-        <!-- Datos personales -->
         <div class="card">
           <div class="card-header">
             <div class="card-icon"><mat-icon>person</mat-icon></div>
@@ -33,18 +29,18 @@
             </div>
           </div>
 
-          @if (guardado) {
+          @if (guardado()) {
             <div class="alert alert--ok">
               <mat-icon>check_circle</mat-icon> Perfil actualizado correctamente
             </div>
           }
-          @if (error) {
+          @if (error(); as err) {
             <div class="alert alert--error">
-              <mat-icon>error_outline</mat-icon> {{ error }}
+              <mat-icon>error_outline</mat-icon> {{ err }}
             </div>
           }
 
-          @if (cargando) {
+          @if (cargando()) {
             <div class="skeleton-grid">
               <div class="skeleton"></div>
               <div class="skeleton"></div>
@@ -76,8 +72,8 @@
 
           <div class="card-footer">
             <button mat-flat-button class="btn-guardar" (click)="guardarPerfil()"
-                    [disabled]="guardando || !nombre.trim()">
-              @if (guardando) {
+                    [disabled]="guardando() || !nombre.trim()">
+              @if (guardando()) {
                 <mat-spinner diameter="18"></mat-spinner> Guardando...
               } @else {
                 <ng-container><mat-icon>save</mat-icon> Guardar cambios</ng-container>
@@ -86,7 +82,66 @@
           </div>
         </div>
 
-        <!-- Cuenta -->
+        <!-- Mis tests -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><mat-icon>quiz</mat-icon></div>
+            <div>
+              <h2>Mis tests</h2>
+              <p class="card-desc">Tests que has creado</p>
+            </div>
+          </div>
+
+          @if (misTestsCargando) {
+            <div class="skeleton-grid">
+              <div class="skeleton full"></div>
+              <div class="skeleton full"></div>
+            </div>
+          } @else if (misTests.length === 0) {
+            <div class="estado-vacio">
+              <mat-icon>note_add</mat-icon>
+              <p>Aún no has creado ningún test</p>
+              <a routerLink="/tests/crear" mat-stroked-button>Crear mi primer test</a>
+            </div>
+          } @else {
+            <div class="mis-tests-lista">
+              @for (test of misTests; track test.id) {
+                <div class="mis-test-item">
+                  <div class="test-info">
+                    <h3>{{ test.titulo }}</h3>
+                    <div class="test-meta">
+                      <span class="chip-categoria">{{ test.categoria }}</span>
+                      <span class="chip-dificultad" [ngClass]="getDificultadClass(test.dificultad)">
+                        {{ getDificultadLabel(test.dificultad) }}
+                      </span>
+                      <span class="visibilidad" [class.publico]="test.visibilidad === 'PUBLICO'">
+                        <mat-icon>{{ test.visibilidad === 'PUBLICO' ? 'public' : 'lock' }}</mat-icon>
+                        {{ test.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="test-acciones">
+                    <a [routerLink]="['/tests', test.id]" class="btn-accion btn-ver" title="Ver test">
+                      <mat-icon>visibility</mat-icon>
+                    </a>
+                    <button class="btn-accion btn-editar" (click)="editarTest(test)" title="Editar test">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button class="btn-accion btn-eliminar" (click)="eliminarTest(test)"
+                      [disabled]="eliminandoId === test.id" title="Eliminar test">
+                      @if (eliminandoId === test.id) {
+                        <mat-spinner diameter="14"></mat-spinner>
+                      } @else {
+                        <mat-icon>delete</mat-icon>
+                      }
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         <div class="card">
           <div class="card-header">
             <div class="card-icon"><mat-icon>settings</mat-icon></div>
@@ -108,10 +163,8 @@
 
       </div>
 
-      <!-- Sidebar -->
       <aside class="perfil-sidebar">
 
-        <!-- Suscripción -->
         <div class="card" [class.card--premium]="esPremium()">
           <h3 class="sidebar-title">
             <mat-icon>{{ esPremium() ? 'workspace_premium' : 'star_outline' }}</mat-icon>
@@ -132,19 +185,19 @@
                 </div>
               </div>
 
-              @if (getFechaExpiry()) {
+              @if (fechaExpiry(); as expiry) {
                 <div class="sub-item">
                   <div class="sub-item-icon"><mat-icon>event</mat-icon></div>
                   <div>
                     <span class="sub-label">Expira el</span>
                     <span class="sub-value sub-value--purple">
-                      {{ getFechaExpiry() | date:"d 'de' MMMM yyyy":'':'es' }}
+                      {{ expiry | date:"d 'de' MMMM yyyy":'':'es' }}
                     </span>
-                    @if (getDiasRestantes() !== null) {
+                    @if (diasRestantes(); as dias) {
                       <span class="dias-badge"
-                            [class.dias-badge--ok]="(getDiasRestantes() ?? 0) > 7"
-                            [class.dias-badge--warn]="(getDiasRestantes() ?? 0) <= 7">
-                        {{ getDiasRestantes() }} días restantes
+                            [class.dias-badge--ok]="dias > 7"
+                            [class.dias-badge--warn]="dias <= 7">
+                        {{ dias }} días restantes
                       </span>
                     }
                   </div>
@@ -173,18 +226,17 @@
           }
         </div>
 
-        <!-- Acciones rápidas -->
         <div class="card">
           <h3 class="sidebar-title">
             <mat-icon>flash_on</mat-icon> Acciones rápidas
           </h3>
           <div class="acciones-rapidas">
             <a routerLink="/tests/crear" mat-stroked-button class="accion-btn">
-              <mat-icon>add_circle_outline</mat-icon> Crear examen
+              <mat-icon>add_circle_outline</mat-icon> Crear test
             </a>
-            <a routerLink="/admin" mat-stroked-button class="accion-btn">
-              <mat-icon>category</mat-icon> Nueva categoría
-            </a>
+            <button mat-stroked-button class="accion-btn" (click)="abrirDialogoCategoria()">
+              <mat-icon>new_releases</mat-icon> Crear nueva categoría
+            </button>
           </div>
         </div>
 

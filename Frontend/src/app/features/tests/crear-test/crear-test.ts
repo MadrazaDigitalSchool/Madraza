@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestService } from '../../../core/services/test';
 
 interface OpcionForm {
@@ -56,10 +57,9 @@ export class CrearTestComponent implements OnInit {
   enviando = false;
   categoriasSugeridas: string[] = [];
 
-  constructor(
-    private testService: TestService,
-    private router: Router
-  ) {}
+  private testService = inject(TestService);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.testService.getTestsPublicos().subscribe({
@@ -167,7 +167,7 @@ export class CrearTestComponent implements OnInit {
     this.testService.crearTest(payload).subscribe({
       next: (test) => this.router.navigate(['/tests', test.id]),
       error: () => {
-        alert('No se pudo crear el test. Inténtalo de nuevo.');
+        this.snackBar.open('No se pudo crear el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
         this.enviando = false;
       }
     });

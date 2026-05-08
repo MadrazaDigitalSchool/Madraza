@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestService } from '../../../core/services/test';
 import { AuthService } from '../../../core/services/auth';
 import { Test } from '../../../core/models/test.model';
@@ -59,14 +60,19 @@ export class ListaTestsComponent implements OnInit {
 
   cargarTests(): void {
     this.cargando = true;
+    this.error = '';
     this.testService.getTestsPublicos().subscribe({
       next: (tests) => {
         this.tests = tests.filter(t => t.visibilidad === 'PUBLICO');
         this.categorias = [...new Set(this.tests.map(t => t.categoria))];
         this.cargando = false;
       },
-      error: () => {
-        this.error = 'Error al cargar los tests';
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 0) {
+          this.error = 'No se puede conectar con el servidor. Comprueba que el backend está en marcha.';
+        } else {
+          this.error = `Error ${err.status} al cargar los tests. Inténtalo de nuevo.`;
+        }
         this.cargando = false;
       }
     });
