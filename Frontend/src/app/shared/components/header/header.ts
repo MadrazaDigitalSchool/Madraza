@@ -78,7 +78,4 @@ export class HeaderComponent {
     this.menuMovilAbierto.set(false);
   }
 
-  irPerfil(): void {
-    this.router.navigate(['/perfil']);
-  }
 }

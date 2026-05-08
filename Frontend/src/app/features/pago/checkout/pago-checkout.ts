@@ -9,8 +9,16 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth';
 import { environment } from '../../../../environments/environment';
 
-type MetodoPago = 'tarjeta' | 'bizum';
-type Estado = 'resumen' | 'cargando' | 'formulario' | 'pagando' | 'redirigiendo';
+type MetodoPago = 'tarjeta' | 'bizum' | 'paypal' | 'klarna';
+type Estado = 'resumen' | 'cargando' | 'formulario' | 'pagando';
+
+// Mapeo de método seleccionado → tipo de método en Stripe
+const METODO_STRIPE: Record<MetodoPago, string> = {
+  tarjeta: 'card',
+  bizum: 'bizum',
+  paypal: 'paypal',
+  klarna: 'klarna',
+};
 
 const PLANES = {
   mensual: {
@@ -89,15 +97,8 @@ export class PagoCheckoutComponent implements OnInit {
     this.router.navigate(['/precios']);
   }
 
+  // Todos los métodos usan el Payment Element embebido (sin redirección a Stripe Checkout)
   iniciarPago(): void {
-    if (this.metodoPago() === 'bizum') {
-      this.iniciarPagoBizum();
-      return;
-    }
-    this.iniciarPagoTarjeta();
-  }
-
-  private iniciarPagoTarjeta(): void {
     this.estado.set('cargando');
     this.errorMessage.set('');
 
@@ -114,29 +115,18 @@ export class PagoCheckoutComponent implements OnInit {
 
         this.stripe = stripe;
         this.elements = stripe.elements({ clientSecret, locale: 'es' });
-        const paymentElement = this.elements.create('payment');
+
+        const paymentElement = this.elements.create('payment', {
+          layout: 'tabs',
+          // Prioriza el método seleccionado por el usuario
+          paymentMethodOrder: [METODO_STRIPE[this.metodoPago()]],
+        } as any);
 
         this.estado.set('formulario');
-
         setTimeout(() => paymentElement.mount('#stripe-payment-element'), 0);
       },
       error: (err) => {
         this.errorMessage.set(err.error?.message || err.error?.mensaje || 'Error al iniciar el pago. Inténtalo de nuevo.');
-        this.estado.set('resumen');
-      }
-    });
-  }
-
-  private iniciarPagoBizum(): void {
-    this.estado.set('redirigiendo');
-    this.errorMessage.set('');
-
-    this.paymentService.crearSesion(this.plan(), 'bizum').subscribe({
-      next: ({ url }) => {
-        window.location.href = url;
-      },
-      error: (err) => {
-        this.errorMessage.set(err.error?.message || err.error?.mensaje || 'Error al iniciar el pago con Bizum.');
         this.estado.set('resumen');
       }
     });
@@ -147,6 +137,9 @@ export class PagoCheckoutComponent implements OnInit {
 
     this.estado.set('pagando');
     this.errorMessage.set('');
+
+    // Persiste el método e plan seleccionados para mostrarlos en el perfil
+    this.guardarInfoPago();
 
     const { error } = await this.stripe.confirmPayment({
       elements: this.elements,
@@ -178,5 +171,12 @@ export class PagoCheckoutComponent implements OnInit {
         this.estado.set('formulario');
       }
     });
+  }
+
+  private guardarInfoPago(): void {
+    localStorage.setItem('madraza_pago_info', JSON.stringify({
+      metodoPago: this.metodoPago(),
+      plan: this.plan()
+    }));
   }
 }

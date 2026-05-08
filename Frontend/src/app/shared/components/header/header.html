@@ -28,10 +28,8 @@
                 } @else {
                 <!-- Avatar con menú (escritorio Y móvil) -->
                 <div class="avatar-wrapper">
-                    <button class="avatar-btn" (click)="irPerfil()" aria-label="Ir a mi perfil">
+                    <button class="avatar-btn" [matMenuTriggerFor]="menuUsuario" type="button" aria-label="Abrir menú de usuario">
                         <div class="avatar">{{ getIniciales() }}</div>
-                    </button>
-                    <button class="avatar-menu-btn" [matMenuTriggerFor]="menuUsuario" aria-label="Abrir menú de usuario">
                         <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
                     </button>
                 </div>

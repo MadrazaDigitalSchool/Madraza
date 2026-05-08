@@ -61,20 +61,33 @@
         <span class="resumen-precio">{{ planInfo().precio }}</span>
       </div>
 
-      <!-- Estado: resumen inicial -->
+      <!-- Selector de método de pago -->
       @if (estado() === 'resumen') {
         <div class="metodo-pago-selector">
           <p class="selector-label">Método de pago</p>
+
           <label class="metodo-option" [class.active]="metodoPago() === 'tarjeta'">
             <input type="radio" name="metodoPago" value="tarjeta"
                    [checked]="metodoPago() === 'tarjeta'"
                    (change)="metodoPago.set('tarjeta')" />
             <span class="metodo-icon">💳</span>
             <span class="metodo-texto">
-              <strong>Tarjeta / PayPal</strong>
-              <small>Visa, Mastercard, PayPal</small>
+              <strong>Tarjeta</strong>
+              <small>Visa, Mastercard, American Express</small>
             </span>
           </label>
+
+          <label class="metodo-option" [class.active]="metodoPago() === 'paypal'">
+            <input type="radio" name="metodoPago" value="paypal"
+                   [checked]="metodoPago() === 'paypal'"
+                   (change)="metodoPago.set('paypal')" />
+            <span class="metodo-icon">🅿</span>
+            <span class="metodo-texto">
+              <strong>PayPal</strong>
+              <small>Paga con tu cuenta PayPal</small>
+            </span>
+          </label>
+
           <label class="metodo-option" [class.active]="metodoPago() === 'bizum'">
             <input type="radio" name="metodoPago" value="bizum"
                    [checked]="metodoPago() === 'bizum'"
@@ -85,18 +98,26 @@
               <small>Pago inmediato desde tu banco</small>
             </span>
           </label>
+
+          <label class="metodo-option" [class.active]="metodoPago() === 'klarna'">
+            <input type="radio" name="metodoPago" value="klarna"
+                   [checked]="metodoPago() === 'klarna'"
+                   (change)="metodoPago.set('klarna')" />
+            <span class="metodo-icon">🛍</span>
+            <span class="metodo-texto">
+              <strong>Klarna</strong>
+              <small>Compra ahora, paga después</small>
+            </span>
+          </label>
         </div>
 
-        <button
-          mat-flat-button
-          class="btn-pagar"
-          (click)="iniciarPago()">
+        <button mat-flat-button class="btn-pagar" (click)="iniciarPago()">
           <mat-icon>lock</mat-icon>
           <span>Proceder al pago</span>
         </button>
       }
 
-      <!-- Estado: cargando Stripe -->
+      <!-- Cargando formulario Stripe -->
       @if (estado() === 'cargando') {
         <div class="cargando-stripe">
           <mat-spinner diameter="32"></mat-spinner>
@@ -104,15 +125,7 @@
         </div>
       }
 
-      <!-- Estado: redirigiendo a Bizum -->
-      @if (estado() === 'redirigiendo') {
-        <div class="cargando-stripe">
-          <mat-spinner diameter="32"></mat-spinner>
-          <span>Redirigiendo a Bizum...</span>
-        </div>
-      }
-
-      <!-- Estado: formulario Stripe Elements -->
+      <!-- Formulario Stripe Elements embebido -->
       @if (estado() === 'formulario' || estado() === 'pagando') {
         <div class="stripe-element-container">
           <div id="stripe-payment-element"></div>

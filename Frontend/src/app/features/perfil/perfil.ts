@@ -15,7 +15,11 @@ import { Usuario } from '../../core/models/usuario.model';
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatDividerModule, MatChipsModule],
+  imports: [
+    CommonModule, DatePipe, FormsModule, RouterLink,
+    MatFormFieldModule, MatInputModule, MatButtonModule,
+    MatIconModule, MatProgressSpinnerModule, MatDividerModule, MatChipsModule
+  ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss'
 })
@@ -26,6 +30,8 @@ export class PerfilComponent implements OnInit {
   nombre = '';
   apellidos = '';
   email = '';
+  metodoPago = '';
+  planTipo = '';
   guardando = false;
   guardado = false;
   error = '';
@@ -46,6 +52,13 @@ export class PerfilComponent implements OnInit {
       },
       error: () => {}
     });
+
+    // Lee el método de pago y plan guardados en localStorage al completar el checkout
+    try {
+      const pagoInfo = JSON.parse(localStorage.getItem('madraza_pago_info') || '{}');
+      this.metodoPago = pagoInfo.metodoPago || '';
+      this.planTipo   = pagoInfo.plan || '';
+    } catch { /* ignore parse errors */ }
   }
 
   getIniciales(): string {
@@ -66,6 +79,26 @@ export class PerfilComponent implements OnInit {
     return new Date(this.usuario.suscripcionExpiry);
   }
 
+  getPlanLabel(): string {
+    if (this.planTipo === 'anual') return 'Premium Anual';
+    if (this.planTipo === 'mensual') return 'Premium Mensual';
+    return 'Premium';
+  }
+
+  getMetodoPagoLabel(): string {
+    const labels: Record<string, string> = {
+      tarjeta: '💳 Tarjeta',
+      bizum:   '📱 Bizum',
+      paypal:  '🅿 PayPal',
+      klarna:  '🛍 Klarna',
+    };
+    return labels[this.metodoPago] || this.metodoPago;
+  }
+
+  isAdmin(): boolean {
+    return this.authService.tieneRol('ROLE_ADMIN');
+  }
+
   guardarPerfil(): void {
     if (!this.nombre.trim()) return;
     this.guardando = true;
@@ -75,11 +108,7 @@ export class PerfilComponent implements OnInit {
         this.guardando = false;
         this.guardado = true;
         const datosActuales = this.authService.getUsuarioActual();
-        const nuevo: Usuario = {
-          ...datosActuales!,
-          nombre: u.nombre,
-          apellidos: u.apellidos,
-        };
+        const nuevo: Usuario = { ...datosActuales!, nombre: u.nombre, apellidos: u.apellidos };
         this.authService.guardarUsuarioLocal(nuevo);
         this.usuario = { ...this.usuario!, nombre: u.nombre, apellidos: u.apellidos };
         setTimeout(() => (this.guardado = false), 3000);
