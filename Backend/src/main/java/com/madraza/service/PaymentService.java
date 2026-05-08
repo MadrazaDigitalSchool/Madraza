@@ -70,7 +70,7 @@ public class PaymentService {
      * Crea un Customer de Stripe (o reutiliza el existente) y una Subscription incompleta.
      * Devuelve el clientSecret del PaymentIntent y el subscriptionId para confirmar desde el frontend.
      */
-    public Map<String, String> crearIntencionPago(Long usuarioId, String plan) throws Exception {
+    public Map<String, String> crearIntencionPago(Long usuarioId, String plan, String metodoPago) throws Exception {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -90,6 +90,13 @@ public class PaymentService {
         String priceId   = "anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual;
         String planLabel = "anual".equalsIgnoreCase(plan) ? "Premium Anual" : "Premium Mensual";
 
+        // apple_pay y google_pay son wallets de tarjeta → usan CARD.
+        SubscriptionCreateParams.PaymentSettings.PaymentMethodType pmType = switch (metodoPago.toLowerCase()) {
+            case "paypal"             -> SubscriptionCreateParams.PaymentSettings.PaymentMethodType.PAYPAL;
+            case "sepa_debit", "sepa" -> SubscriptionCreateParams.PaymentSettings.PaymentMethodType.SEPA_DEBIT;
+            default                   -> SubscriptionCreateParams.PaymentSettings.PaymentMethodType.CARD;
+        };
+
         SubscriptionCreateParams subParams = SubscriptionCreateParams.builder()
                 .setCustomer(customerId)
                 .addItem(SubscriptionCreateParams.Item.builder().setPrice(priceId).build())
@@ -97,8 +104,7 @@ public class PaymentService {
                 .setPaymentSettings(SubscriptionCreateParams.PaymentSettings.builder()
                         .setSaveDefaultPaymentMethod(
                                 SubscriptionCreateParams.PaymentSettings.SaveDefaultPaymentMethod.ON_SUBSCRIPTION)
-                        .addPaymentMethodType(SubscriptionCreateParams.PaymentSettings.PaymentMethodType.CARD)
-                        .addPaymentMethodType(SubscriptionCreateParams.PaymentSettings.PaymentMethodType.PAYPAL)
+                        .addPaymentMethodType(pmType)
                         .build())
                 .addExpand("latest_invoice.payment_intent")
                 .putMetadata("usuarioId", usuarioId.toString())
@@ -111,7 +117,8 @@ public class PaymentService {
                 .getPaymentIntentObject()
                 .getClientSecret();
 
-        log.info("Intención de pago creada: suscripción {} para usuario {}", subscription.getId(), usuarioId);
+        log.info("Intención de pago creada: suscripción {} para usuario {} método: {}",
+                subscription.getId(), usuarioId, metodoPago);
         return Map.of("clientSecret", clientSecret, "subscriptionId", subscription.getId());
     }
 
@@ -139,17 +146,32 @@ public class PaymentService {
 
     /**
      * Crea una sesión de Stripe Checkout y devuelve la URL de pago.
-     * Acepta metodoPago: "tarjeta", "bizum" "Klarna" o "paypal".
+     * Acepta metodoPago: "bizum" o "klarna".
+     * El Checkout se muestra en español y con el método de pago preseleccionado.
      */
     public String crearSesionCheckout(Long usuarioId, String plan, String metodoPago) throws Exception {
         boolean esBizum  = "bizum".equalsIgnoreCase(metodoPago);
+        boolean esKlarna = "klarna".equalsIgnoreCase(metodoPago);
+
         String planLabel = "anual".equalsIgnoreCase(plan) ? "Premium Anual" : "Premium Mensual";
-        String priceId   = esBizum
-                ? ("anual".equalsIgnoreCase(plan) ? priceAnualBizum : priceMensualBizum)
-                : ("anual".equalsIgnoreCase(plan) ? priceAnual      : priceMensual);
+
+        // Para Bizum usa precios específicos si están configurados; si no, usa los generales.
+        String priceId;
+        if (esBizum) {
+            String bizumPrice = "anual".equalsIgnoreCase(plan) ? priceAnualBizum : priceMensualBizum;
+            priceId = (bizumPrice != null && !bizumPrice.isBlank()) ? bizumPrice
+                    : ("anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual);
+        } else {
+            priceId = "anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual;
+        }
+
+        // Asocia el Customer de Stripe si ya existe, para que Stripe conozca al usuario
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         SessionCreateParams.Builder builder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+                .setLocale(SessionCreateParams.Locale.ES)
                 .setSuccessUrl(frontendUrl + "/pago/exito?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl(frontendUrl + "/pago/cancelar")
                 .addLineItem(
@@ -161,10 +183,23 @@ public class PaymentService {
                 .putMetadata("usuarioId", usuarioId.toString())
                 .putMetadata("plan", plan)
                 .putMetadata("planLabel", planLabel)
-                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "tarjeta")
-                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
-                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.PAYPAL)
-                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
+                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "bizum");
+
+        // Adjunta o pre-rellena el email del Customer para que Stripe pueda detectar España
+        String customerId = usuario.getStripeCustomerId();
+        if (customerId != null && !customerId.isBlank()) {
+            builder.setCustomer(customerId);
+        } else {
+            builder.setCustomerEmail(usuario.getEmail());
+        }
+
+        if (esKlarna) {
+            // Klarna solo — locale ES activa la versión española de Klarna
+            builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
+        }
+        // Para Bizum: NO se especifica payment_method_types.
+        // Con locale=ES y customer en España, Stripe muestra Bizum automáticamente
+        // si está habilitado en el Dashboard de Stripe (Configuración → Métodos de pago).
 
         Session session = Session.create(builder.build());
         log.info("Sesión Stripe creada: {} para usuario {} método: {}", session.getId(), usuarioId, metodoPago);

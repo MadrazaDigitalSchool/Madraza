@@ -39,8 +39,9 @@ public class PaymentController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody Map<String, String> body) {
         try {
-            String plan = body.getOrDefault("plan", "mensual");
-            Map<String, String> result = paymentService.crearIntencionPago(userDetails.getId(), plan);
+            String plan       = body.getOrDefault("plan", "mensual");
+            String metodoPago = body.getOrDefault("metodoPago", "card");
+            Map<String, String> result = paymentService.crearIntencionPago(userDetails.getId(), plan, metodoPago);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error al crear intención de pago: {}", e.getMessage());
