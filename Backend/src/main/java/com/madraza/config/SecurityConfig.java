@@ -105,9 +105,10 @@ public class SecurityConfig {
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 // Contacto: público
                 .requestMatchers(HttpMethod.POST, "/api/contacto").permitAll()
-                // Tests: lectura pública (ambos con y sin path adicional)
+                // Tests y categorías: lectura pública
                 .requestMatchers(HttpMethod.GET, "/api/tests").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tests/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categorias").permitAll()
                 // Admin: solo ROLE_ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Todo lo demás requiere autenticación

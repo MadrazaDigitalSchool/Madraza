@@ -6,11 +6,19 @@ import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Customer;
 import com.stripe.model.Event;
+import com.stripe.model.PaymentMethod;
+import com.stripe.model.SetupIntent;
 import com.stripe.model.Subscription;
+import com.stripe.model.SubscriptionCollection;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.CustomerUpdateParams;
+import com.stripe.param.PaymentMethodAttachParams;
+import com.stripe.param.SetupIntentCreateParams;
 import com.stripe.param.SubscriptionCreateParams;
+import com.stripe.param.SubscriptionListParams;
+import com.stripe.param.SubscriptionUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionRetrieveParams;
 import jakarta.annotation.PostConstruct;
@@ -260,6 +268,89 @@ public class PaymentService {
                 }
             }
         }
+    }
+
+    /**
+     * Crea un Stripe SetupIntent ligado al Customer del usuario.
+     * El frontend usa el clientSecret para capturar el nuevo método sin cobrar.
+     */
+    public String crearSetupIntent(Long usuarioId) throws Exception {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        String customerId = usuario.getStripeCustomerId();
+        if (customerId == null || customerId.isBlank()) {
+            CustomerCreateParams cp = CustomerCreateParams.builder()
+                    .setEmail(usuario.getEmail())
+                    .setName(usuario.getNombre() + (usuario.getApellidos() != null ? " " + usuario.getApellidos() : ""))
+                    .putMetadata("usuarioId", usuarioId.toString())
+                    .build();
+            Customer customer = Customer.create(cp);
+            customerId = customer.getId();
+            usuario.setStripeCustomerId(customerId);
+            usuarioRepository.save(usuario);
+        }
+
+        SetupIntentCreateParams params = SetupIntentCreateParams.builder()
+                .setCustomer(customerId)
+                .setAutomaticPaymentMethods(
+                        SetupIntentCreateParams.AutomaticPaymentMethods.builder()
+                                .setEnabled(true)
+                                .build())
+                .putMetadata("usuarioId", usuarioId.toString())
+                .build();
+
+        SetupIntent si = SetupIntent.create(params);
+        log.info("SetupIntent creado {} para usuario {}", si.getId(), usuarioId);
+        return si.getClientSecret();
+    }
+
+    /**
+     * Tras confirmar el SetupIntent en el frontend, actualiza el método de pago
+     * por defecto en Stripe (Customer + Subscription activa) y en la BD.
+     */
+    @Transactional
+    public void actualizarMetodoPago(Long usuarioId, String paymentMethodId, String metodoPagoNombre) throws Exception {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        String customerId = usuario.getStripeCustomerId();
+        if (customerId == null || customerId.isBlank())
+            throw new IllegalStateException("El usuario no tiene un cliente Stripe asociado");
+
+        // Asegura que el PM está adjunto al Customer
+        PaymentMethod pm = PaymentMethod.retrieve(paymentMethodId);
+        if (pm.getCustomer() == null || !pm.getCustomer().equals(customerId)) {
+            pm.attach(PaymentMethodAttachParams.builder().setCustomer(customerId).build());
+        }
+
+        // Actualiza el método por defecto del Customer
+        Customer.retrieve(customerId).update(
+                CustomerUpdateParams.builder()
+                        .setInvoiceSettings(CustomerUpdateParams.InvoiceSettings.builder()
+                                .setDefaultPaymentMethod(paymentMethodId)
+                                .build())
+                        .build());
+
+        // Actualiza la suscripción activa si existe
+        SubscriptionCollection subs = Subscription.list(
+                SubscriptionListParams.builder()
+                        .setCustomer(customerId)
+                        .setStatus(SubscriptionListParams.Status.ACTIVE)
+                        .setLimit(1L)
+                        .build());
+
+        if (!subs.getData().isEmpty()) {
+            subs.getData().get(0).update(
+                    SubscriptionUpdateParams.builder()
+                            .setDefaultPaymentMethod(paymentMethodId)
+                            .build());
+        }
+
+        // Persiste el nuevo método en la BD
+        usuario.setMetodoPago(metodoPagoNombre);
+        usuarioRepository.save(usuario);
+        log.info("Método de pago actualizado para usuario {}: {}", usuarioId, metodoPagoNombre);
     }
 
     /** Tarea programada: desactiva suscripciones que hayan expirado (cada hora). */

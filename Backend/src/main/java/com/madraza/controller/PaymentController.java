@@ -172,6 +172,50 @@ public class PaymentController {
     }
 
     /**
+     * POST /api/pago/setup-intent
+     * Crea un SetupIntent de Stripe para capturar un nuevo método de pago sin cobrar.
+     * Devuelve { clientSecret }.
+     */
+    @PostMapping("/setup-intent")
+    public ResponseEntity<?> crearSetupIntent(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            String clientSecret = paymentService.crearSetupIntent(userDetails.getId());
+            return ResponseEntity.ok(Map.of("clientSecret", clientSecret));
+        } catch (Exception e) {
+            log.error("Error al crear SetupIntent: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("No se pudo iniciar el cambio de método de pago"));
+        }
+    }
+
+    /**
+     * PUT /api/pago/metodo-pago
+     * Actualiza el método de pago por defecto de la suscripción activa.
+     * Body: { "paymentMethodId": "pm_xxx", "metodoPago": "tarjeta" }
+     */
+    @PutMapping("/metodo-pago")
+    public ResponseEntity<?> actualizarMetodoPago(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody Map<String, String> body) {
+        try {
+            String paymentMethodId  = body.get("paymentMethodId");
+            String metodoPagoNombre = body.getOrDefault("metodoPago", "tarjeta");
+            if (paymentMethodId == null || paymentMethodId.isBlank())
+                return ResponseEntity.badRequest().body(new MessageResponse("paymentMethodId requerido"));
+
+            paymentService.actualizarMetodoPago(userDetails.getId(), paymentMethodId, metodoPagoNombre);
+            return ResponseEntity.ok(Map.of("mensaje", "Método de pago actualizado correctamente"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al actualizar método de pago: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("No se pudo actualizar el método de pago"));
+        }
+    }
+
+    /**
      * GET /api/pago/estado
      * Devuelve el estado actual de suscripción del usuario autenticado.
      */

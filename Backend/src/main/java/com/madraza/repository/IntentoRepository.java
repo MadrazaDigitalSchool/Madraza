@@ -14,4 +14,7 @@ public interface IntentoRepository extends JpaRepository<Intento, Long> {
     // Buscar y eliminar intentos de un test
     List<Intento> findByTestId(Long testId);
     void deleteByTestId(Long testId);
+
+    // Eliminar todos los intentos de un usuario (necesario antes de borrar el usuario)
+    void deleteByUsuarioId(Long usuarioId);
 }

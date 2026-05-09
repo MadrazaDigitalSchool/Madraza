@@ -21,8 +21,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Rol rolUser = crearRolSiNoExiste("ROLE_USER", "Usuario estándar");
-        Rol rolAdmin = crearRolSiNoExiste("ROLE_ADMIN", "Administrador del sistema");
+        Rol rolUser  = crearRolSiNoExiste("ROLE_USER",   "Usuario estándar");
+        Rol rolAdmin = crearRolSiNoExiste("ROLE_ADMIN",  "Administrador del sistema");
+        crearRolSiNoExiste("ROLE_EDITOR", "Editor — puede crear y editar tests");
+        crearRolSiNoExiste("ROLE_VIEWER", "Solo ver — acceso de solo lectura");
 
         crearAdminSiNoExiste(rolUser, rolAdmin);
         crearUsuarioPruebaSiNoExiste(rolUser);
