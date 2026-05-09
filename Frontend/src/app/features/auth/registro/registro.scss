@@ -206,7 +206,28 @@
 // ── MEDIA QUERIES ─────────────────────────────────────────
 
 @media (max-width: 480px) {
+    .registro-container {
+        padding: 16px;
+        min-height: 100dvh;
+        justify-content: flex-start;
+        padding-top: clamp(24px, 8vw, 48px);
+    }
+
+    .registro-wrapper {
+        max-width: 100%;
+    }
+
+    .registro-card {
+        border-radius: var(--madraza-radius-md);
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
+    }
+
+    .oauth-buttons {
+        flex-direction: column;
     }
 }

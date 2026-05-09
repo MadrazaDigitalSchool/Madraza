@@ -216,79 +216,49 @@
   }
 }
 
-/* ── Cambio de método de pago ───────────────────────────── */
+/* ── Alerta de expiración de plan ───────────────────────── */
 
-.btn-cambiar-metodo {
-  width: 100%; margin-top: 14px;
-  border-color: rgba(124,58,237,0.3) !important;
-  color: #7c3aed !important;
-  border-radius: 8px !important;
-  display: flex !important; align-items: center !important; gap: 6px;
-  justify-content: center !important;
-  mat-icon { font-size: 18px; }
-  &:hover { background: rgba(124,58,237,0.07) !important; }
+.expiry-alert {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  span { flex: 1; line-height: 1.5; }
+
+  &--warn {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #92400e;
+    mat-icon { color: #d97706; }
+  }
+
+  &--danger {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #991b1b;
+    mat-icon { color: #dc2626; }
+  }
 }
 
-.cambio-metodo-panel {
-  margin-top: 16px;
-  padding: 16px;
-  background: #f9f5ff;
-  border: 1px solid rgba(124,58,237,0.2);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  .cambio-titulo {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 14px; font-weight: 700; color: #4b2995; margin: 0;
-    mat-icon { font-size: 18px; width: 18px; height: 18px; }
-  }
-
-  .cambio-desc { font-size: 12px; color: #6b7280; margin: 0; }
-
-  .cambio-loading {
-    display: flex; align-items: center; gap: 10px;
-    color: #6b7280; font-size: 13px; padding: 8px 0;
-  }
-
-  .cambio-metodo-select {
-    display: flex; flex-direction: column; gap: 6px;
-
-    .metodo-select {
-      border: 1px solid #d1d5db; border-radius: 8px;
-      padding: 8px 12px; font-size: 13px; color: #374151;
-      background: white; outline: none; cursor: pointer;
-      &:focus { border-color: #7c3aed; }
-      option { background: white; }
-    }
-  }
-
-  .stripe-element-container {
-    min-height: 50px;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 12px;
-  }
-
-  .cambio-error {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 13px; color: #dc2626; margin: 0;
-    mat-icon { font-size: 16px; width: 16px; height: 16px; }
-  }
-
-  .cambio-actions {
-    display: flex; gap: 10px; flex-wrap: wrap;
-  }
-
-  .btn-confirmar-metodo {
-    background: #7c3aed !important; color: white !important;
-    border-radius: 8px !important; font-weight: 600 !important;
-    display: flex !important; align-items: center !important; gap: 6px;
-    &:disabled { opacity: 0.6; }
-    mat-icon { font-size: 18px; }
-  }
+.btn-renovar {
+  margin-top: 8px;
+  background: #7c3aed !important;
+  color: white !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
 /* ── Mis tests ──────────────────────────────────────────── */
@@ -355,3 +325,39 @@
 .btn-ver    { color: #7c3aed; background: rgba(124,58,237,0.08); &:hover { background: rgba(124,58,237,0.15); } }
 .btn-editar { color: #2563eb; background: rgba(37,99,235,0.08);  &:hover { background: rgba(37,99,235,0.15); } }
 .btn-eliminar { color: #dc2626; background: rgba(220,38,38,0.08); &:hover { background: rgba(220,38,38,0.15); } }
+
+// ── Media queries adicionales ─────────────────────────────
+
+@media (max-width: 600px) {
+  .perfil-hero .hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-footer { flex-direction: column; }
+
+  .mis-test-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .test-acciones {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .accion-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    button { width: 100%; }
+  }
+
+  .expiry-alert {
+    flex-direction: column;
+    .btn-renovar { width: 100%; justify-content: center; }
+  }
+}

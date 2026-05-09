@@ -48,15 +48,39 @@ export class RegistroComponent {
     private router: Router
   ) { }
 
+  private readonly NOMBRE_REGEX = /^[a-zA-ZÀ-ÿñÑ'\s-]+$/;
+  private readonly EMAIL_REGEX  = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  private readonly PASS_REGEX   = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+
   registro(): void {
-    if (!this.nombre || !this.apellidos || !this.email || !this.password) {
+    const nombre    = this.nombre.trim();
+    const apellidos = this.apellidos.trim();
+    const email     = this.email.trim().toLowerCase();
+    const password  = this.password;
+
+    if (!nombre || !apellidos || !email || !password) {
       this.errorMessage = 'Por favor, rellena todos los campos';
       return;
     }
-    if (this.password.length < 8) {
-      this.errorMessage = 'La contraseña debe tener al menos 8 caracteres';
+    if (!this.NOMBRE_REGEX.test(nombre)) {
+      this.errorMessage = 'El nombre solo puede contener letras, espacios y guiones';
       return;
     }
+    if (!this.NOMBRE_REGEX.test(apellidos)) {
+      this.errorMessage = 'Los apellidos solo pueden contener letras, espacios y guiones';
+      return;
+    }
+    if (!this.EMAIL_REGEX.test(email)) {
+      this.errorMessage = 'Introduce un correo electrónico válido';
+      return;
+    }
+    if (!this.PASS_REGEX.test(password)) {
+      this.errorMessage = 'La contraseña debe tener mínimo 8 caracteres, al menos una letra y un número';
+      return;
+    }
+    this.nombre    = nombre;
+    this.apellidos = apellidos;
+    this.email     = email;
     this.cargando = true;
     this.errorMessage = '';
     this.authService.registro({

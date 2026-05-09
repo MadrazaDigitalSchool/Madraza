@@ -53,16 +53,25 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  private readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
   login(): void {
-    if (!this.email || !this.password) {
+    const email    = this.email.trim().toLowerCase();
+    const password = this.password;
+
+    if (!email || !password) {
       this.errorMessage = 'Por favor, rellena todos los campos';
       return;
     }
-
+    if (!this.EMAIL_REGEX.test(email)) {
+      this.errorMessage = 'Introduce un correo electrónico válido';
+      return;
+    }
+    this.email = email;
     this.cargando = true;
     this.errorMessage = '';
 
-    this.authService.login({ email: this.email, password: this.password }, this.recordarme)
+    this.authService.login({ email, password }, this.recordarme)
       .subscribe({
         next: () => {
           this.cargando = false;

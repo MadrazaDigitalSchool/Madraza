@@ -169,13 +169,30 @@ export class AdminDashboardComponent implements OnInit {
     this.resetForm();
   }
 
+  private readonly NOMBRE_REGEX = /^[a-zA-ZÀ-ÿñÑ'\s-]+$/;
+  private readonly EMAIL_REGEX  = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
   guardarUsuario(): void {
-    if (!this.fNombre.trim() || !this.fEmail.trim()) return;
+    const nombre  = this.fNombre.trim();
+    const email   = this.fEmail.trim();
+
+    if (!nombre || !email) {
+      this.snackBar.open('Nombre y email son obligatorios.', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    if (!this.NOMBRE_REGEX.test(nombre)) {
+      this.snackBar.open('El nombre solo puede contener letras, espacios y guiones.', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    if (!this.EMAIL_REGEX.test(email)) {
+      this.snackBar.open('Introduce un correo electrónico válido.', 'Cerrar', { duration: 3000 });
+      return;
+    }
     this.guardandoUsuario.set(true);
 
     if (this.modoForm() === 'crear') {
-      if (!this.fPassword || this.fPassword.length < 6) {
-        this.snackBar.open('La contraseña debe tener mínimo 6 caracteres.', 'Cerrar', { duration: 3000 });
+      if (!this.fPassword || this.fPassword.length < 8) {
+        this.snackBar.open('La contraseña debe tener mínimo 8 caracteres.', 'Cerrar', { duration: 3000 });
         this.guardandoUsuario.set(false);
         return;
       }

@@ -124,6 +124,33 @@
     }
 }
 
+@media (max-width: 480px) {
+    .login-container {
+        padding: 16px;
+        min-height: 100dvh;
+    }
+
+    .login-wrapper {
+        max-width: 100%;
+    }
+
+    .login-card {
+        border-radius: var(--madraza-radius-md);
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .form-extra {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .oauth-buttons {
+        flex-direction: column;
+    }
+}
+
 .registro-link {
     text-align: center;
     color: #6b7280;

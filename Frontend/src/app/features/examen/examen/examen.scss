@@ -336,12 +336,29 @@
 }
 
 @media (max-width: 480px) {
+    .examen-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 16px;
+
+        .header-info h2 {
+            max-width: 100%;
+            white-space: normal;
+        }
+    }
+
     .examen-actions {
         justify-content: stretch;
+        padding: 12px 16px;
 
         .btn-siguiente {
             width: 100%;
             justify-content: center;
         }
+    }
+
+    .opcion-btn {
+        padding: 10px 14px;
+        font-size: 13px;
     }
 }

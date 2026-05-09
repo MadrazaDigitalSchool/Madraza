@@ -199,17 +199,19 @@
 
 // ── Tabla ──────────────────────────────────────────────────
 .table-wrapper {
-  overflow: hidden;   // sin scroll — la tabla se adapta al 100% disponible
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.07);
 }
 
 .admin-table {
-  width: 100%;          // ocupa todo el ancho disponible sin scroll
+  width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   background: var(--madraza-surface, #1e1b4b);
   font-size: 13px;
-  table-layout: fixed;  // anchos controlados por columna, sin cálculos automáticos
+  table-layout: fixed;
 
   // Anchos de las 5 columnas: suma = 100%
   .col-usuario  { width: 30%; }
@@ -217,6 +219,15 @@
   .col-fecha    { width: 8%;  }
   .col-estado   { width: 14%; }
   .col-acciones { width: 24%; }
+
+  @media (max-width: 768px) {
+    .col-fecha { display: none; }
+    .col-usuario  { width: 34%; }
+    .col-sub      { width: 28%; }
+    .col-estado   { width: 14%; }
+    .col-acciones { width: 24%; }
+    tbody td:nth-child(3) { display: none; }
+  }
 
   th {
     text-align: left;

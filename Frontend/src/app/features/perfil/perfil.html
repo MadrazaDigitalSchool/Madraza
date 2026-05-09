@@ -220,56 +220,14 @@
                 }
               </div>
 
-              <!-- Cambiar método de pago -->
-              @if (!modoMetodoPago()) {
-                <button mat-stroked-button class="btn-cambiar-metodo" (click)="iniciarCambioMetodo()">
-                  <mat-icon>swap_horiz</mat-icon> Cambiar método de pago
-                </button>
-              }
-
-              @if (modoMetodoPago()) {
-                <div class="cambio-metodo-panel">
-                  <p class="cambio-titulo"><mat-icon>swap_horiz</mat-icon> Nuevo método de pago</p>
-                  <p class="cambio-desc">El cambio se aplica en el próximo período de facturación.</p>
-
-                  <!-- Spinner mientras carga Stripe -->
-                  @if (cargandoSetup()) {
-                    <div class="cambio-loading">
-                      <mat-spinner diameter="24"></mat-spinner>
-                      <span>Cargando formulario seguro...</span>
-                    </div>
-                  }
-
-                  <!--
-                    [hidden] mantiene el div en el DOM aunque cargandoSetup sea true.
-                    Así Stripe puede hacer mount() en cuanto el elemento esté listo,
-                    sin depender del timing de re-render de Angular.
-                  -->
-                  <div [hidden]="cargandoSetup()">
-                    <div class="cambio-metodo-select">
-                      <label class="sub-label">Tipo de método</label>
-                      <select [(ngModel)]="nuevoMetodoPago" class="metodo-select">
-                        @for (m of METODOS_PAGO; track m.value) {
-                          <option [value]="m.value">{{ m.label }}</option>
-                        }
-                      </select>
-                    </div>
-                    <div id="cambio-metodo-element" class="stripe-element-container"></div>
-                    @if (errorMetodo()) {
-                      <p class="cambio-error"><mat-icon>error_outline</mat-icon> {{ errorMetodo() }}</p>
-                    }
-                    <div class="cambio-actions">
-                      <button mat-flat-button class="btn-confirmar-metodo"
-                        (click)="confirmarCambioMetodo()" [disabled]="confirmandoMetodo()">
-                        @if (confirmandoMetodo()) { <mat-spinner diameter="16"></mat-spinner> }
-                        @else { <mat-icon>check</mat-icon> }
-                        Confirmar cambio
-                      </button>
-                      <button mat-stroked-button (click)="cancelarCambioMetodo()" [disabled]="confirmandoMetodo()">
-                        Cancelar
-                      </button>
-                    </div>
-                  </div>
+              @if (planExpirandoPronto()) {
+                <div class="expiry-alert expiry-alert--warn">
+                  <mat-icon>warning_amber</mat-icon>
+                  <span>
+                    Tu plan expira en <strong>{{ diasRestantes() }} {{ diasRestantes() === 1 ? 'día' : 'días' }}</strong>.
+                    Renueva tu suscripción para no perder el acceso.
+                  </span>
+                  <a routerLink="/pago" mat-flat-button class="btn-renovar">Renovar</a>
                 </div>
               }
 

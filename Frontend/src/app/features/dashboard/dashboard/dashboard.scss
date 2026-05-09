@@ -387,4 +387,20 @@
         flex-direction: column;
         text-align: center;
     }
+
+    .seccion-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .mis-tests-item {
+        flex-wrap: wrap;
+        .test-acciones { width: 100%; justify-content: flex-end; }
+    }
+
+    .historial-item {
+        flex-wrap: wrap;
+        .historial-resultado { width: 100%; align-items: flex-start; }
+    }
 }

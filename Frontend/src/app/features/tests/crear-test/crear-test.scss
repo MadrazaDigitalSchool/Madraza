@@ -515,3 +515,23 @@
         }
     }
 }
+
+@media (max-width: 480px) {
+    .crear-header .container {
+        padding-inline: 16px;
+    }
+
+    .pregunta-card-header {
+        flex-wrap: wrap;
+        gap: 8px;
+
+        .field-tipo { width: 100%; }
+        .field-puntos { width: 80px; }
+    }
+
+    .opcion-input-row {
+        flex-wrap: wrap;
+
+        .opcion-radio { align-self: flex-start; margin-top: 10px; }
+    }
+}
