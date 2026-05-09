@@ -199,16 +199,24 @@
 
 // ── Tabla ──────────────────────────────────────────────────
 .table-wrapper {
-  overflow-x: auto;
+  overflow: hidden;   // sin scroll — la tabla se adapta al 100% disponible
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.07);
 }
 
 .admin-table {
-  width: 100%;
+  width: 100%;          // ocupa todo el ancho disponible sin scroll
   border-collapse: collapse;
   background: var(--madraza-surface, #1e1b4b);
   font-size: 13px;
+  table-layout: fixed;  // anchos controlados por columna, sin cálculos automáticos
+
+  // Anchos de las 5 columnas: suma = 100%
+  .col-usuario  { width: 30%; }
+  .col-sub      { width: 24%; }
+  .col-fecha    { width: 8%;  }
+  .col-estado   { width: 14%; }
+  .col-acciones { width: 24%; }
 
   th {
     text-align: left;
@@ -231,10 +239,57 @@
   }
 
   tr:last-child td { border-bottom: none; }
+  tr:hover td      { background: rgba(255,255,255,0.02); }
+  tr.inactivo td   { opacity: 0.5; }
+}
 
-  tr:hover td { background: rgba(255,255,255,0.02); }
+// ── Celda usuario enriquecida ─────────────────────────────
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
 
-  tr.inactivo td { opacity: 0.5; }
+.user-email {
+  font-size: 11px;
+  color: var(--madraza-text-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+// ── Detalles de suscripción ───────────────────────────────
+.sub-detail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--madraza-text-muted, #94a3b8);
+  flex-wrap: wrap;
+
+  .sub-sep { opacity: 0.4; }
+}
+
+// ── Estado + Rol apilados ─────────────────────────────────
+.estado-rol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+// ── Acciones sin corte ────────────────────────────────────
+.acciones-td {
+  white-space: nowrap;
 }
 
 .text-muted { color: var(--madraza-text-muted, #94a3b8) !important; }
@@ -281,12 +336,9 @@
 }
 
 .email-cell {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   font-size: 12px;
   color: var(--madraza-text-muted, #94a3b8) !important;
+  white-space: nowrap;
 }
 
 .titulo-cell {
@@ -330,18 +382,291 @@
 }
 
 .verde { color: #4ade80 !important; }
-.rojo { color: #f87171 !important; }
+.rojo  { color: #f87171 !important; }
 
 .acciones-cell {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   align-items: center;
   white-space: nowrap;
 }
 
-.icon-btn-green { color: #4ade80 !important; }
-.icon-btn-warn  { color: #fb923c !important; }
+.icon-btn-green  { color: #4ade80 !important; }
+.icon-btn-warn   { color: #fb923c !important; }
 .icon-btn-danger { color: #f87171 !important; }
+.icon-btn-blue   { color: #60a5fa !important; }
+
+.plan-tag {
+  background: rgba(96,165,250,0.12);
+  color: #60a5fa;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.pago-tag {
+  background: rgba(74,222,128,0.1);
+  color: #4ade80;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.oauth-tag.warn {
+  background: rgba(251,146,60,0.15);
+  color: #fb923c;
+}
+
+// ── Botón de visibilidad en tabla de tests ────────────────
+.vis-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &.vis-publico {
+    background: rgba(74,222,128,0.1);
+    color: #4ade80;
+    border-color: rgba(74,222,128,0.2);
+    &:hover { background: rgba(74,222,128,0.2); }
+  }
+
+  &.vis-privado {
+    background: rgba(148,163,184,0.08);
+    color: #94a3b8;
+    border-color: rgba(148,163,184,0.15);
+    &:hover { background: rgba(148,163,184,0.15); }
+  }
+}
+
+// ── Fila en edición ───────────────────────────────────────
+tr.editando td {
+  background: rgba(124,58,237,0.06) !important;
+}
+
+// ── Indicador cuenta protegida ────────────────────────────
+.admin-protegido {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fb923c;
+  background: rgba(251,146,60,0.1);
+  border: 1px solid rgba(251,146,60,0.2);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  cursor: default;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+// ── Botón nuevo usuario ───────────────────────────────────
+.btn-nuevo {
+  background: var(--madraza-primary, #7c3aed) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  mat-icon { font-size: 18px; }
+}
+
+// ── Badges de rol en tabla ────────────────────────────────
+.rol-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+  background: rgba(148,163,184,0.1);
+  color: #94a3b8;
+
+  &.rol-admin  { background: rgba(251,146,60,0.15);  color: #fb923c; }
+  &.rol-editor { background: rgba(96,165,250,0.15);  color: #60a5fa; }
+  &.rol-viewer { background: rgba(74,222,128,0.12);  color: #4ade80; }
+}
+
+// ── Formulario CRUD usuario ───────────────────────────────
+.usuario-form {
+  background: var(--madraza-surface, #1e1b4b);
+  border: 1px solid rgba(124,58,237,0.35);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  mat-icon {
+    color: var(--madraza-primary, #7c3aed);
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  h3 {
+    color: var(--madraza-text, #fff);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+  }
+
+  .close-btn { color: var(--madraza-text-muted, #94a3b8); }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 700px) { grid-template-columns: 1fr; }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--madraza-text-muted, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  input, select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--madraza-text, #fff);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &:focus { border-color: rgba(124,58,237,0.6); }
+    &::placeholder { color: var(--madraza-text-muted, #94a3b8); }
+
+    option { background: #1e1b4b; color: #fff; }
+  }
+}
+
+.form-toggle {
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--madraza-primary, #7c3aed);
+      cursor: pointer;
+    }
+
+    .toggle-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--madraza-text, #fff);
+      font-size: 14px;
+      font-weight: 600;
+
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--madraza-primary-light, #c4b5fd); }
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+// ── Selector de rol ───────────────────────────────────────
+.form-field--full {
+  grid-column: 1 / -1;
+}
+
+.rol-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rol-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: var(--madraza-text-muted, #94a3b8);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { border-color: rgba(124,58,237,0.4); color: var(--madraza-text, #fff); }
+
+  &.selected {
+    border-color: var(--madraza-primary, #7c3aed);
+    background: rgba(124,58,237,0.15);
+    color: #c4b5fd;
+    font-weight: 700;
+    mat-icon { color: #c4b5fd; }
+  }
+}
+
+.btn-guardar {
+  background: var(--madraza-primary, #7c3aed) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  mat-icon { font-size: 18px; }
+  &:disabled { opacity: 0.5; }
+}
+
+.btn-cancelar {
+  color: var(--madraza-text-muted, #94a3b8) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
 
 // ── Resumen tab ────────────────────────────────────────────
 .resumen-cards {

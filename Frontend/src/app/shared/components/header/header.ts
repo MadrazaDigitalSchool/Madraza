@@ -36,7 +36,8 @@ export class HeaderComponent {
   esRutaAuth       = signal(false);
 
   isLoggedIn = computed(() => this.usuario() !== null);
-  isAdmin    = computed(() => this.authService.tieneRol('ROLE_ADMIN'));
+  // Lee del signal usuario() para que se re-evalúe en cada navegación
+  isAdmin    = computed(() => this.usuario()?.roles?.includes('ROLE_ADMIN') ?? false);
 
   constructor() {
     this.esRutaAuth.set(this.router.url.startsWith('/auth/'));

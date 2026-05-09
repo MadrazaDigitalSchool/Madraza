@@ -14,11 +14,14 @@
         <!-- Derecha -->
         <div class="navbar-right">
 
+            <!-- Nav links: distintos para admin vs usuario normal -->
+            @if (!isAdmin()) {
             <ul class="nav-links">
                 <li><a routerLink="/que-es-madraza" routerLinkActive="active">¿Qué es Madraza?</a></li>
                 <li><a routerLink="/precios"         routerLinkActive="active">Precios</a></li>
                 <li><a routerLink="/contacto"        routerLinkActive="active">Contacto</a></li>
             </ul>
+            }
 
             <div class="nav-actions">
 
@@ -26,7 +29,7 @@
                 <a routerLink="/auth/login" mat-flat-button class="btn-login-nav">Iniciar sesión</a>
                 } @else {
 
-                <!-- Dropdown de usuario (sin MatMenu) -->
+                <!-- Dropdown de usuario -->
                 <div class="avatar-wrapper">
                     <button class="avatar-btn"
                             type="button"
@@ -39,34 +42,42 @@
                     </button>
 
                     @if (menuUsuarioOpen()) {
-                    <!-- Backdrop: cierra el menú al clicar fuera (position:fixed cubre toda la pantalla) -->
                     <div class="dropdown-backdrop" (click)="menuUsuarioOpen.set(false)"></div>
                     <div class="dropdown" role="menu"
                          [style.top]="dropdownTop()"
                          [style.right]="dropdownRight()">
-                        <!-- Cabecera -->
+
                         <div class="dropdown-header">
                             <p class="menu-nombre">{{ usuario()?.nombre }}</p>
                             <p class="menu-email">{{ usuario()?.email }}</p>
+                            @if (isAdmin()) {
+                            <span class="menu-rol-badge">Administrador</span>
+                            }
                         </div>
                         <div class="dropdown-divider"></div>
 
                         @if (isAdmin()) {
-                        <a class="dropdown-item" routerLink="/admin"
-                           (click)="menuUsuarioOpen.set(false)">
-                            <mat-icon>admin_panel_settings</mat-icon> Panel Admin
-                        </a>
-                        <div class="dropdown-divider"></div>
+                            <!-- Menú exclusivo para admin -->
+                            <a class="dropdown-item dropdown-item--primary" routerLink="/admin"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>admin_panel_settings</mat-icon> Panel de administración
+                            </a>
+                            <a class="dropdown-item" routerLink="/admin" [queryParams]="{tab:'tests'}"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>quiz</mat-icon> Gestionar tests
+                            </a>
+                        } @else {
+                            <!-- Menú para usuarios normales -->
+                            <a class="dropdown-item" routerLink="/dashboard"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>dashboard</mat-icon> Mi panel
+                            </a>
+                            <a class="dropdown-item" routerLink="/tests"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>quiz</mat-icon> Mis tests
+                            </a>
                         }
 
-                        <a class="dropdown-item" routerLink="/dashboard"
-                           (click)="menuUsuarioOpen.set(false)">
-                            <mat-icon>dashboard</mat-icon> Mi panel
-                        </a>
-                        <a class="dropdown-item" routerLink="/tests"
-                           (click)="menuUsuarioOpen.set(false)">
-                            <mat-icon>quiz</mat-icon> Mis tests
-                        </a>
                         <a class="dropdown-item" routerLink="/perfil"
                            (click)="menuUsuarioOpen.set(false)">
                             <mat-icon>person</mat-icon> Mi perfil
@@ -95,19 +106,23 @@
     <!-- Menú móvil -->
     @if (menuMovilAbierto()) {
     <div class="menu-movil">
+        @if (isAdmin()) {
+        <div class="menu-movil-actions">
+            <a routerLink="/admin"   (click)="menuMovilAbierto.set(false)">Panel de administración</a>
+            <a routerLink="/perfil"  (click)="menuMovilAbierto.set(false)">Mi perfil</a>
+            <button (click)="logout()">Cerrar sesión</button>
+        </div>
+        } @else {
         <ul>
-            <li><a routerLink="/que-es-madraza">¿Qué es Madraza?</a></li>
-            <li><a routerLink="/precios">Precios</a></li>
-            <li><a routerLink="/contacto">Contacto</a></li>
+            <li><a routerLink="/que-es-madraza" (click)="menuMovilAbierto.set(false)">¿Qué es Madraza?</a></li>
+            <li><a routerLink="/precios"        (click)="menuMovilAbierto.set(false)">Precios</a></li>
+            <li><a routerLink="/contacto"       (click)="menuMovilAbierto.set(false)">Contacto</a></li>
         </ul>
         @if (isLoggedIn()) {
         <div class="menu-movil-actions">
-            @if (isAdmin()) {
-            <a routerLink="/admin">Panel Admin</a>
-            }
-            <a routerLink="/perfil">Mi perfil</a>
-            <a routerLink="/dashboard">Mi panel</a>
-            <a routerLink="/tests">Mis tests</a>
+            <a routerLink="/perfil"    (click)="menuMovilAbierto.set(false)">Mi perfil</a>
+            <a routerLink="/dashboard" (click)="menuMovilAbierto.set(false)">Mi panel</a>
+            <a routerLink="/tests"     (click)="menuMovilAbierto.set(false)">Mis tests</a>
             <button (click)="logout()">Cerrar sesión</button>
         </div>
         } @else {
@@ -115,6 +130,7 @@
             <a routerLink="/auth/login">Iniciar sesión</a>
             <a routerLink="/auth/registro">Registrarse</a>
         </div>
+        }
         }
     </div>
     }

@@ -63,7 +63,7 @@
       </button>
     </div>
 
-    <!-- TAB: Resumen -->
+    <!-- ═══════════════ TAB: RESUMEN ═══════════════ -->
     @if (tabActiva() === 'resumen') {
       <div class="tab-content">
         <div class="resumen-cards">
@@ -73,9 +73,7 @@
             <p class="big-num">
               @if (stats() && stats()!.totalUsuarios > 0) {
                 {{ ((stats()!.suscripcionesActivas / stats()!.totalUsuarios) * 100) | number:'1.1-1' }}%
-              } @else {
-                —
-              }
+              } @else { — }
             </p>
             <p class="sub">Usuarios con suscripción activa</p>
           </div>
@@ -85,57 +83,146 @@
             <p class="big-num">
               @if (stats() && stats()!.totalUsuarios > 0) {
                 {{ (stats()!.totalIntentos / stats()!.totalUsuarios) | number:'1.1-1' }}
-              } @else {
-                —
-              }
+              } @else { — }
             </p>
-            <p class="sub">Intentos por usuario de media</p>
+            <p class="sub">Intentos por usuario</p>
           </div>
           <div class="info-card">
             <mat-icon>quiz</mat-icon>
-            <h3>Media de preguntas</h3>
-            <p class="big-num">—</p>
-            <p class="sub">Accede a la pestaña Tests para ver detalles</p>
+            <h3>Tests por usuario</h3>
+            <p class="big-num">
+              @if (stats() && stats()!.totalUsuarios > 0) {
+                {{ (stats()!.totalTests / stats()!.totalUsuarios) | number:'1.1-1' }}
+              } @else { — }
+            </p>
+            <p class="sub">Media de tests creados</p>
           </div>
         </div>
         <div class="acciones-rapidas">
           <h2>Acciones rápidas</h2>
           <div class="acciones-grid">
             <button mat-flat-button class="accion-btn" (click)="setTab('usuarios')">
-              <mat-icon>manage_accounts</mat-icon>
-              Gestionar usuarios
+              <mat-icon>manage_accounts</mat-icon> Gestionar usuarios
             </button>
             <button mat-flat-button class="accion-btn" (click)="setTab('tests')">
-              <mat-icon>edit_note</mat-icon>
-              Gestionar tests
+              <mat-icon>edit_note</mat-icon> Gestionar tests
             </button>
-            <button mat-flat-button class="accion-btn" routerLink="/dashboard">
-              <mat-icon>arrow_back</mat-icon>
-              Mi dashboard
+            <button mat-flat-button class="accion-btn" (click)="cargarStats()">
+              <mat-icon>refresh</mat-icon> Actualizar estadísticas
             </button>
           </div>
         </div>
       </div>
     }
 
-    <!-- TAB: Usuarios -->
+    <!-- ═══════════════ TAB: USUARIOS ═══════════════ -->
     @if (tabActiva() === 'usuarios') {
       <div class="tab-content">
+
+        <!-- Toolbar -->
         <div class="tab-toolbar">
           <h2>Gestión de usuarios</h2>
           <div class="search-box">
             <mat-icon>search</mat-icon>
-            <input
-              type="text"
-              placeholder="Buscar por nombre o email..."
+            <input type="text" placeholder="Buscar por nombre o email..."
               [value]="busquedaUsuario()"
               (input)="busquedaUsuario.set($any($event.target).value)" />
           </div>
+          <button mat-flat-button class="btn-nuevo" (click)="abrirCrear()">
+            <mat-icon>person_add</mat-icon> Nuevo usuario
+          </button>
           <button mat-icon-button (click)="cargarUsuarios()" matTooltip="Recargar">
             <mat-icon>refresh</mat-icon>
           </button>
         </div>
 
+        <!-- ── Formulario crear / editar ── -->
+        @if (modoForm() !== null) {
+          <div class="usuario-form" id="usuario-form">
+            <div class="form-header">
+              <mat-icon>{{ modoForm() === 'crear' ? 'person_add' : 'edit' }}</mat-icon>
+              <h3>{{ modoForm() === 'crear' ? 'Nuevo usuario' : 'Editar: ' + usuarioEditando()?.nombre }}</h3>
+              <button mat-icon-button class="close-btn" (click)="cancelarForm()" matTooltip="Cancelar">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Nombre *</label>
+                <input [(ngModel)]="fNombre" placeholder="Nombre" />
+              </div>
+              <div class="form-field">
+                <label>Apellidos</label>
+                <input [(ngModel)]="fApellidos" placeholder="Apellidos" />
+              </div>
+              <div class="form-field">
+                <label>Email *</label>
+                <input [(ngModel)]="fEmail" type="email" placeholder="usuario@email.com" />
+              </div>
+              @if (modoForm() === 'crear') {
+                <div class="form-field">
+                  <label>Contraseña * (mín. 6 caracteres)</label>
+                  <input [(ngModel)]="fPassword" type="password" placeholder="••••••" />
+                </div>
+              }
+              <div class="form-field form-field--full">
+                <label>Rol *</label>
+                <div class="rol-selector">
+                  @for (r of ROLES; track r.value) {
+                    <button type="button" class="rol-option"
+                      [class.selected]="fRol === r.value"
+                      (click)="fRol = r.value">
+                      <mat-icon>{{ r.icon }}</mat-icon>
+                      {{ r.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              @if (fRol !== 'ROLE_ADMIN') {
+                <div class="form-field">
+                  <label>Plan</label>
+                  <select [(ngModel)]="fPlanTipo">
+                    <option value="">Sin plan</option>
+                    <option value="MENSUAL">Mensual</option>
+                    <option value="ANUAL">Anual</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label>Método de pago</label>
+                  <select [(ngModel)]="fMetodoPago">
+                    <option value="">Sin método</option>
+                    <option value="tarjeta">Tarjeta (Visa / Mastercard / Amex)</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="apple_pay">Apple Pay</option>
+                    <option value="google_pay">Google Pay</option>
+                    <option value="sepa">Adeudo SEPA</option>
+                    <option value="klarna">Klarna</option>
+                  </select>
+                </div>
+              }
+            </div>
+
+            <div class="form-actions">
+              <button mat-flat-button class="btn-guardar"
+                [disabled]="!fNombre.trim() || !fEmail.trim() || guardandoUsuario()"
+                (click)="guardarUsuario()">
+                @if (guardandoUsuario()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
+                {{ modoForm() === 'crear' ? 'Crear usuario' : 'Guardar cambios' }}
+              </button>
+              <button mat-stroked-button class="btn-cancelar" (click)="cancelarForm()">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ── Tabla ── -->
         @if (cargandoUsuarios()) {
           <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
         } @else {
@@ -143,80 +230,118 @@
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Email</th>
-                  <th>Verificado</th>
-                  <th>Suscripción</th>
-                  <th>Expiry</th>
-                  <th>Estado</th>
-                  <th>Rol</th>
-                  <th>Acciones</th>
+                  <th class="col-usuario">Usuario</th>
+                  <th class="col-sub">Suscripción</th>
+                  <th class="col-fecha">Alta</th>
+                  <th class="col-estado">Estado / Rol</th>
+                  <th class="col-acciones">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 @for (u of usuariosFiltrados(); track u.id) {
-                  <tr [class.inactivo]="!u.activo">
+                  <tr [class.inactivo]="!u.activo" [class.editando]="usuarioEditando()?.id === u.id">
+
+                    <!-- ① Usuario: avatar + nombre + email + badges -->
                     <td>
                       <div class="user-cell">
-                        <div class="avatar-mini">{{ u.nombre.charAt(0) }}</div>
-                        <div>
+                        <div class="avatar-mini">{{ u.nombre.charAt(0).toUpperCase() }}</div>
+                        <div class="user-info">
                           <span class="user-nombre">{{ u.nombre }} {{ u.apellidos }}</span>
-                          @if (u.proveedorOauth) {
-                            <span class="oauth-tag">{{ u.proveedorOauth }}</span>
-                          }
+                          <span class="user-email">{{ u.email }}</span>
+                          <div class="user-tags">
+                            @if (u.proveedorOauth) {
+                              <span class="oauth-tag">{{ u.proveedorOauth }}</span>
+                            }
+                            @if (!u.emailVerificado) {
+                              <span class="oauth-tag warn">No verificado</span>
+                            }
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td class="email-cell">{{ u.email }}</td>
+
+                    <!-- ② Suscripción: badge + detalles en sub-línea -->
                     <td>
-                      <mat-icon [class.verde]="u.emailVerificado" [class.rojo]="!u.emailVerificado">
-                        {{ u.emailVerificado ? 'check_circle' : 'cancel' }}
-                      </mat-icon>
-                    </td>
-                    <td>
-                      <span class="badge" [class.badge-activo]="u.suscripcionActiva" [class.badge-inactivo]="!u.suscripcionActiva">
+                      <span class="badge" [class.badge-activo]="u.suscripcionActiva"
+                                          [class.badge-inactivo]="!u.suscripcionActiva">
                         {{ u.suscripcionActiva ? 'Premium' : 'Gratuito' }}
                       </span>
+                      @if (u.suscripcionActiva) {
+                        <div class="sub-detail">
+                          @if (u.planTipo) { <span>{{ getPlanLabel(u.planTipo) }}</span> }
+                          @if (u.metodoPago) { <span class="sub-sep">·</span><span>{{ getMetodoPagoLabel(u.metodoPago) }}</span> }
+                          @if (getExpiryDate(u.suscripcionExpiry); as f) {
+                            <span class="sub-sep">·</span><span>hasta {{ f | date:'dd/MM/yy' }}</span>
+                          }
+                        </div>
+                      }
                     </td>
+
+                    <!-- ③ Fecha de alta -->
                     <td class="text-muted text-sm">
-                      @if (getExpiryDate(u.suscripcionExpiry); as fecha) {
-                        {{ fecha | date:'dd/MM/yy' }}
-                      } @else {
-                        —
-                      }
+                      @if (u.createdAt) { {{ u.createdAt | date:'dd/MM/yy' }} } @else { — }
                     </td>
+
+                    <!-- ④ Estado + Rol apilados -->
                     <td>
-                      <span class="badge" [class.badge-activo]="u.activo" [class.badge-inactivo]="!u.activo">
-                        {{ u.activo ? 'Activo' : 'Bloqueado' }}
-                      </span>
-                    </td>
-                    <td>
-                      @if (esAdmin(u)) {
-                        <span class="badge badge-admin">Admin</span>
-                      } @else {
-                        <span class="text-muted text-sm">Usuario</span>
-                      }
-                    </td>
-                    <td>
-                      <div class="acciones-cell">
-                        @if (!u.suscripcionActiva) {
-                          <button mat-icon-button class="icon-btn-green" (click)="activarSuscripcion(u, 30)" matTooltip="Activar 30 días">
-                            <mat-icon>calendar_today</mat-icon>
-                          </button>
-                          <button mat-icon-button class="icon-btn-green" (click)="activarSuscripcion(u, 365)" matTooltip="Activar 365 días">
-                            <mat-icon>event_available</mat-icon>
-                          </button>
-                        } @else {
-                          <button mat-icon-button class="icon-btn-warn" (click)="desactivarSuscripcion(u)" matTooltip="Desactivar suscripción">
-                            <mat-icon>cancel</mat-icon>
-                          </button>
-                        }
-                        <button mat-icon-button [class.icon-btn-danger]="u.activo" [class.icon-btn-green]="!u.activo"
-                          (click)="toggleUsuarioActivo(u)" [matTooltip]="u.activo ? 'Bloquear usuario' : 'Activar usuario'">
-                          <mat-icon>{{ u.activo ? 'block' : 'check' }}</mat-icon>
-                        </button>
+                      <div class="estado-rol">
+                        <span class="badge" [class.badge-activo]="u.activo" [class.badge-inactivo]="!u.activo">
+                          {{ u.activo ? 'Activo' : 'Bloqueado' }}
+                        </span>
+                        <span class="rol-badge"
+                          [class.rol-admin]="esAdmin(u)"
+                          [class.rol-editor]="u.roles.includes('ROLE_EDITOR')"
+                          [class.rol-viewer]="u.roles.includes('ROLE_VIEWER')">
+                          {{ getRolLabel(u) }}
+                        </span>
                       </div>
                     </td>
+
+                    <!-- ⑤ Acciones -->
+                    <td class="acciones-td">
+                      <div class="acciones-cell">
+                        <button mat-icon-button class="icon-btn-blue" (click)="abrirEditar(u)" matTooltip="Editar">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+
+                        @if (!esAdmin(u)) {
+                          @if (!u.suscripcionActiva) {
+                            <button mat-icon-button class="icon-btn-green" (click)="activarSuscripcion(u, 30)" matTooltip="Activar 30 días">
+                              <mat-icon>calendar_today</mat-icon>
+                            </button>
+                            <button mat-icon-button class="icon-btn-green" (click)="activarSuscripcion(u, 365)" matTooltip="Activar 365 días">
+                              <mat-icon>event_available</mat-icon>
+                            </button>
+                          } @else {
+                            <button mat-icon-button class="icon-btn-warn" (click)="desactivarSuscripcion(u)" matTooltip="Desactivar suscripción">
+                              <mat-icon>cancel</mat-icon>
+                            </button>
+                          }
+                          <button mat-icon-button
+                            [class.icon-btn-danger]="u.activo" [class.icon-btn-green]="!u.activo"
+                            (click)="toggleUsuarioActivo(u)"
+                            [matTooltip]="u.activo ? 'Bloquear' : 'Activar'">
+                            <mat-icon>{{ u.activo ? 'block' : 'check_circle' }}</mat-icon>
+                          </button>
+                          <button mat-icon-button class="icon-btn-danger"
+                            (click)="eliminarUsuario(u)"
+                            [disabled]="eliminandoId() === u.id"
+                            matTooltip="Eliminar usuario">
+                            @if (eliminandoId() === u.id) {
+                              <mat-spinner diameter="16"></mat-spinner>
+                            } @else {
+                              <mat-icon>delete</mat-icon>
+                            }
+                          </button>
+                        } @else {
+                          <span class="admin-protegido"
+                            matTooltip="Las cuentas de administrador no se pueden eliminar ni bloquear">
+                            <mat-icon>shield</mat-icon> Protegido
+                          </span>
+                        }
+                      </div>
+                    </td>
+
                   </tr>
                 }
               </tbody>
@@ -229,19 +354,18 @@
             }
           </div>
         }
+
       </div>
     }
 
-    <!-- TAB: Tests -->
+    <!-- ═══════════════ TAB: TESTS ═══════════════ -->
     @if (tabActiva() === 'tests') {
       <div class="tab-content">
         <div class="tab-toolbar">
           <h2>Gestión de tests</h2>
           <div class="search-box">
             <mat-icon>search</mat-icon>
-            <input
-              type="text"
-              placeholder="Buscar por título, categoría o creador..."
+            <input type="text" placeholder="Buscar por título, categoría o creador..."
               [value]="busquedaTest()"
               (input)="busquedaTest.set($any($event.target).value)" />
           </div>
@@ -277,11 +401,16 @@
                         {{ t.dificultad }}
                       </span>
                     </td>
+                    <!-- Visibilidad — clickable para cambiar -->
                     <td>
-                      <mat-icon class="text-sm" [class.verde]="t.visibilidad === 'PUBLICO'" [class.text-muted]="t.visibilidad !== 'PUBLICO'">
-                        {{ t.visibilidad === 'PUBLICO' ? 'public' : 'lock' }}
-                      </mat-icon>
-                      {{ t.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                      <button class="vis-toggle"
+                        [class.vis-publico]="t.visibilidad === 'PUBLICO'"
+                        [class.vis-privado]="t.visibilidad !== 'PUBLICO'"
+                        (click)="toggleTestVisibilidad(t)"
+                        [matTooltip]="t.visibilidad === 'PUBLICO' ? 'Clic para ocultar' : 'Clic para publicar'">
+                        <mat-icon>{{ t.visibilidad === 'PUBLICO' ? 'public' : 'lock' }}</mat-icon>
+                        {{ t.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                      </button>
                     </td>
                     <td class="text-center">{{ t.totalPreguntas }}</td>
                     <td class="text-muted text-sm">{{ t.creador }}</td>
@@ -292,9 +421,12 @@
                     </td>
                     <td>
                       <div class="acciones-cell">
-                        <button mat-icon-button [class.icon-btn-warn]="t.activo" [class.icon-btn-green]="!t.activo"
-                          (click)="toggleTestActivo(t)" [matTooltip]="t.activo ? 'Desactivar' : 'Activar'">
-                          <mat-icon>{{ t.activo ? 'visibility_off' : 'visibility' }}</mat-icon>
+                        <button mat-icon-button
+                          [class.icon-btn-green]="t.visibilidad !== 'PUBLICO'"
+                          [class.icon-btn-warn]="t.visibilidad === 'PUBLICO'"
+                          (click)="toggleTestVisibilidad(t)"
+                          [matTooltip]="t.visibilidad === 'PUBLICO' ? 'Hacer privado' : 'Publicar'">
+                          <mat-icon>{{ t.visibilidad === 'PUBLICO' ? 'lock' : 'public' }}</mat-icon>
                         </button>
                         <button mat-icon-button class="icon-btn-danger" (click)="eliminarTest(t)" matTooltip="Eliminar test">
                           <mat-icon>delete</mat-icon>

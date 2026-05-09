@@ -207,6 +207,88 @@
   border-radius: 8px !important; height: 40px !important;
   mat-icon { color: #7c3aed; font-size: 18px; }
   &:hover { background: rgba(124,58,237,0.06) !important; border-color: rgba(124,58,237,0.3) !important; }
+
+  &--admin {
+    border-color: rgba(124,58,237,0.3) !important;
+    color: #7c3aed !important;
+    font-weight: 600 !important;
+    &:hover { background: rgba(124,58,237,0.1) !important; }
+  }
+}
+
+/* ── Cambio de método de pago ───────────────────────────── */
+
+.btn-cambiar-metodo {
+  width: 100%; margin-top: 14px;
+  border-color: rgba(124,58,237,0.3) !important;
+  color: #7c3aed !important;
+  border-radius: 8px !important;
+  display: flex !important; align-items: center !important; gap: 6px;
+  justify-content: center !important;
+  mat-icon { font-size: 18px; }
+  &:hover { background: rgba(124,58,237,0.07) !important; }
+}
+
+.cambio-metodo-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f9f5ff;
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .cambio-titulo {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 700; color: #4b2995; margin: 0;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+
+  .cambio-desc { font-size: 12px; color: #6b7280; margin: 0; }
+
+  .cambio-loading {
+    display: flex; align-items: center; gap: 10px;
+    color: #6b7280; font-size: 13px; padding: 8px 0;
+  }
+
+  .cambio-metodo-select {
+    display: flex; flex-direction: column; gap: 6px;
+
+    .metodo-select {
+      border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; color: #374151;
+      background: white; outline: none; cursor: pointer;
+      &:focus { border-color: #7c3aed; }
+      option { background: white; }
+    }
+  }
+
+  .stripe-element-container {
+    min-height: 50px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .cambio-error {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #dc2626; margin: 0;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  }
+
+  .cambio-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+
+  .btn-confirmar-metodo {
+    background: #7c3aed !important; color: white !important;
+    border-radius: 8px !important; font-weight: 600 !important;
+    display: flex !important; align-items: center !important; gap: 6px;
+    &:disabled { opacity: 0.6; }
+    mat-icon { font-size: 18px; }
+  }
 }
 
 /* ── Mis tests ──────────────────────────────────────────── */

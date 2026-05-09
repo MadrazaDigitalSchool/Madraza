@@ -2,9 +2,15 @@
 
   <div class="perfil-hero">
     <div class="container">
-      <a routerLink="/dashboard" class="btn-back">
-        <mat-icon>arrow_back</mat-icon> Volver al panel
-      </a>
+      @if (isAdmin()) {
+        <a routerLink="/admin" class="btn-back">
+          <mat-icon>arrow_back</mat-icon> Panel de administración
+        </a>
+      } @else {
+        <a routerLink="/dashboard" class="btn-back">
+          <mat-icon>arrow_back</mat-icon> Volver al panel
+        </a>
+      }
       <div class="hero-content">
         <div class="avatar-grande">{{ getIniciales() }}</div>
         <div class="hero-info">
@@ -165,67 +171,121 @@
 
       <aside class="perfil-sidebar">
 
-        <div class="card" [class.card--premium]="esPremium()">
-          <h3 class="sidebar-title">
-            <mat-icon>{{ esPremium() ? 'workspace_premium' : 'star_outline' }}</mat-icon>
-            Suscripción
-          </h3>
+        @if (!isAdmin()) {
+          <!-- Suscripción — solo usuarios normales -->
+          <div class="card" [class.card--premium]="esPremium()">
+            <h3 class="sidebar-title">
+              <mat-icon>{{ esPremium() ? 'workspace_premium' : 'star_outline' }}</mat-icon>
+              Suscripción
+            </h3>
 
-          @if (esPremium()) {
-            <span class="badge badge--activa">
-              <mat-icon>verified</mat-icon> Plan activo
-            </span>
-
-            <div class="sub-list">
-              <div class="sub-item">
-                <div class="sub-item-icon"><mat-icon>loyalty</mat-icon></div>
-                <div>
-                  <span class="sub-label">Plan</span>
-                  <span class="sub-value">{{ getPlanLabel() }}</span>
+            @if (esPremium()) {
+              <span class="badge badge--activa">
+                <mat-icon>verified</mat-icon> Plan activo
+              </span>
+              <div class="sub-list">
+                <div class="sub-item">
+                  <div class="sub-item-icon"><mat-icon>loyalty</mat-icon></div>
+                  <div>
+                    <span class="sub-label">Plan</span>
+                    <span class="sub-value">{{ getPlanLabel() }}</span>
+                  </div>
                 </div>
+                @if (fechaExpiry(); as expiry) {
+                  <div class="sub-item">
+                    <div class="sub-item-icon"><mat-icon>event</mat-icon></div>
+                    <div>
+                      <span class="sub-label">Expira el</span>
+                      <span class="sub-value sub-value--purple">
+                        {{ expiry | date:"d 'de' MMMM yyyy":'':'es' }}
+                      </span>
+                      @if (diasRestantes(); as dias) {
+                        <span class="dias-badge"
+                              [class.dias-badge--ok]="dias > 7"
+                              [class.dias-badge--warn]="dias <= 7">
+                          {{ dias }} días restantes
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (metodoPago) {
+                  <div class="sub-item">
+                    <div class="sub-item-icon"><mat-icon>payment</mat-icon></div>
+                    <div>
+                      <span class="sub-label">Método de pago</span>
+                      <span class="sub-value">{{ getMetodoPagoLabel() }}</span>
+                    </div>
+                  </div>
+                }
               </div>
 
-              @if (fechaExpiry(); as expiry) {
-                <div class="sub-item">
-                  <div class="sub-item-icon"><mat-icon>event</mat-icon></div>
-                  <div>
-                    <span class="sub-label">Expira el</span>
-                    <span class="sub-value sub-value--purple">
-                      {{ expiry | date:"d 'de' MMMM yyyy":'':'es' }}
-                    </span>
-                    @if (diasRestantes(); as dias) {
-                      <span class="dias-badge"
-                            [class.dias-badge--ok]="dias > 7"
-                            [class.dias-badge--warn]="dias <= 7">
-                        {{ dias }} días restantes
-                      </span>
+              <!-- Cambiar método de pago -->
+              @if (!modoMetodoPago()) {
+                <button mat-stroked-button class="btn-cambiar-metodo" (click)="iniciarCambioMetodo()">
+                  <mat-icon>swap_horiz</mat-icon> Cambiar método de pago
+                </button>
+              }
+
+              @if (modoMetodoPago()) {
+                <div class="cambio-metodo-panel">
+                  <p class="cambio-titulo"><mat-icon>swap_horiz</mat-icon> Nuevo método de pago</p>
+                  <p class="cambio-desc">El cambio se aplica en el próximo período de facturación.</p>
+
+                  <!-- Spinner mientras carga Stripe -->
+                  @if (cargandoSetup()) {
+                    <div class="cambio-loading">
+                      <mat-spinner diameter="24"></mat-spinner>
+                      <span>Cargando formulario seguro...</span>
+                    </div>
+                  }
+
+                  <!--
+                    [hidden] mantiene el div en el DOM aunque cargandoSetup sea true.
+                    Así Stripe puede hacer mount() en cuanto el elemento esté listo,
+                    sin depender del timing de re-render de Angular.
+                  -->
+                  <div [hidden]="cargandoSetup()">
+                    <div class="cambio-metodo-select">
+                      <label class="sub-label">Tipo de método</label>
+                      <select [(ngModel)]="nuevoMetodoPago" class="metodo-select">
+                        @for (m of METODOS_PAGO; track m.value) {
+                          <option [value]="m.value">{{ m.label }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div id="cambio-metodo-element" class="stripe-element-container"></div>
+                    @if (errorMetodo()) {
+                      <p class="cambio-error"><mat-icon>error_outline</mat-icon> {{ errorMetodo() }}</p>
                     }
+                    <div class="cambio-actions">
+                      <button mat-flat-button class="btn-confirmar-metodo"
+                        (click)="confirmarCambioMetodo()" [disabled]="confirmandoMetodo()">
+                        @if (confirmandoMetodo()) { <mat-spinner diameter="16"></mat-spinner> }
+                        @else { <mat-icon>check</mat-icon> }
+                        Confirmar cambio
+                      </button>
+                      <button mat-stroked-button (click)="cancelarCambioMetodo()" [disabled]="confirmandoMetodo()">
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
                 </div>
               }
 
-              @if (metodoPago) {
-                <div class="sub-item">
-                  <div class="sub-item-icon"><mat-icon>payment</mat-icon></div>
-                  <div>
-                    <span class="sub-label">Método de pago</span>
-                    <span class="sub-value">{{ getMetodoPagoLabel() }}</span>
-                  </div>
-                </div>
-              }
-            </div>
+            } @else {
+              <span class="badge badge--free">
+                <mat-icon>person_outline</mat-icon> Sin suscripción
+              </span>
+              <p class="sub-desc">Accede a todos los tests con Premium</p>
+              <a mat-flat-button routerLink="/pago" class="btn-premium">
+                <mat-icon>workspace_premium</mat-icon> Activar Premium
+              </a>
+            }
+          </div>
+        }
 
-          } @else {
-            <span class="badge badge--free">
-              <mat-icon>person_outline</mat-icon> Sin suscripción
-            </span>
-            <p class="sub-desc">Accede a todos los tests con Premium</p>
-            <a mat-flat-button routerLink="/pago" class="btn-premium">
-              <mat-icon>workspace_premium</mat-icon> Activar Premium
-            </a>
-          }
-        </div>
-
+        <!-- Acciones rápidas -->
         <div class="card">
           <h3 class="sidebar-title">
             <mat-icon>flash_on</mat-icon> Acciones rápidas
@@ -235,8 +295,13 @@
               <mat-icon>add_circle_outline</mat-icon> Crear test
             </a>
             <button mat-stroked-button class="accion-btn" (click)="abrirDialogoCategoria()">
-              <mat-icon>new_releases</mat-icon> Crear nueva categoría
+              <mat-icon>new_releases</mat-icon> Nueva categoría
             </button>
+            @if (isAdmin()) {
+              <a routerLink="/admin" [queryParams]="{tab: 'usuarios'}" mat-stroked-button class="accion-btn accion-btn--admin">
+                <mat-icon>manage_accounts</mat-icon> Gestionar usuarios
+              </a>
+            }
           </div>
         </div>
 

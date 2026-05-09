@@ -45,4 +45,14 @@ export class PaymentService {
       `${this.apiUrl}/estado`
     );
   }
+
+  /** Crea un SetupIntent para capturar un nuevo método de pago sin cobrar */
+  crearSetupIntent(): Observable<{ clientSecret: string }> {
+    return this.http.post<{ clientSecret: string }>(`${this.apiUrl}/setup-intent`, {});
+  }
+
+  /** Actualiza el método de pago por defecto en Stripe y en la BD */
+  actualizarMetodoPago(paymentMethodId: string, metodoPago: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/metodo-pago`, { paymentMethodId, metodoPago });
+  }
 }

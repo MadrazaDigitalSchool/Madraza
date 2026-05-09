@@ -44,30 +44,44 @@
 
 .metodos-pago {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
+  gap: 10px;
 
   .metodos-label {
     color: #888;
     font-size: 13px;
+    font-weight: 500;
   }
 
   .metodos-icons {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .metodo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
     color: #333;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    white-space: nowrap;
+
+    svg { flex-shrink: 0; }
+
+    &.paypal  { color: #003087; border-color: #b3cde3; }
+    &.apple   { color: #1d1d1f; border-color: #d1d1d6; }
+    &.google  { color: #4285f4; border-color: #cce0ff; }
+    &.sepa    { color: #1a56a0; border-color: #c3d4e8; }
+    &.klarna  { border-color: #FFB3C7; padding: 4px 10px; }
   }
 }
 

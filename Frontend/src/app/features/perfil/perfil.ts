@@ -1,5 +1,7 @@
 import { Component, OnInit, inject, DestroyRef, computed, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -10,13 +12,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth';
 import { TestService } from '../../core/services/test';
+import { PaymentService } from '../../core/services/payment.service';
 import { Usuario } from '../../core/models/usuario.model';
 import { Test } from '../../core/models/test.model';
+import { environment } from '../../../environments/environment';
 import { CrearCategoriaDialogComponent } from '../../shared/components/crear-categoria-dialog/crear-categoria-dialog';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { loadStripe, Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
 
 @Component({
   selector: 'app-perfil',
@@ -24,17 +31,18 @@ import { CrearCategoriaDialogComponent } from '../../shared/components/crear-cat
   imports: [
     CommonModule, DatePipe, FormsModule, RouterLink,
     MatFormFieldModule, MatInputModule, MatButtonModule,
-    MatIconModule, MatProgressSpinnerModule, MatDividerModule, MatChipsModule
+    MatIconModule, MatProgressSpinnerModule, MatDividerModule, MatChipsModule, MatSelectModule
   ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss'
 })
 export class PerfilComponent implements OnInit {
-  authService = inject(AuthService);
-  private testService = inject(TestService);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  authService     = inject(AuthService);
+  private testService    = inject(TestService);
+  private paymentService = inject(PaymentService);
+  private router    = inject(Router);
+  private dialog    = inject(MatDialog);
+  private snackBar  = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
   usuario = signal<Usuario | null>(null);
@@ -51,6 +59,25 @@ export class PerfilComponent implements OnInit {
   misTests: Test[] = [];
   misTestsCargando = true;
   eliminandoId: number | null = null;
+
+  // ── Cambio de método de pago (signals para detectar cambios fuera de zone) ──
+  modoMetodoPago    = signal(false);
+  cargandoSetup     = signal(false);
+  confirmandoMetodo = signal(false);
+  errorMetodo       = signal('');
+  nuevoMetodoPago   = 'tarjeta';
+
+  readonly METODOS_PAGO = [
+    { value: 'tarjeta',    label: 'Tarjeta (Visa / Mastercard / Amex)' },
+    { value: 'paypal',     label: 'PayPal'       },
+    { value: 'apple_pay',  label: 'Apple Pay'    },
+    { value: 'google_pay', label: 'Google Pay'   },
+    { value: 'sepa',       label: 'Adeudo SEPA'  },
+  ];
+
+  private stripe: Stripe | null = null;
+  private elementsSetup: StripeElements | null = null;
+  private paymentElementSetup: StripePaymentElement | null = null;
 
   fechaExpiry = computed(() => {
     const u = this.usuario();
@@ -111,17 +138,29 @@ export class PerfilComponent implements OnInit {
   }
 
   eliminarTest(test: Test): void {
-    this.eliminandoId = test.id;
-    this.testService.eliminarTest(test.id).subscribe({
-      next: () => {
-        this.misTests = this.misTests.filter(t => t.id !== test.id);
-        this.eliminandoId = null;
-        this.snackBar.open(`Test "${test.titulo}" eliminado.`, 'Cerrar', { duration: 3000 });
-      },
-      error: () => {
-        this.eliminandoId = null;
-        this.snackBar.open('Error al eliminar el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '380px',
+      data: {
+        titulo: 'Eliminar test',
+        mensaje: `¿Seguro que quieres eliminar "${test.titulo}"? Esta acción no se puede deshacer.`,
+        labelConfirmar: 'Eliminar',
+        labelCancelar: 'Cancelar'
       }
+    });
+    ref.afterClosed().subscribe(confirmado => {
+      if (!confirmado) return;
+      this.eliminandoId = test.id;
+      this.testService.eliminarTest(test.id).subscribe({
+        next: () => {
+          this.misTests = this.misTests.filter(t => t.id !== test.id);
+          this.eliminandoId = null;
+          this.snackBar.open(`Test "${test.titulo}" eliminado correctamente.`, 'Cerrar', { duration: 3000 });
+        },
+        error: () => {
+          this.eliminandoId = null;
+          this.snackBar.open('No se pudo eliminar el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
+        }
+      });
     });
   }
 
@@ -148,8 +187,9 @@ export class PerfilComponent implements OnInit {
   }
 
   getPlanLabel(): string {
-    if (this.planTipo === 'anual') return 'Premium Anual';
-    if (this.planTipo === 'mensual') return 'Premium Mensual';
+    const p = this.planTipo?.toLowerCase();
+    if (p === 'anual')   return 'Premium Anual';
+    if (p === 'mensual') return 'Premium Mensual';
     return 'Premium';
   }
 
@@ -180,6 +220,80 @@ export class PerfilComponent implements OnInit {
   getDificultadLabel(dificultad: string): string {
     const labels: Record<string, string> = { 'BAJA': 'Fácil', 'MEDIA': 'Media', 'ALTA': 'Difícil' };
     return labels[dificultad] ?? dificultad;
+  }
+
+  // ── Cambio de método de pago ──────────────────────────────
+
+  async iniciarCambioMetodo(): Promise<void> {
+    this.modoMetodoPago.set(true);
+    this.cargandoSetup.set(true);
+    this.errorMetodo.set('');
+
+    try {
+      const { clientSecret } = await firstValueFrom(this.paymentService.crearSetupIntent());
+      const stripe = await loadStripe(environment.stripePublicKey);
+      if (!stripe) throw new Error('No se pudo cargar Stripe');
+
+      this.stripe = stripe;
+      this.elementsSetup = stripe.elements({ clientSecret, locale: 'es' });
+      this.paymentElementSetup = this.elementsSetup.create('payment', {
+        layout: { type: 'tabs', defaultCollapsed: false },
+        wallets: { applePay: 'never', googlePay: 'never' },
+      } as any);
+
+      // El div #cambio-metodo-element está siempre en el DOM ([hidden]) → mount inmediato
+      this.paymentElementSetup!.mount('#cambio-metodo-element');
+      this.cargandoSetup.set(false);  // Revela el formulario ya montado
+    } catch (err: any) {
+      this.cargandoSetup.set(false);
+      this.errorMetodo.set(err?.error?.error ?? 'No se pudo cargar el formulario. Inténtalo de nuevo.');
+    }
+  }
+
+  async confirmarCambioMetodo(): Promise<void> {
+    if (!this.stripe || !this.elementsSetup) return;
+    this.confirmandoMetodo.set(true);
+    this.errorMetodo.set('');
+
+    const { setupIntent, error } = await this.stripe.confirmSetup({
+      elements: this.elementsSetup,
+      confirmParams: { return_url: `${window.location.origin}/perfil` },
+      redirect: 'if_required',
+    } as any);
+
+    if (error) {
+      this.errorMetodo.set(error.message || 'Error al confirmar el método de pago.');
+      this.confirmandoMetodo.set(false);
+      return;
+    }
+
+    const paymentMethodId = (setupIntent as any)?.payment_method as string;
+    this.paymentService.actualizarMetodoPago(paymentMethodId, this.nuevoMetodoPago)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.authService.getPerfil())
+      )
+      .subscribe({
+        next: (u) => {
+          this.aplicarUsuario(u);
+          this.snackBar.open('Método de pago actualizado para el próximo período de facturación.', 'Cerrar', { duration: 4000 });
+          this.cancelarCambioMetodo();
+          this.confirmandoMetodo.set(false);
+        },
+        error: (err) => {
+          this.errorMetodo.set(err?.error?.error ?? 'No se pudo actualizar el método de pago en el servidor.');
+          this.confirmandoMetodo.set(false);
+        }
+      });
+  }
+
+  cancelarCambioMetodo(): void {
+    this.paymentElementSetup?.unmount();
+    this.paymentElementSetup = null;
+    this.elementsSetup       = null;
+    this.stripe              = null;
+    this.modoMetodoPago.set(false);
+    this.errorMetodo.set('');
   }
 
   guardarPerfil(): void {

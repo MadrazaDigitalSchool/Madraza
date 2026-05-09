@@ -71,7 +71,9 @@ export class LoginComponent implements OnInit {
           } else {
             localStorage.removeItem('rememberedEmail');
           }
-          if (this.authService.tieneSubscripcion()) {
+          if (this.authService.tieneRol('ROLE_ADMIN')) {
+            this.router.navigate(['/admin']);
+          } else if (this.authService.tieneSubscripcion()) {
             this.router.navigate(['/dashboard']);
           } else {
             this.router.navigate(['/pago']);
