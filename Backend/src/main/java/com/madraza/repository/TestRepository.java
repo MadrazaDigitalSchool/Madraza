@@ -27,10 +27,12 @@ public interface TestRepository extends JpaRepository<Test, Long> {
            "WHERE t.creador.id = :creadorId")
     List<Test> findByCreadorIdConPreguntas(@Param("creadorId") Long creadorId);
 
-    // Test por ID con creador y preguntas cargadas (opciones se inicializan en servicio)
     @Query("SELECT DISTINCT t FROM Test t " +
            "LEFT JOIN FETCH t.creador " +
            "LEFT JOIN FETCH t.preguntas " +
            "WHERE t.id = :id")
     Optional<Test> findByIdConPreguntas(@Param("id") Long id);
+
+    // Conteo de tests de un usuario (para límite del plan FREE)
+    long countByCreadorId(Long creadorId);
 }

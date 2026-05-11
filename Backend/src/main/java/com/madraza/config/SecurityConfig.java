@@ -93,7 +93,6 @@ public class SecurityConfig {
                     // OAuth2 necesita sesión para el flujo de redirección
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
-                // Auth pública
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/registro").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/recuperar-password").permitAll()
@@ -101,24 +100,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/nueva-password").permitAll()
                 // Webhook de Stripe — siempre público, verifica firma internamente
                 .requestMatchers(HttpMethod.POST, "/api/pago/webhook").permitAll()
-                // OAuth2 endpoints gestionados por Spring Security
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                // Contacto: público
                 .requestMatchers(HttpMethod.POST, "/api/contacto").permitAll()
-                // Tests y categorías: lectura pública
                 .requestMatchers(HttpMethod.GET, "/api/tests").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tests/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categorias").permitAll()
-                // Admin: solo ROLE_ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                // Todo lo demás requiere autenticación
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint(authEntryPointJwt))
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-            // OAuth2 login
             .oauth2Login(oauth2 -> oauth2
                     .userInfoEndpoint(userInfo -> userInfo
                             .userService(oAuth2UserService))

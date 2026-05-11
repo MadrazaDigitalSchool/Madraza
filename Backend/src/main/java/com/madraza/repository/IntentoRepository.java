@@ -3,18 +3,20 @@ package com.madraza.repository;
 import com.madraza.entity.Intento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface IntentoRepository extends JpaRepository<Intento, Long> {
 
-    // Historial de intentos de un usuario, del más reciente al más antiguo
     List<Intento> findByUsuarioIdOrderByInicioDesc(Long usuarioId);
 
-    // Buscar y eliminar intentos de un test
     List<Intento> findByTestId(Long testId);
     void deleteByTestId(Long testId);
 
-    // Eliminar todos los intentos de un usuario (necesario antes de borrar el usuario)
     void deleteByUsuarioId(Long usuarioId);
+
+    // Conteo de intentos a partir de una fecha (para límite mensual del plan FREE)
+    long countByUsuarioIdAndInicioAfter(Long usuarioId, LocalDateTime since);
 }

@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.madraza.repository.IntentoRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,8 +41,9 @@ public class AuthController {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtUtils jwtUtils;
     @Autowired private EmailService emailService;
+    @Autowired private IntentoRepository intentoRepository;
+    @Autowired private com.madraza.repository.TestRepository testRepository;
 
-    /** POST /api/auth/login */
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest req) {
         Authentication authentication = authenticationManager.authenticate(
@@ -55,7 +57,7 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        // Calcular estado de suscripción real (flag + expiración)
+        // Verificar flag + fecha (podría estar activo en BD pero ya expirado)
         boolean suscripcionActiva = false;
         String suscripcionExpiry = "";
         String planTipo = "";
@@ -83,7 +85,6 @@ public class AuthController {
                 suscripcionActiva, suscripcionExpiry, planTipo, metodoPago));
     }
 
-    /** POST /api/auth/registro */
     @PostMapping("/registro")
     public ResponseEntity<MessageResponse> registro(@Valid @RequestBody RegistroRequest req) {
         if (usuarioRepository.existsByEmail(req.email())) {
@@ -113,7 +114,6 @@ public class AuthController {
                 "Cuenta creada. Revisa tu email para confirmar tu dirección."));
     }
 
-    /** GET /api/auth/verificar-email?token=... — público */
     @GetMapping("/verificar-email")
     public ResponseEntity<MessageResponse> verificarEmail(@RequestParam String token) {
         return usuarioRepository.findByTokenVerificacion(token)
@@ -133,7 +133,6 @@ public class AuthController {
                         .body(new MessageResponse("Token de verificación inválido")));
     }
 
-    /** POST /api/auth/recuperar-password — pública */
     @PostMapping("/recuperar-password")
     public ResponseEntity<MessageResponse> recuperarPassword(@RequestBody Map<String, String> body) {
         String email = body.get("email");
@@ -153,7 +152,6 @@ public class AuthController {
                 new MessageResponse("Si el email está registrado, recibirás un enlace en breve"));
     }
 
-    /** POST /api/auth/nueva-password — público, con token de recuperación */
     @PostMapping("/nueva-password")
     public ResponseEntity<MessageResponse> nuevaPassword(@RequestBody Map<String, String> body) {
         String token = body.get("token");
@@ -178,7 +176,6 @@ public class AuthController {
                 .orElse(ResponseEntity.badRequest().body(new MessageResponse("Token inválido")));
     }
 
-    /** GET /api/auth/perfil — requiere autenticación */
     @GetMapping("/perfil")
     public ResponseEntity<?> getPerfil(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return usuarioRepository.findById(userDetails.getId())
@@ -211,7 +208,31 @@ public class AuthController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** PUT /api/auth/perfil — requiere autenticación */
+    @GetMapping("/limites")
+    public ResponseEntity<Map<String, Object>> getLimites(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Usuario usuario = usuarioRepository.findById(userDetails.getId())
+                .orElse(null);
+        boolean esPremium = usuario != null && usuario.isSuscripcionActiva()
+                && (usuario.getSuscripcionExpiry() == null
+                    || usuario.getSuscripcionExpiry().isAfter(LocalDateTime.now()));
+
+        Map<String, Object> resp = new LinkedHashMap<>();
+        resp.put("esPremium", esPremium);
+
+        if (!esPremium) {
+            LocalDateTime inicioMes = LocalDateTime.now()
+                    .withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            long intentosMes  = intentoRepository.countByUsuarioIdAndInicioAfter(userDetails.getId(), inicioMes);
+            long testsCreados = testRepository.countByCreadorId(userDetails.getId());
+            resp.put("intentosMes",  intentosMes);
+            resp.put("limiteMes",    10);
+            resp.put("testsCreados", testsCreados);
+            resp.put("limiteTests",  3);
+        }
+        return ResponseEntity.ok(resp);
+    }
+
     @PutMapping("/perfil")
     public ResponseEntity<?> actualizarPerfil(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

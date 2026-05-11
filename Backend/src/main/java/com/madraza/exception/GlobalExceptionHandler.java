@@ -12,20 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Hafdala Mehdi Sidi
+ * Convierte excepciones de cualquier controlador en respuestas JSON con el código HTTP apropiado.
  *
- * @RestControllerAdvice intercepta todas las excepciones que ocurran
- * en cualquier controlador de la aplicación y las convierte en
- * respuestas JSON limpias en vez de mostrar el error feo de Java
+ * @author Hafdala Mehdi Sidi
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Captura cuando buscamos algo en la BD y no existe
-     * Ej: buscar un test con id=999 que no existe
-     * Devuelve: 404 Not Found
-     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleNotFound(
             ResourceNotFoundException ex) {
@@ -34,11 +27,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    /**
-     * Captura errores de lógica de negocio
-     * Ej: intentar finalizar un intento que ya está COMPLETADO
-     * Devuelve: 400 Bad Request
-     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(
             IllegalArgumentException ex) {
@@ -54,11 +42,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    /**
-     * Captura errores de validación (@NotBlank, @Email, @Size...)
-     * Ej: intentar registrarse sin email o con contraseña corta
-     * Devuelve: 400 Bad Request con los campos que fallaron
-     */
+    // Devuelve un mapa campo → mensaje de error para que el frontend pueda señalar cada campo
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(
             MethodArgumentNotValidException ex) {
@@ -71,12 +55,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
     }
 
-    /**
-     * Captura cuando un usuario intenta acceder a algo
-     * que no tiene permiso
-     * Ej: un ROLE_USER intentando acceder a /api/admin
-     * Devuelve: 403 Forbidden
-     */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAccessDenied(
             AccessDeniedException ex) {

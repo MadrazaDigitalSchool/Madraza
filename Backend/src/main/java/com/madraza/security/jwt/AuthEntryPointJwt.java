@@ -22,8 +22,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
-    // Se ejecuta cuando alguien intenta acceder a un recurso protegido
-    // sin estar autenticado — devuelve un JSON con error 401
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,

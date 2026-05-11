@@ -49,10 +49,21 @@ public class TestService {
         return test;
     }
 
+    private static final int LIMITE_TESTS_FREE = 3;
+
     @Transactional
     public Test crearTest(TestRequest req, Long creadorId) {
         Usuario creador = usuarioRepository.findById(creadorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (!creador.isSuscripcionActiva()) {
+            long testsCreados = testRepository.countByCreadorId(creadorId);
+            if (testsCreados >= LIMITE_TESTS_FREE) {
+                throw new IllegalArgumentException(
+                        "Has alcanzado el límite de " + LIMITE_TESTS_FREE +
+                        " recursos del plan gratuito. Hazte Premium para crear más.");
+            }
+        }
 
         Test test = new Test();
         test.setTitulo(req.titulo());
@@ -102,8 +113,6 @@ public class TestService {
         intentoRepository.deleteByTestId(id);
         testRepository.delete(test);
     }
-
-    // ── Privado ───────────────────────────────────────────────
 
     private void poblarPreguntas(Test test, TestRequest req) {
         if (req.preguntas() == null) return;

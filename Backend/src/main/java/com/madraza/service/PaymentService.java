@@ -207,10 +207,8 @@ public class PaymentService {
             // Klarna solo — locale ES activa la versión española de Klarna
             builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
         }
-        // Para Bizum: NO se especifica payment_method_types.
-        // Con locale=ES y customer en España, Stripe muestra Bizum automáticamente
-        // si está habilitado en el Dashboard de Stripe (Configuración → Métodos de pago).
-
+        // Bizum: con locale=ES y customer español Stripe lo muestra automáticamente
+        // si está habilitado en el Dashboard de Stripe (no se especifica payment_method_types).
         Session session = Session.create(builder.build());
         log.info("Sesión Stripe creada: {} para usuario {} método: {}", session.getId(), usuarioId, metodoPago);
         return session.getUrl();
@@ -229,7 +227,6 @@ public class PaymentService {
             throw new IllegalStateException("El pago no se ha completado");
         }
 
-        // Verificar que la sesión corresponde al usuario que hace la petición
         String metaUsuarioId = session.getMetadata().get("usuarioId");
         if (metaUsuarioId == null || !metaUsuarioId.equals(usuarioId.toString())) {
             throw new SecurityException("La sesión no corresponde al usuario autenticado");
@@ -324,7 +321,6 @@ public class PaymentService {
             pm.attach(PaymentMethodAttachParams.builder().setCustomer(customerId).build());
         }
 
-        // Actualiza el método por defecto del Customer
         Customer.retrieve(customerId).update(
                 CustomerUpdateParams.builder()
                         .setInvoiceSettings(CustomerUpdateParams.InvoiceSettings.builder()
@@ -332,7 +328,6 @@ public class PaymentService {
                                 .build())
                         .build());
 
-        // Actualiza la suscripción activa si existe
         SubscriptionCollection subs = Subscription.list(
                 SubscriptionListParams.builder()
                         .setCustomer(customerId)
@@ -347,7 +342,6 @@ public class PaymentService {
                             .build());
         }
 
-        // Persiste el nuevo método en la BD
         usuario.setMetodoPago(metodoPagoNombre);
         usuarioRepository.save(usuario);
         log.info("Método de pago actualizado para usuario {}: {}", usuarioId, metodoPagoNombre);

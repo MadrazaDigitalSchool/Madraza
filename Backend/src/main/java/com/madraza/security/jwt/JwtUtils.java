@@ -21,26 +21,22 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    // Lee los valores del application.properties
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
-    // Convierte la clave secreta en un objeto Key que usa la librería JWT
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    // Genera el token a partir del usuario autenticado
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         return generateTokenFromEmail(userPrincipal.getUsername());
     }
 
-    // Genera el token a partir del email directamente
-    // Lo usamos también en el login con OAuth2
+    // También usado en el flujo OAuth2
     public String generateTokenFromEmail(String email) {
         return Jwts.builder()
                 .subject(email)
@@ -50,7 +46,6 @@ public class JwtUtils {
                 .compact();
     }
 
-    // Extrae el email del token para saber quién es el usuario
     public String getEmailFromJwtToken(String token) {
         return Jwts.parser()
                 .verifyWith(key())
@@ -60,7 +55,6 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    // Valida que el token sea correcto y no haya expirado
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().verifyWith(key()).build().parseSignedClaims(authToken);

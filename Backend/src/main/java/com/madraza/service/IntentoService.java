@@ -25,12 +25,25 @@ public class IntentoService {
     @Autowired private PreguntaRepository preguntaRepository;
     @Autowired private OpcionRepository opcionRepository;
 
+    private static final int LIMITE_INTENTOS_FREE = 10;
+
     @Transactional
     public Intento iniciarIntento(Long testId, Long usuarioId) {
         Test test = testRepository.findById(testId)
                 .orElseThrow(() -> new ResourceNotFoundException("Test no encontrado"));
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (!usuario.isSuscripcionActiva()) {
+            LocalDateTime inicioMes = LocalDateTime.now()
+                    .withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            long intentosMes = intentoRepository.countByUsuarioIdAndInicioAfter(usuarioId, inicioMes);
+            if (intentosMes >= LIMITE_INTENTOS_FREE) {
+                throw new IllegalArgumentException(
+                        "Has alcanzado el límite de " + LIMITE_INTENTOS_FREE +
+                        " exámenes mensuales del plan gratuito. Hazte Premium para continuar.");
+            }
+        }
 
         Intento intento = new Intento();
         intento.setTest(test);
@@ -89,7 +102,6 @@ public class IntentoService {
             throw new AccessDeniedException("No tienes permiso para finalizar este intento");
         }
 
-        // Idempotencia: si ya está completado, devolver el resultado existente
         if ("COMPLETADO".equals(intento.getEstado())) {
             return buildResultado(intento);
         }
@@ -123,8 +135,6 @@ public class IntentoService {
     public List<Intento> getHistorial(Long usuarioId) {
         return intentoRepository.findByUsuarioIdOrderByInicioDesc(usuarioId);
     }
-
-    // ── Privado ───────────────────────────────────────────────
 
     private ResultadoResponse buildResultado(Intento intento) {
         long tiempo = intento.getTiempoEmpleado();

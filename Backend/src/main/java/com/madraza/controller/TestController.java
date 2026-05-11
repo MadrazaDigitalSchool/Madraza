@@ -22,19 +22,16 @@ public class TestController {
 
     @Autowired private TestService testService;
 
-    // GET /api/tests — público, cualquiera puede ver los tests
     @GetMapping
     public ResponseEntity<List<Test>> getTestsPublicos() {
         return ResponseEntity.ok(testService.getTestsPublicos());
     }
 
-    // GET /api/tests/{id} — público
     @GetMapping("/{id}")
     public ResponseEntity<Test> getTestById(@PathVariable Long id) {
         return ResponseEntity.ok(testService.getTestById(id));
     }
 
-    // GET /api/tests/mis-tests — solo el usuario autenticado ve los suyos
     @GetMapping("/mis-tests")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Test>> getMisTests(
@@ -42,7 +39,6 @@ public class TestController {
         return ResponseEntity.ok(testService.getTestsDelUsuario(userDetails.getId()));
     }
 
-    // POST /api/tests — solo usuarios autenticados pueden crear tests
     @PostMapping
     public ResponseEntity<Test> crearTest(
             @Valid @RequestBody TestRequest req,
@@ -51,7 +47,6 @@ public class TestController {
         return ResponseEntity.ok(test);
     }
 
-    // PUT /api/tests/{id} — solo el creador puede actualizar su test
     @PutMapping("/{id}")
     public ResponseEntity<Test> actualizarTest(
             @PathVariable Long id,
@@ -61,7 +56,6 @@ public class TestController {
         return ResponseEntity.ok(test);
     }
 
-    // DELETE /api/tests/{id} — solo el creador puede eliminarlo
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTest(
             @PathVariable Long id,

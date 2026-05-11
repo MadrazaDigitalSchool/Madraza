@@ -27,9 +27,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
-    // Este filtro se ejecuta en cada petición HTTP que llega al servidor
-    // Su trabajo es: leer el token JWT del header, validarlo
-    // y si es válido, autenticar al usuario en Spring Security
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

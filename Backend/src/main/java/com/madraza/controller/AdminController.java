@@ -53,7 +53,6 @@ public class AdminController {
 
     // ── Usuarios — CRUD ───────────────────────────────────────
 
-    /** GET /api/admin/usuarios — lista todos los usuarios */
     @GetMapping("/usuarios")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> getUsuarios() {
@@ -63,7 +62,6 @@ public class AdminController {
         return ResponseEntity.ok(result);
     }
 
-    /** POST /api/admin/usuarios — crear nuevo usuario */
     @PostMapping("/usuarios")
     @Transactional
     public ResponseEntity<?> crearUsuario(@RequestBody Map<String, Object> body) {
@@ -93,7 +91,6 @@ public class AdminController {
         return ResponseEntity.ok(buildUsuarioMap(u));
     }
 
-    /** PUT /api/admin/usuarios/{id} — editar datos de un usuario */
     @PutMapping("/usuarios/{id}")
     @Transactional
     public ResponseEntity<?> updateUsuario(@PathVariable Long id,
@@ -107,13 +104,11 @@ public class AdminController {
                             return ResponseEntity.badRequest().body(Map.of("error", "Email ya en uso"));
                         u.setEmail(s.trim());
                     }
-                    // Campos de suscripción
                     if (body.containsKey("planTipo"))
                         u.setPlanTipo(body.get("planTipo") instanceof String s && !s.isBlank() ? s.trim() : null);
                     if (body.containsKey("metodoPago"))
                         u.setMetodoPago(body.get("metodoPago") instanceof String s && !s.isBlank() ? s.trim() : null);
 
-                    // Cambio de rol
                     if (body.get("rol") instanceof String rolNombre && !rolNombre.isBlank()) {
                         rolRepository.findByNombre(rolNombre).ifPresent(rol -> {
                             u.getRoles().clear();
@@ -127,7 +122,6 @@ public class AdminController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    /** PUT /api/admin/usuarios/{id}/suscripcion */
     @PutMapping("/usuarios/{id}/suscripcion")
     public ResponseEntity<Map<String, Object>> updateSuscripcion(
             @PathVariable Long id, @RequestBody Map<String, Object> body) {
@@ -150,7 +144,6 @@ public class AdminController {
                 }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** PUT /api/admin/usuarios/{id}/activo */
     @PutMapping("/usuarios/{id}/activo")
     public ResponseEntity<Map<String, Object>> updateActivo(
             @PathVariable Long id, @RequestBody Map<String, Object> body) {
@@ -167,21 +160,17 @@ public class AdminController {
                 }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** DELETE /api/admin/usuarios/{id} — eliminar usuario y todos sus datos */
     @DeleteMapping("/usuarios/{id}")
     @Transactional
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
         if (!usuarioRepository.existsById(id)) return ResponseEntity.notFound().build();
 
-        // 1. Eliminar intentos del usuario
         intentoRepository.deleteByUsuarioId(id);
 
-        // 2. Eliminar tests creados por el usuario (y sus intentos)
         List<Test> testsDelUsuario = testRepository.findByCreadorIdConPreguntas(id);
         for (Test t : testsDelUsuario) intentoRepository.deleteByTestId(t.getId());
         testRepository.deleteAll(testsDelUsuario);
 
-        // 3. Eliminar el usuario
         usuarioRepository.deleteById(id);
         log.info("Admin: usuario {} eliminado", id);
         return ResponseEntity.noContent().build();
@@ -224,7 +213,6 @@ public class AdminController {
                 }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** PUT /api/admin/tests/{id}/visibilidad — alterna PUBLICO/PRIVADO */
     @PutMapping("/tests/{id}/visibilidad")
     public ResponseEntity<Map<String, Object>> updateTestVisibilidad(
             @PathVariable Long id, @RequestBody Map<String, Object> body) {
@@ -250,8 +238,6 @@ public class AdminController {
         log.info("Admin: test {} eliminado", id);
         return ResponseEntity.noContent().build();
     }
-
-    // ── Helper ────────────────────────────────────────────────
 
     private Map<String, Object> buildUsuarioMap(Usuario u) {
         Map<String, Object> m = new LinkedHashMap<>();
