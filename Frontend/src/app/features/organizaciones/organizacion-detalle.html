@@ -1,0 +1,125 @@
+@if (cargando()) {
+  <div class="estado-center"><mat-spinner diameter="48"></mat-spinner></div>
+} @else if (org(); as o) {
+<div class="page-container container">
+
+  <div class="page-header">
+    <div>
+      <a routerLink="/organizaciones" class="back-link">
+        <mat-icon>arrow_back</mat-icon> Mis organizaciones
+      </a>
+      <h1>{{ o.nombre }}</h1>
+      <span class="tipo-badge">{{ o.tipo === 'CENTRO_EDUCATIVO' ? 'Centro educativo' : 'Empresa' }}</span>
+      @if (o.descripcion) { <p>{{ o.descripcion }}</p> }
+    </div>
+    @if (esAdmin) {
+    <button mat-stroked-button (click)="copiarCodigo()">
+      <mat-icon>link</mat-icon> Copiar código de invitación
+    </button>
+    }
+  </div>
+
+  <mat-tab-group>
+
+    <!-- Tab Miembros -->
+    <mat-tab label="Miembros ({{ o.miembros?.length ?? 0 }})">
+      <div class="tab-content">
+
+        @if (esAdmin) {
+        <div class="invitar-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Email del nuevo miembro</mat-label>
+            <input matInput type="email" [(ngModel)]="emailInvitar" placeholder="alumno@ejemplo.com" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" (click)="invitar()" [disabled]="invitando()">
+            @if (invitando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Invitar }
+          </button>
+        </div>
+        }
+
+        <div class="miembros-lista">
+          @for (m of o.miembros; track m.id) {
+          <div class="miembro-item">
+            <div class="miembro-avatar">{{ m.nombre.charAt(0).toUpperCase() }}</div>
+            <div class="miembro-info">
+              <p class="miembro-nombre">{{ m.nombre }} {{ m.apellidos }}</p>
+              <p class="miembro-email">{{ m.email }}</p>
+            </div>
+            <span class="rol-badge" [class.admin]="m.rol === 'ADMIN'">{{ m.rol }}</span>
+            @if (esAdmin && m.usuarioId !== usuarioId) {
+            <button mat-icon-button class="btn-expulsar" (click)="expulsar(m)" title="Expulsar">
+              <mat-icon>person_remove</mat-icon>
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Tab Asignaciones -->
+    <mat-tab label="Asignaciones ({{ o.asignaciones?.length ?? 0 }})">
+      <div class="tab-content">
+
+        @if (esAdmin) {
+        <button mat-flat-button color="primary" (click)="mostrarAsignar = !mostrarAsignar" style="margin-bottom:16px">
+          <mat-icon>assignment_add</mat-icon> Asignar recurso
+        </button>
+
+        @if (mostrarAsignar) {
+        <div class="asignar-form">
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Recurso a asignar</mat-label>
+            <mat-select [(ngModel)]="testSeleccionado">
+              @for (t of misTests; track t.id) {
+              <mat-option [value]="t.id">{{ t.titulo }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Fecha límite (opcional)</mat-label>
+            <input matInput type="datetime-local" [(ngModel)]="fechaLimite" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Instrucciones (opcional)</mat-label>
+            <textarea matInput [(ngModel)]="instrucciones" rows="2"></textarea>
+          </mat-form-field>
+          <div class="form-actions">
+            <button mat-button (click)="mostrarAsignar = false">Cancelar</button>
+            <button mat-flat-button color="primary" (click)="asignar()" [disabled]="asignando() || !testSeleccionado">
+              @if (asignando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Asignar }
+            </button>
+          </div>
+        </div>
+        }
+        }
+
+        @if (!o.asignaciones?.length) {
+        <div class="estado-vacio">
+          <mat-icon>assignment</mat-icon>
+          <p>Aún no hay recursos asignados en esta organización.</p>
+        </div>
+        } @else {
+        <div class="asig-lista">
+          @for (a of o.asignaciones; track a.id) {
+          <div class="asig-item">
+            <mat-icon>quiz</mat-icon>
+            <div class="asig-info">
+              <p class="asig-titulo">{{ a.testTitulo }}</p>
+              <p class="asig-meta">
+                Asignado por {{ a.asignadoPorNombre }}
+                @if (a.fechaLimite) { · Límite: {{ a.fechaLimite | date:'dd/MM/yyyy' }} }
+              </p>
+              @if (a.instrucciones) { <p class="asig-instrucciones">{{ a.instrucciones }}</p> }
+            </div>
+            <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Hacer examen</a>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>
+}

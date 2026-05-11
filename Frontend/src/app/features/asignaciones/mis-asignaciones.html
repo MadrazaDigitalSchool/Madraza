@@ -1,0 +1,70 @@
+<div class="page-container container">
+
+  <div class="page-header">
+    <h1><mat-icon>assignment</mat-icon> Mis asignaciones</h1>
+    <p>Recursos que te han asignado en tus organizaciones</p>
+  </div>
+
+  @if (cargando()) {
+  <div class="estado-center"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (asignaciones().length === 0) {
+  <div class="estado-vacio">
+    <mat-icon>assignment</mat-icon>
+    <p>No tienes ninguna asignación pendiente.</p>
+    <a routerLink="/organizaciones" mat-flat-button color="primary">Ver organizaciones</a>
+  </div>
+  } @else {
+
+  @if (pendientes.length > 0) {
+  <section>
+    <h2>Pendientes ({{ pendientes.length }})</h2>
+    <div class="asig-lista">
+      @for (a of pendientes; track a.id) {
+      <div class="asig-card">
+        <div class="asig-header">
+          <h3>{{ a.testTitulo }}</h3>
+          <span class="org-tag">{{ a.orgNombre }}</span>
+        </div>
+        <p class="asig-meta">Asignado por <strong>{{ a.asignadoPor }}</strong></p>
+        @if (a.instrucciones) {
+        <p class="instrucciones">{{ a.instrucciones }}</p>
+        }
+        @if (a.fechaLimite) {
+        <p class="fecha-limite" [class.proxima]="estaProxima(a.fechaLimite)" [class.vencida]="estaVencida(a.fechaLimite)">
+          <mat-icon>schedule</mat-icon>
+          Límite: {{ a.fechaLimite | date:'dd/MM/yyyy HH:mm' }}
+          @if (estaVencida(a.fechaLimite)) { (Vencida) }
+          @else if (estaProxima(a.fechaLimite)) { (Próximamente) }
+        </p>
+        }
+        <div class="asig-actions">
+          <a [routerLink]="['/tests', a.testId]" mat-stroked-button>Ver recurso</a>
+          @if (!estaVencida(a.fechaLimite)) {
+          <a [routerLink]="['/examen', a.testId]" mat-flat-button color="primary">Hacer examen</a>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </section>
+  }
+
+  @if (completadas.length > 0) {
+  <section style="margin-top:32px">
+    <h2>Completadas ({{ completadas.length }})</h2>
+    <div class="asig-lista">
+      @for (a of completadas; track a.id) {
+      <div class="asig-card completada">
+        <div class="asig-header">
+          <h3>{{ a.testTitulo }}</h3>
+          <mat-icon class="check-icon">check_circle</mat-icon>
+        </div>
+        <p class="asig-meta">{{ a.orgNombre }} · Completada {{ a.fechaCompletado | date:'dd/MM/yyyy' }}</p>
+      </div>
+      }
+    </div>
+  </section>
+  }
+  }
+
+</div>

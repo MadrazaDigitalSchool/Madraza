@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql",
+      "mcp__claude_ai_Atlassian_Rovo__getConfluencePage",
+      "Bash(python *)",
+      "mcp__claude_ai_Atlassian_Rovo__getTransitionsForJiraIssue",
+      "mcp__claude_ai_Atlassian_Rovo__transitionJiraIssue",
+      "mcp__claude_ai_Atlassian_Rovo__updateConfluencePage",
+      "Bash(unzip -p \"E:/desarrollo_web/daw/2_daw/proyecto_madraza/Backend/target/tmp3/anthropic-java-core-2.31.0-sources.jar\" \"main/com/anthropic/models/messages/MessageCreateParams.kt\")",
+      "Bash(unzip -p \"E:/desarrollo_web/daw/2_daw/proyecto_madraza/Backend/target/tmp3/anthropic-java-core-2.31.0-sources.jar\" \"main/com/anthropic/models/messages/ContentBlock.kt\")"
+    ]
+  }
+}

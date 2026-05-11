@@ -96,18 +96,47 @@ export const routes: Routes = [
     loadChildren: () => import('./features/examen/examen.routes').then(m => m.EXAMEN_ROUTES)
   },
 
-  // ── Dashboard (requiere login + suscripción) ─────────────
+  // ── Dashboard (requiere solo login — plan FREE también accede) ──
   {
     path: 'dashboard',
-    canActivate: [authGuard, subscriptionGuard],
+    canActivate: [authGuard],
     loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
   },
 
-  // ── Perfil (requiere login, NO suscripción) ──────────────
+  // ── Perfil (requiere login) ───────────────────────────────
   {
     path: 'perfil',
     canActivate: [authGuard],
     loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
+  },
+
+  // ── Organizaciones ───────────────────────────────────────
+  {
+    path: 'organizaciones',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/organizaciones/organizaciones').then(m => m.OrganizacionesComponent)
+  },
+  {
+    path: 'organizaciones/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/organizaciones/organizacion-detalle').then(m => m.OrganizacionDetalleComponent)
+  },
+
+  // ── Mis asignaciones ─────────────────────────────────────
+  {
+    path: 'asignaciones',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/asignaciones/mis-asignaciones').then(m => m.MisAsignacionesComponent)
+  },
+
+  // ── Apuntes (requiere login; premium verificado internamente) ─
+  {
+    path: 'apuntes',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/apuntes/apuntes').then(m => m.ApuntesComponent)
   },
 
   // ── Fallback ─────────────────────────────────────────────

@@ -25,12 +25,13 @@ export class PagoComponent {
       periodo: '/mes',
       ahorro: '',
       features: [
-        'Acceso completo a todos los tests',
-        'Crea tests ilimitados',
+        'Acceso completo a todos los recursos',
+        'Recursos ilimitados',
+        'Exámenes ilimitados',
         'Historial completo de intentos',
+        'Apuntes con asistencia de IA',
+        'Crear y gestionar organizaciones',
         'Estadísticas avanzadas',
-        'Sin publicidad',
-        'Exportar resultados en PDF',
         'Soporte prioritario'
       ]
     },
@@ -46,7 +47,6 @@ export class PagoComponent {
         'Acceso anticipado a nuevas funciones',
         'Insignia de usuario Premium',
         'Soporte VIP por email',
-        'Sin límite de intentos',
         'Exportar resultados en PDF'
       ]
     }

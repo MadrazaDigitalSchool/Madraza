@@ -84,7 +84,6 @@ export class AdminDashboardComponent implements OnInit {
   guardandoUsuario  = signal(false);
   eliminandoId      = signal<number | null>(null);
 
-  // Campos del formulario
   fNombre     = '';
   fApellidos  = '';
   fEmail      = '';
@@ -100,7 +99,6 @@ export class AdminDashboardComponent implements OnInit {
     { value: 'ROLE_ADMIN',  label: 'Administrador',      icon: 'admin_panel_settings' },
   ];
 
-  // ── Ciclo de vida ─────────────────────────────────────────
   ngOnInit(): void {
     this.cargarStats();
     const tab = this.route.snapshot.queryParamMap.get('tab') as Tab | null;
@@ -109,7 +107,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // ── Tabs ──────────────────────────────────────────────────
   setTab(tab: Tab): void {
     this.tabActiva.set(tab);
     this.modoForm.set(null);
@@ -117,7 +114,6 @@ export class AdminDashboardComponent implements OnInit {
     if (tab === 'tests'    && this.tests().length    === 0) this.cargarTests();
   }
 
-  // ── Carga de datos ────────────────────────────────────────
   cargarStats(): void {
     this.cargandoStats.set(true);
     this.adminService.getStats().subscribe({
@@ -142,7 +138,6 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // ── CRUD: formulario ──────────────────────────────────────
   abrirCrear(): void {
     this.resetForm();
     this.usuarioEditando.set(null);
@@ -159,7 +154,7 @@ export class AdminDashboardComponent implements OnInit {
     this.fMetodoPago = u.metodoPago ?? '';
     this.usuarioEditando.set(u);
     this.modoForm.set('editar');
-    // Scroll al formulario
+    // setTimeout 0 para esperar a que Angular renderice el formulario antes de hacer scroll
     setTimeout(() => document.getElementById('usuario-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   }
 
@@ -271,7 +266,6 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // ── Suscripción / activo ──────────────────────────────────
   activarSuscripcion(u: AdminUsuario, dias: 30 | 365): void {
     this.adminService.updateSuscripcion(u.id, true, dias).subscribe({
       next: res => this.usuarios.update(list =>
@@ -294,7 +288,6 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // ── Tests ─────────────────────────────────────────────────
   toggleTestActivo(t: AdminTest): void {
     const nuevo = !t.activo;
     this.adminService.updateTestActivo(t.id, nuevo).subscribe({
@@ -340,7 +333,6 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────
   esAdmin(u: AdminUsuario): boolean {
     return u.roles.includes('ROLE_ADMIN');
   }

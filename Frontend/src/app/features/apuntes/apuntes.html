@@ -1,0 +1,154 @@
+@if (!esPremium) {
+<div class="premium-gate container">
+  <mat-icon>lock</mat-icon>
+  <h2>Los apuntes son exclusivos de Premium</h2>
+  <p>Hazte Premium para crear apuntes, organizarlos por tema y recibir ayuda de la IA.</p>
+  <a routerLink="/precios" mat-flat-button color="primary">Ver planes</a>
+</div>
+} @else {
+<div class="apuntes-layout">
+
+  <!-- Sidebar con lista de apuntes -->
+  <aside class="apuntes-sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Mis apuntes</span>
+      <button mat-icon-button (click)="nuevoApunte()" title="Nuevo apunte">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    @if (cargando()) {
+    <div class="sidebar-loading"><mat-spinner diameter="28"></mat-spinner></div>
+    } @else if (apuntes().length === 0) {
+    <p class="sidebar-vacio">Aún no tienes apuntes. Pulsa + para crear el primero.</p>
+    } @else {
+    <ul class="apuntes-lista">
+      @for (a of apuntes(); track a.id) {
+      <li class="apunte-item" [class.activo]="apunteActual()?.id === a.id" (click)="seleccionarApunte(a)">
+        <div class="apunte-item-info">
+          <p class="apunte-titulo">{{ a.titulo }}</p>
+          <p class="apunte-fecha">{{ a.updatedAt | date:'dd/MM/yy' }}</p>
+          @if (a.testTitulo) {
+          <p class="apunte-test"><mat-icon>quiz</mat-icon>{{ a.testTitulo }}</p>
+          }
+        </div>
+        <button mat-icon-button class="btn-eliminar" (click)="eliminarApunte(a, $event)" title="Eliminar">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </li>
+      }
+    </ul>
+    }
+  </aside>
+
+  <!-- Editor -->
+  <main class="apuntes-editor">
+    <div class="editor-toolbar">
+      <mat-form-field appearance="outline" class="titulo-field">
+        <mat-label>Título del apunte</mat-label>
+        <input matInput [(ngModel)]="titulo" placeholder="Escribe un título..." />
+      </mat-form-field>
+
+      <div class="toolbar-actions">
+        <button mat-stroked-button (click)="mostrarIa = !mostrarIa" class="btn-ia" [class.activo]="mostrarIa">
+          <mat-icon>auto_awesome</mat-icon> IA
+        </button>
+        <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando()">
+          @if (guardando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Guardar }
+        </button>
+      </div>
+    </div>
+
+    <div class="editor-meta">
+      <mat-form-field appearance="outline" class="tags-field">
+        <mat-label>Tags (separados por coma)</mat-label>
+        <input matInput [(ngModel)]="tags" placeholder="matemáticas, álgebra..." />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="test-field">
+        <mat-label>Recurso asociado (opcional)</mat-label>
+        <mat-select [(ngModel)]="testId">
+          <mat-option [value]="null">Ninguno</mat-option>
+          @for (t of misTests; track t.id) {
+          <mat-option [value]="t.id">{{ t.titulo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (parsearTags(tags).length) {
+    <div class="tags-preview">
+      @for (tag of parsearTags(tags); track tag) {
+      <mat-chip>{{ tag }}</mat-chip>
+      }
+    </div>
+    }
+
+    <textarea class="editor-area" [(ngModel)]="contenido"
+      placeholder="Escribe tu apunte aquí... (Markdown soportado)"
+      (mouseup)="capturarTextoSeleccionado($event)">
+    </textarea>
+  </main>
+
+  <!-- Panel IA -->
+  @if (mostrarIa) {
+  <aside class="ia-panel">
+    <div class="ia-panel-header">
+      <span><mat-icon>auto_awesome</mat-icon> Asistente IA</span>
+      <button mat-icon-button (click)="mostrarIa = false"><mat-icon>close</mat-icon></button>
+    </div>
+
+    <!-- Selector de modo -->
+    <div class="ia-modo">
+      <button [class.activo]="modoIa === 'asistente'" (click)="modoIa = 'asistente'">Asistente</button>
+      <button [class.activo]="modoIa === 'generacion'" (click)="modoIa = 'generacion'">Generación</button>
+    </div>
+
+    @if (modoIa === 'asistente') {
+    <div class="ia-form">
+      <p class="ia-hint">Selecciona texto en el editor y elige una acción:</p>
+      <mat-form-field appearance="outline" style="width:100%">
+        <mat-label>Acción</mat-label>
+        <mat-select [(ngModel)]="accionIa">
+          @for (a of ACCIONES; track a.value) {
+          <mat-option [value]="a.value">{{ a.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      @if (textoSeleccionado) {
+      <div class="texto-seleccionado">
+        <span>Texto seleccionado:</span>
+        <em>{{ textoSeleccionado.slice(0, 120) }}{{ textoSeleccionado.length > 120 ? '...' : '' }}</em>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="ia-form">
+      <mat-form-field appearance="outline" style="width:100%">
+        <mat-label>Describe el tema</mat-label>
+        <textarea matInput [(ngModel)]="temaGeneracion" rows="3" placeholder="Ej: Las leyes de Newton en física clásica"></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width:100%">
+        <mat-label>Información adicional (opcional)</mat-label>
+        <textarea matInput [(ngModel)]="contextoGeneracion" rows="2" placeholder="Nivel, enfoque..."></textarea>
+      </mat-form-field>
+    </div>
+    }
+
+    <button mat-flat-button color="primary" style="width:100%" (click)="pedirIa()" [disabled]="cargandoIa()">
+      @if (cargandoIa()) { <mat-spinner diameter="18"></mat-spinner> Generando... } @else { Generar }
+    </button>
+
+    @if (respuestaIa()) {
+    <div class="ia-respuesta">
+      <pre>{{ respuestaIa() }}</pre>
+      <div class="ia-acciones">
+        <button mat-stroked-button (click)="insertarEnEditor()">Insertar en editor</button>
+        <button mat-flat-button (click)="reemplazarEditor()">Reemplazar editor</button>
+      </div>
+    </div>
+    }
+  </aside>
+  }
+
+</div>
+}

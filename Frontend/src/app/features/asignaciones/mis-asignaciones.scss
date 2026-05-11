@@ -1,0 +1,43 @@
+.page-container { padding: 32px 16px; max-width: 820px; margin: 0 auto; }
+
+.page-header {
+  margin-bottom: 32px;
+  h1 { display: flex; align-items: center; gap: 8px; font-size: 1.6rem; margin: 0 0 4px; }
+  p { color: var(--text-secondary, #aaa); margin: 0; }
+}
+
+.estado-center { display: flex; justify-content: center; padding: 80px 0; }
+
+.estado-vacio { text-align: center; padding: 60px 16px;
+  mat-icon { font-size: 48px; width: 48px; height: 48px; color: #666; }
+  p { color: #888; margin: 12px 0 16px; }
+}
+
+h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin: 0 0 12px; }
+
+.asig-lista { display: flex; flex-direction: column; gap: 12px; }
+
+.asig-card {
+  background: var(--surface, #1e1e2e); border-radius: 12px; padding: 20px;
+  border-left: 3px solid #7c3aed;
+  &.completada { border-left-color: #43a047; opacity: .75; }
+
+  .asig-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;
+    h3 { margin: 0; font-size: 16px; } }
+
+  .org-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    background: rgba(124,58,237,.15); color: #a78bfa; white-space: nowrap; }
+
+  .asig-meta { margin: 0 0 8px; font-size: 13px; color: #888; }
+  .instrucciones { margin: 0 0 10px; font-size: 13px; color: #aaa; font-style: italic; }
+
+  .fecha-limite { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #888; margin: 0 0 12px;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    &.proxima { color: #f59e0b; }
+    &.vencida { color: #e53935; }
+  }
+
+  .asig-actions { display: flex; gap: 8px; }
+
+  .check-icon { color: #43a047; }
+}

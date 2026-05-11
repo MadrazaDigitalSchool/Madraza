@@ -39,7 +39,6 @@ export class PaymentService {
     );
   }
 
-  /** Devuelve el estado actual de la suscripción del usuario */
   getEstado(): Observable<{ suscripcionActiva: boolean; suscripcionExpiry: string }> {
     return this.http.get<{ suscripcionActiva: boolean; suscripcionExpiry: string }>(
       `${this.apiUrl}/estado`

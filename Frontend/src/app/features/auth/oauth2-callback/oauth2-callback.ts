@@ -67,10 +67,10 @@ export class OAuth2CallbackComponent implements OnInit {
     const suscripcionActiva = suscripcionActivaStr === 'true';
     this.authService.loginConToken(token, suscripcionActiva);
 
-    // Cargar el perfil completo y actualizar el storage
+    // Cargar el perfil completo actualiza el storage con los datos reales del usuario
     this.authService.getPerfil().subscribe({
       next: () => {
-        // Usar tieneSubscripcion() para comprobar también la fecha de expiración
+        // tieneSubscripcion() comprueba además la fecha de expiración, no solo el flag
         if (this.authService.tieneSubscripcion()) {
           this.router.navigate(['/dashboard']);
         } else {
@@ -78,7 +78,7 @@ export class OAuth2CallbackComponent implements OnInit {
         }
       },
       error: () => {
-        // Si falla el perfil, usamos el estado que nos pasó el backend
+        // Si falla la llamada al perfil, usamos el estado que devolvió el backend en la URL
         if (suscripcionActiva) {
           this.router.navigate(['/dashboard']);
         } else {

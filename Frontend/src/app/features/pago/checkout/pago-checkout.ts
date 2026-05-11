@@ -152,8 +152,8 @@ export class PagoCheckoutComponent implements OnInit {
         this.elements = stripe.elements({ clientSecret, locale: 'es' });
 
         if (esWallet) {
-          // Express Checkout Element: muestra el botón nativo del wallet
-          // sin formulario de tarjeta (Touch ID / Face ID / Google Pay sheet)
+          // Express Checkout muestra el botón nativo (Touch ID / Face ID / Google Pay)
+          // sin formulario de tarjeta
           this.expressCheckoutElement = this.elements.create('expressCheckout', {
             wallets: {
               applePay:  metodo === 'apple_pay'  ? 'always' : 'never',
@@ -170,7 +170,7 @@ export class PagoCheckoutComponent implements OnInit {
           }, 0);
 
         } else {
-          // Payment Element para Tarjeta, PayPal y SEPA (oculta los wallets)
+          // Payment Element para Tarjeta, PayPal y SEPA — ocultar wallets explícitamente
           this.paymentElement = this.elements.create('payment', {
             layout: { type: 'tabs', defaultCollapsed: false },
             paymentMethodOrder: [metodoStripe],
@@ -188,7 +188,7 @@ export class PagoCheckoutComponent implements OnInit {
     });
   }
 
-  // Confirmación para Tarjeta, PayPal, SEPA (botón manual "Confirmar pago")
+  // Tarjeta, PayPal y SEPA confirman por botón; wallets usan confirmarPagoWallet()
   async confirmarPago(): Promise<void> {
     if (!this.stripe || !this.elements) return;
 
@@ -213,7 +213,7 @@ export class PagoCheckoutComponent implements OnInit {
     this.activarSuscripcion();
   }
 
-  // Confirmación para Apple Pay / Google Pay (llamada desde el evento 'confirm' del Express Checkout)
+  // Llamada desde el evento 'confirm' del Express Checkout (Apple Pay / Google Pay)
   private async confirmarPagoWallet(): Promise<void> {
     if (!this.stripe || !this.elements) return;
 

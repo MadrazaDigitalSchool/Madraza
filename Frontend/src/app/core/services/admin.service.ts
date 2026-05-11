@@ -58,8 +58,6 @@ export class AdminService {
     return this.http.get<AdminStats>(`${this.apiUrl}/stats`);
   }
 
-  // ── Usuarios ──────────────────────────────────────────────
-
   getUsuarios(): Observable<AdminUsuario[]> {
     return this.http.get<AdminUsuario[]>(`${this.apiUrl}/usuarios`);
   }
@@ -85,8 +83,6 @@ export class AdminService {
   deleteUsuario(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/usuarios/${id}`);
   }
-
-  // ── Tests ─────────────────────────────────────────────────
 
   getTests(): Observable<AdminTest[]> {
     return this.http.get<AdminTest[]>(`${this.apiUrl}/tests`);

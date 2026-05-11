@@ -41,3 +41,11 @@ export interface Usuario {
     proveedorOauth?: string;
     roles: string[];
 }
+
+export interface LimitesFreePlan {
+    esPremium: boolean;
+    intentosMes?: number;
+    limiteMes?: number;
+    testsCreados?: number;
+    limiteTests?: number;
+}

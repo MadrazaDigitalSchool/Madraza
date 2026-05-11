@@ -3,6 +3,44 @@
     background: #f8f9fa;
 }
 
+.free-banner {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    gap: 12px; padding: 12px 20px; margin-bottom: 24px;
+    background: rgba(124,58,237,.08); border: 1px solid rgba(124,58,237,.2);
+    border-radius: 10px;
+    .free-banner-info { display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+      font-size: 13px; color: #aaa;
+      mat-icon { color: #7c3aed; font-size: 18px; width: 18px; height: 18px; }
+      strong { color: #e2e8f0; }
+      .sep { color: #555; }
+    }
+    .btn-premium { background: #7c3aed; color: #fff; font-size: 13px; }
+}
+
+.compartidos-lista, .asig-lista { display: flex; flex-direction: column; gap: 8px; }
+
+.compartido-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px;
+    background: rgba(255,255,255,.03); border-radius: 8px;
+    .compartido-info { flex: 1; }
+    .compartido-titulo { margin: 0 0 2px; font-size: 14px; font-weight: 500; }
+    .compartido-meta { margin: 0; font-size: 12px; color: #777; }
+    .compartido-acciones { display: flex; align-items: center; gap: 4px; }
+}
+
+.asig-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px;
+    background: rgba(255,255,255,.03); border-radius: 8px;
+    .asig-info { flex: 1; }
+    .asig-titulo { margin: 0 0 2px; font-size: 14px; font-weight: 500; }
+    .asig-meta { margin: 0; font-size: 12px; color: #777; }
+}
+
+.badge-nuevo {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    background: rgba(124,58,237,.2); color: #a78bfa;
+}
+
 // Hero del dashboard
 .dashboard-hero {
     background: linear-gradient(135deg, var(--madraza-bg) 0%, #2d1b69 100%);

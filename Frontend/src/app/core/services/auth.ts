@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, RegistroRequest, JwtResponse, Usuario } from '../models/usuario.model';
+import { LoginRequest, RegistroRequest, JwtResponse, Usuario, LimitesFreePlan } from '../models/usuario.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,8 +11,6 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient, private router: Router) {}
-
-  // ── Storage helpers ───────────────────────────────────────
 
   getToken(): string | null {
     return localStorage.getItem('token') ?? sessionStorage.getItem('token');
@@ -28,8 +26,6 @@ export class AuthService {
       sessionStorage.removeItem(k);
     });
   }
-
-  // ── Auth ──────────────────────────────────────────────────
 
   login(request: LoginRequest, recordarme = false): Observable<JwtResponse> {
     return this.http.post<JwtResponse>(`${this.apiUrl}/login`, request).pipe(
@@ -59,10 +55,9 @@ export class AuthService {
 
   /** Guarda el token y usuario desde el callback de OAuth2 */
   loginConToken(token: string, suscripcionActiva: boolean): void {
-    // Guardamos en sessionStorage por defecto para OAuth2
+    // OAuth2 usa sessionStorage por defecto (no hay opción "recordarme")
     sessionStorage.setItem('token', token);
-    // El usuario completo se cargará llamando a getPerfil()
-    // Guardamos un objeto mínimo temporal
+    // El usuario completo se carga después con getPerfil(); guardamos un mínimo temporal
     const userTemp = { suscripcionActiva };
     sessionStorage.setItem('usuario', JSON.stringify(userTemp));
   }
@@ -119,8 +114,6 @@ export class AuthService {
     return this.getUsuarioActual()?.roles?.includes(rol) ?? false;
   }
 
-  // ── Perfil ────────────────────────────────────────────────
-
   getPerfil(): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.apiUrl}/perfil`).pipe(
       tap(usuario => this.guardarUsuarioLocal(usuario))
@@ -129,5 +122,9 @@ export class AuthService {
 
   actualizarPerfil(datos: { nombre: string; apellidos: string }): Observable<Usuario> {
     return this.http.put<Usuario>(`${this.apiUrl}/perfil`, datos);
+  }
+
+  getLimites(): Observable<LimitesFreePlan> {
+    return this.http.get<LimitesFreePlan>(`${this.apiUrl}/limites`);
   }
 }

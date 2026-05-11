@@ -1,0 +1,59 @@
+.page-container { padding: 32px 16px; max-width: 900px; margin: 0 auto; }
+
+.estado-center { display: flex; justify-content: center; padding: 80px 0; }
+
+.back-link { display: inline-flex; align-items: center; gap: 4px; color: #a78bfa; text-decoration: none;
+  font-size: 14px; margin-bottom: 12px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; } }
+
+.page-header { display: flex; justify-content: space-between; align-items: flex-start;
+  flex-wrap: wrap; gap: 16px; margin-bottom: 32px;
+  h1 { margin: 0 0 8px; font-size: 1.6rem; }
+  p { color: var(--text-secondary, #aaa); margin: 8px 0 0; }
+}
+
+.tipo-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: rgba(124,58,237,.15); color: #a78bfa; }
+
+.tab-content { padding: 24px 0; }
+
+.invitar-form { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 20px;
+  mat-form-field { flex: 1; } }
+
+.miembros-lista { display: flex; flex-direction: column; gap: 8px; }
+
+.miembro-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  background: var(--surface, #1e1e2e); border-radius: 10px; }
+
+.miembro-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(124,58,237,.2);
+  color: #a78bfa; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 15px; flex-shrink: 0; }
+
+.miembro-info { flex: 1; .miembro-nombre { margin: 0; font-size: 14px; font-weight: 500; }
+  .miembro-email { margin: 2px 0 0; font-size: 12px; color: var(--text-secondary, #aaa); } }
+
+.rol-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px;
+  background: rgba(255,255,255,.05); color: #aaa;
+  &.admin { background: rgba(124,58,237,.15); color: #a78bfa; } }
+
+.btn-expulsar { color: #e53935 !important; }
+
+.asignar-form { background: var(--surface, #1e1e2e); border-radius: 12px; padding: 20px;
+  margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+.estado-vacio { text-align: center; padding: 40px 16px;
+  mat-icon { font-size: 40px; width: 40px; height: 40px; color: #666; }
+  p { color: #888; margin: 12px 0 0; } }
+
+.asig-lista { display: flex; flex-direction: column; gap: 8px; }
+
+.asig-item { display: flex; align-items: flex-start; gap: 12px; padding: 16px;
+  background: var(--surface, #1e1e2e); border-radius: 10px;
+  > mat-icon { color: #7c3aed; margin-top: 2px; flex-shrink: 0; }
+  .asig-info { flex: 1; }
+  .asig-titulo { margin: 0 0 4px; font-weight: 500; }
+  .asig-meta { margin: 0; font-size: 12px; color: #888; }
+  .asig-instrucciones { margin: 6px 0 0; font-size: 13px; color: #aaa; font-style: italic; }
+}

@@ -1,0 +1,94 @@
+<div class="page-container container">
+
+  <div class="page-header">
+    <div>
+      <h1><mat-icon>groups</mat-icon> Mis organizaciones</h1>
+      <p>Gestiona tus centros educativos y empresas</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="mostrarUnirse = !mostrarUnirse">
+        <mat-icon>link</mat-icon> Unirse con código
+      </button>
+      @if (esPremium) {
+      <button mat-flat-button color="primary" (click)="mostrarForm = !mostrarForm">
+        <mat-icon>add</mat-icon> Nueva organización
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Formulario unirse con código -->
+  @if (mostrarUnirse) {
+  <div class="form-card">
+    <h3>Unirse con código de invitación</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Código de invitación</mat-label>
+      <input matInput [(ngModel)]="codigoUnirse" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+    </mat-form-field>
+    <div class="form-actions">
+      <button mat-button (click)="mostrarUnirse = false">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="unirse()" [disabled]="guardando()">
+        @if (guardando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Unirme }
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Formulario crear organización -->
+  @if (mostrarForm && esPremium) {
+  <div class="form-card">
+    <h3>Nueva organización</h3>
+    <mat-form-field appearance="outline" style="width:100%">
+      <mat-label>Nombre</mat-label>
+      <input matInput [(ngModel)]="fNombre" placeholder="IES Madraza, Empresa S.L..." />
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width:100%">
+      <mat-label>Tipo</mat-label>
+      <mat-select [(ngModel)]="fTipo">
+        <mat-option value="CENTRO_EDUCATIVO">Centro educativo</mat-option>
+        <mat-option value="EMPRESA">Empresa</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width:100%">
+      <mat-label>Descripción (opcional)</mat-label>
+      <textarea matInput [(ngModel)]="fDescripcion" rows="2"></textarea>
+    </mat-form-field>
+    <div class="form-actions">
+      <button mat-button (click)="mostrarForm = false">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="crear()" [disabled]="guardando()">
+        @if (guardando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Crear }
+      </button>
+    </div>
+  </div>
+  }
+
+  <!-- Lista -->
+  @if (cargando()) {
+  <div class="estado-center"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else if (organizaciones().length === 0) {
+  <div class="estado-vacio">
+    <mat-icon>groups</mat-icon>
+    <p>Aún no perteneces a ninguna organización.</p>
+    @if (!esPremium) {
+    <p class="sub">Necesitas un plan Premium para crear organizaciones. Puedes unirte a una con un código de invitación.</p>
+    }
+  </div>
+  } @else {
+  <div class="org-grid">
+    @for (org of organizaciones(); track org.id) {
+    <a [routerLink]="['/organizaciones', org.id]" class="org-card">
+      <div class="org-icon">
+        <mat-icon>{{ org.tipo === 'CENTRO_EDUCATIVO' ? 'school' : 'business' }}</mat-icon>
+      </div>
+      <div class="org-info">
+        <h3>{{ org.nombre }}</h3>
+        <span class="tipo-badge">{{ getTipoLabel(org.tipo) }}</span>
+        <p class="admin">Admin: {{ org.adminNombre }}</p>
+      </div>
+      <mat-icon class="arrow">chevron_right</mat-icon>
+    </a>
+    }
+  </div>
+  }
+
+</div>

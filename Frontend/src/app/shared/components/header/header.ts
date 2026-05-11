@@ -35,9 +35,14 @@ export class HeaderComponent {
   scrolled         = signal(false);
   esRutaAuth       = signal(false);
 
-  isLoggedIn = computed(() => this.usuario() !== null);
-  // Lee del signal usuario() para que se re-evalúe en cada navegación
-  isAdmin    = computed(() => this.usuario()?.roles?.includes('ROLE_ADMIN') ?? false);
+  isLoggedIn  = computed(() => this.usuario() !== null);
+  isAdmin     = computed(() => this.usuario()?.roles?.includes('ROLE_ADMIN') ?? false);
+  esPremium   = computed(() => {
+    const u = this.usuario();
+    if (!u?.suscripcionActiva) return false;
+    if (u.suscripcionExpiry) return new Date(u.suscripcionExpiry) > new Date();
+    return true;
+  });
 
   constructor() {
     this.esRutaAuth.set(this.router.url.startsWith('/auth/'));

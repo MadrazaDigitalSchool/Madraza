@@ -7,14 +7,13 @@
                 @if (!esRutaAuth()) {
                 <img src="assets/madraza-vector.svg" alt="Madraza" class="navbar-logo" />
                 }
-                <h1>Tu plataforma Educativa para hacer tests online</h1>
+                <h1>Tu plataforma para hacer exámenes online</h1>
             </a>
         </div>
 
-        <!-- Derecha -->
         <div class="navbar-right">
 
-            <!-- Nav links: distintos para admin vs usuario normal -->
+            
             @if (!isAdmin()) {
             <ul class="nav-links">
                 <li><a routerLink="/que-es-madraza" routerLinkActive="active">¿Qué es Madraza?</a></li>
@@ -57,7 +56,7 @@
                         <div class="dropdown-divider"></div>
 
                         @if (isAdmin()) {
-                            <!-- Menú exclusivo para admin -->
+                            <!-- Menú para admin -->
                             <a class="dropdown-item dropdown-item--primary" routerLink="/admin"
                                (click)="menuUsuarioOpen.set(false)">
                                 <mat-icon>admin_panel_settings</mat-icon> Panel de administración
@@ -74,8 +73,22 @@
                             </a>
                             <a class="dropdown-item" routerLink="/tests"
                                (click)="menuUsuarioOpen.set(false)">
-                                <mat-icon>quiz</mat-icon> Mis tests
+                                <mat-icon>library_books</mat-icon> Recursos
                             </a>
+                            <a class="dropdown-item" routerLink="/asignaciones"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>assignment</mat-icon> Mis asignaciones
+                            </a>
+                            <a class="dropdown-item" routerLink="/organizaciones"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>groups</mat-icon> Organizaciones
+                            </a>
+                            @if (esPremium()) {
+                            <a class="dropdown-item" routerLink="/apuntes"
+                               (click)="menuUsuarioOpen.set(false)">
+                                <mat-icon>edit_note</mat-icon> Mis apuntes
+                            </a>
+                            }
                         }
 
                         <a class="dropdown-item" routerLink="/perfil"
@@ -120,9 +133,14 @@
         </ul>
         @if (isLoggedIn()) {
         <div class="menu-movil-actions">
-            <a routerLink="/perfil"    (click)="menuMovilAbierto.set(false)">Mi perfil</a>
-            <a routerLink="/dashboard" (click)="menuMovilAbierto.set(false)">Mi panel</a>
-            <a routerLink="/tests"     (click)="menuMovilAbierto.set(false)">Mis tests</a>
+            <a routerLink="/perfil"         (click)="menuMovilAbierto.set(false)">Mi perfil</a>
+            <a routerLink="/dashboard"      (click)="menuMovilAbierto.set(false)">Mi panel</a>
+            <a routerLink="/tests"          (click)="menuMovilAbierto.set(false)">Recursos</a>
+            <a routerLink="/asignaciones"   (click)="menuMovilAbierto.set(false)">Mis asignaciones</a>
+            <a routerLink="/organizaciones" (click)="menuMovilAbierto.set(false)">Organizaciones</a>
+            @if (esPremium()) {
+            <a routerLink="/apuntes" (click)="menuMovilAbierto.set(false)">Mis apuntes</a>
+            }
             <button (click)="logout()">Cerrar sesión</button>
         </div>
         } @else {

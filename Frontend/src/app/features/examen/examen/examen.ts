@@ -46,7 +46,6 @@ export class ExamenComponent implements OnInit, OnDestroy {
   // Registro de respuestas del usuario para mostrar en resultados
   respuestasUsuario: RespuestaUsuario[] = [];
 
-  // Temporizador
   tiempoRestante = 0;
   tiempoTotal = 0;
   private intervalo: any;
@@ -167,7 +166,6 @@ export class ExamenComponent implements OnInit, OnDestroy {
     if (!this.opcionSeleccionada || !this.intentoId || !this.preguntaActual) return;
     this.respondiendo = true;
 
-    // Guardar respuesta del usuario antes de avanzar
     this.respuestasUsuario.push({
       preguntaId: this.preguntaActual.id,
       preguntaIndex: this.preguntaIndex,

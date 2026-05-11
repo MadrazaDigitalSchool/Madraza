@@ -15,6 +15,21 @@
 
     <div class="dashboard-main container">
 
+        <!-- Banner plan FREE -->
+        @if (limites() && !limites()!.esPremium) {
+        <div class="free-banner">
+          <div class="free-banner-info">
+            <mat-icon>info_outline</mat-icon>
+            <span>Plan gratuito</span>
+            <span class="sep">·</span>
+            <span>Exámenes este mes: <strong>{{ limites()!.intentosMes }}/{{ limites()!.limiteMes }}</strong></span>
+            <span class="sep">·</span>
+            <span>Recursos creados: <strong>{{ limites()!.testsCreados }}/{{ limites()!.limiteTests }}</strong></span>
+          </div>
+          <a routerLink="/precios" mat-flat-button class="btn-premium">Hazte Premium</a>
+        </div>
+        }
+
         <!-- Stats -->
         <section class="stats-section">
             <div class="stats-grid">
@@ -55,7 +70,7 @@
                     </div>
                     <div class="stat-info">
                         <span class="stat-valor">{{ misTests.length }}</span>
-                        <span class="stat-label">Tests creados</span>
+                        <span class="stat-label">Recursos creados</span>
                     </div>
                 </div>
 
@@ -69,7 +84,7 @@
             <section class="seccion-card">
                 <div class="seccion-header">
                     <h2>Historial de exámenes</h2>
-                    <a routerLink="/tests" class="ver-mas">Ver tests →</a>
+                    <a routerLink="/tests" class="ver-mas">Ver recursos →</a>
                 </div>
 
                 @if (cargando) {
@@ -81,9 +96,9 @@
                 @if (!cargando && historial.length === 0) {
                 <div class="estado-vacio">
                     <mat-icon>history</mat-icon>
-                    <p>Aún no has realizado ningún test</p>
+                    <p>Aún no has realizado ningún examen</p>
                     <a routerLink="/tests" mat-flat-button class="btn-empezar">
-                        Explorar tests
+                        Explorar recursos
                     </a>
                 </div>
                 }
@@ -110,19 +125,19 @@
                 }
             </section>
 
-            <!-- Mis tests -->
+            <!-- Mis recursos creados -->
             <section class="seccion-card">
                 <div class="seccion-header">
-                    <h2>Mis tests creados</h2>
-                    <a routerLink="/tests/crear" class="ver-mas">+ Crear test</a>
+                    <h2>Mis recursos creados</h2>
+                    <a routerLink="/tests/crear" class="ver-mas">+ Crear recurso</a>
                 </div>
 
                 @if (misTests.length === 0) {
                 <div class="estado-vacio">
                     <mat-icon>add_circle_outline</mat-icon>
-                    <p>Aún no has creado ningún test</p>
+                    <p>Aún no has creado ningún recurso</p>
                     <a routerLink="/tests/crear" mat-flat-button class="btn-empezar">
-                        Crear mi primer test
+                        Crear mi primer recurso
                     </a>
                 </div>
                 }
@@ -165,6 +180,63 @@
             </section>
 
         </div>
+
+        <!-- Sección: Compartido conmigo + Asignaciones pendientes -->
+        @if (compartidos().length > 0 || asignaciones().length > 0) {
+        <div class="dashboard-grid" style="margin-top:24px">
+
+            @if (compartidos().length > 0) {
+            <section class="seccion-card">
+                <div class="seccion-header">
+                    <h2>Compartido conmigo</h2>
+                    <span class="badge-nuevo">{{ compartidos().length }} nuevo{{ compartidos().length > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="compartidos-lista">
+                    @for (c of compartidos(); track c.id) {
+                    <div class="compartido-item">
+                        <div class="compartido-info">
+                            <p class="compartido-titulo">{{ c.testTitulo }}</p>
+                            <p class="compartido-meta">De {{ c.remitenteNombre }}
+                                @if (c.mensaje) { · "{{ c.mensaje }}" }
+                            </p>
+                        </div>
+                        <div class="compartido-acciones">
+                            <a [routerLink]="['/tests', c.testId]" mat-stroked-button>Ver</a>
+                            <button mat-icon-button (click)="marcarVisto(c.id)" title="Marcar como visto">
+                                <mat-icon>check</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </section>
+            }
+
+            @if (asignaciones().length > 0) {
+            <section class="seccion-card">
+                <div class="seccion-header">
+                    <h2>Tareas asignadas</h2>
+                    <a routerLink="/asignaciones" class="ver-mas">Ver todas →</a>
+                </div>
+                <div class="asig-lista">
+                    @for (a of asignaciones(); track a.id) {
+                    <div class="asig-item">
+                        <div class="asig-info">
+                            <p class="asig-titulo">{{ a.testTitulo }}</p>
+                            <p class="asig-meta">{{ a.orgNombre }}
+                                @if (a.fechaLimite) { · Límite: {{ a.fechaLimite | date:'dd/MM' }} }
+                            </p>
+                        </div>
+                        <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Empezar</a>
+                    </div>
+                    }
+                </div>
+            </section>
+            }
+
+        </div>
+        }
+
     </div>
 
 </div>
