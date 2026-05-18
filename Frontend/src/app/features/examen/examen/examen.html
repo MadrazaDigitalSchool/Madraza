@@ -51,13 +51,19 @@
             </div>
         </div>
 
-        <!-- Temporizador -->
-        @if (test.tiempoLimite) {
-        <div class="temporizador" [class.agotandose]="tiempoAgotandose">
-            <mat-icon>timer</mat-icon>
-            <span>{{ tiempoFormateado }}</span>
+        <!-- Controles derecha: tema + temporizador -->
+        <div class="header-right">
+            <button mat-icon-button class="btn-tema" (click)="themeService.toggle()"
+                [title]="themeService.temaClaro() ? 'Tema oscuro' : 'Tema claro'">
+                <mat-icon>{{ themeService.temaClaro() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+            </button>
+            @if (test.tiempoLimite) {
+            <div class="temporizador" [class.agotandose]="tiempoAgotandose()">
+                <mat-icon>timer</mat-icon>
+                <span>{{ tiempoFormateado() }}</span>
+            </div>
+            }
         </div>
-        }
     </header>
 
     <!-- Barra de progreso -->

@@ -59,9 +59,9 @@
   <!-- Planes -->
   <div class="planes-grid">
     @for (plan of planes; track plan.id) {
-      <div class="plan-card" [class.destacado]="plan.id === 'anual'">
+      <div class="plan-card" [class.destacado]="plan.destacado">
 
-        @if (plan.id === 'anual') {
+        @if (plan.destacado) {
           <div class="badge-recomendado">Más popular</div>
         }
 
@@ -69,7 +69,9 @@
           <h2>{{ plan.nombre }}</h2>
           <div class="precio">
             <span class="precio-num">{{ plan.precio }}</span>
-            <span class="precio-per">{{ plan.periodo }}</span>
+            @if (plan.periodo) {
+              <span class="precio-per">{{ plan.periodo }}</span>
+            }
           </div>
           @if (plan.ahorro) {
             <div class="ahorro-badge">{{ plan.ahorro }}</div>
@@ -88,9 +90,12 @@
         <button
           mat-flat-button
           class="btn-pagar"
-          [class.btn-destacado]="plan.id === 'anual'"
+          [class.btn-destacado]="plan.destacado"
+          [class.btn-free]="plan.id === 'free'"
+          [class.btn-institucional]="plan.id === 'institucional'"
+          [disabled]="plan.id === 'free'"
           (click)="seleccionarPlan(plan.id)">
-          Elegir este plan
+          {{ getCtaLabel(plan.id) }}
         </button>
 
       </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TestService } from '../../../core/services/test';
 import { IntentoService } from '../../../core/services/intento';
+import { ThemeService } from '../../../core/services/theme.service';
 import { Test } from '../../../core/models/test.model';
 import { RespuestaRequest, Intento } from '../../../core/models/intento.model';
 import { forkJoin, of } from 'rxjs';
@@ -34,6 +35,8 @@ interface RespuestaUsuario {
 })
 export class ExamenComponent implements OnInit, OnDestroy {
 
+  themeService = inject(ThemeService);
+
   test: Test | null = null;
   intentoId: number | null = null;
   cargando = true;
@@ -46,9 +49,22 @@ export class ExamenComponent implements OnInit, OnDestroy {
   // Registro de respuestas del usuario para mostrar en resultados
   respuestasUsuario: RespuestaUsuario[] = [];
 
-  tiempoRestante = 0;
-  tiempoTotal = 0;
+  tiempoRestante = signal(0);
+  tiempoTotal = signal(0);
   private intervalo: any;
+
+  tiempoFormateado = computed(() => {
+    const t = this.tiempoRestante();
+    const min = Math.floor(t / 60);
+    const seg = t % 60;
+    return `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+  });
+
+  tiempoAgotandose = computed(() => this.tiempoRestante() <= 60 && this.tiempoTotal() > 0);
+
+  tiempoProgreso = computed(() =>
+    this.tiempoTotal() ? (this.tiempoRestante() / this.tiempoTotal()) * 100 : 100
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -102,8 +118,8 @@ export class ExamenComponent implements OnInit, OnDestroy {
           this.test = test;
           this.intentoId = intento.id;
           if (this.test?.tiempoLimite) {
-            this.tiempoRestante = this.test.tiempoLimite;
-            this.tiempoTotal = this.test.tiempoLimite;
+            this.tiempoRestante.set(this.test.tiempoLimite);
+            this.tiempoTotal.set(this.test.tiempoLimite);
             this.iniciarTemporizador();
           }
         }
@@ -118,8 +134,8 @@ export class ExamenComponent implements OnInit, OnDestroy {
 
   iniciarTemporizador(): void {
     this.intervalo = setInterval(() => {
-      this.tiempoRestante--;
-      if (this.tiempoRestante <= 0) {
+      this.tiempoRestante.update(t => t - 1);
+      if (this.tiempoRestante() <= 0) {
         this.pararTemporizador();
         this.finalizarExamen();
       }
@@ -143,27 +159,13 @@ export class ExamenComponent implements OnInit, OnDestroy {
     return (this.preguntaIndex / this.totalPreguntas) * 100;
   }
 
-  get tiempoFormateado(): string {
-    const min = Math.floor(this.tiempoRestante / 60);
-    const seg = this.tiempoRestante % 60;
-    return `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
-  }
-
-  get tiempoProgreso(): number {
-    return this.tiempoTotal ? (this.tiempoRestante / this.tiempoTotal) * 100 : 100;
-  }
-
-  get tiempoAgotandose(): boolean {
-    return this.tiempoRestante <= 60 && this.tiempoTotal > 0;
-  }
-
   seleccionarOpcion(opcionId: number): void {
     if (this.respondiendo) return;
     this.opcionSeleccionada = opcionId;
   }
 
   siguiente(): void {
-    if (!this.opcionSeleccionada || !this.intentoId || !this.preguntaActual) return;
+    if (this.opcionSeleccionada === null || !this.intentoId || !this.preguntaActual) return;
     this.respondiendo = true;
 
     this.respuestasUsuario.push({

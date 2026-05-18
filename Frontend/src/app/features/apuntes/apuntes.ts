@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ApunteService, Apunte } from '../../core/services/apunte.service';
 import { TestService } from '../../core/services/test';
 import { AuthService } from '../../core/services/auth';
+import { ThemeService } from '../../core/services/theme.service';
 import { Test } from '../../core/models/test.model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 
@@ -39,6 +40,7 @@ export class ApuntesComponent implements OnInit {
   private snackBar      = inject(MatSnackBar);
   private dialog        = inject(MatDialog);
   private route         = inject(ActivatedRoute);
+  themeService          = inject(ThemeService);
 
   esPremium = this.authService.tieneSubscripcion();
 
@@ -106,6 +108,7 @@ export class ApuntesComponent implements OnInit {
     this.titulo    = '';
     this.contenido = '';
     this.tags      = '';
+    this.testId    = null; // limpiamos también el test asociado
     this.respuestaIa.set('');
   }
 
@@ -161,8 +164,9 @@ export class ApuntesComponent implements OnInit {
     );
   }
 
-  parsearTags(tags: string): string[] {
-    return (tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
+  // getter para usar en el template sin llamar al método dos veces
+  get tagsParsados(): string[] {
+    return (this.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
   }
 
   // ── IA ─────────────────────────────────────────────────────

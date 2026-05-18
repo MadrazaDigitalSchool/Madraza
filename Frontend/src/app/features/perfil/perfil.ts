@@ -13,7 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth';
-import { TestService } from '../../core/services/test';
+import { TestService, CreateTestDTO } from '../../core/services/test';
 import { Usuario } from '../../core/models/usuario.model';
 import { Test } from '../../core/models/test.model';
 import { CrearCategoriaDialogComponent } from '../../shared/components/crear-categoria-dialog/crear-categoria-dialog';
@@ -52,6 +52,7 @@ export class PerfilComponent implements OnInit {
   misTests: Test[] = [];
   misTestsCargando = true;
   eliminandoId: number | null = null;
+  duplicandoId: number | null = null;
 
   fechaExpiry = computed(() => {
     const u = this.usuario();
@@ -115,6 +116,50 @@ export class PerfilComponent implements OnInit {
 
   editarTest(test: Test): void {
     this.router.navigate(['/tests/editar', test.id]);
+  }
+
+  duplicarTest(test: Test): void {
+    this.duplicandoId = test.id;
+    this.testService.getTestById(test.id).subscribe({
+      next: (fullTest) => {
+        const dto: CreateTestDTO = {
+          titulo: `Copia de ${fullTest.titulo}`,
+          descripcion: fullTest.descripcion,
+          categoria: fullTest.categoria,
+          dificultad: fullTest.dificultad,
+          tiempoLimite: fullTest.tiempoLimite,
+          visibilidad: 'PRIVADO',
+          preguntas: (fullTest.preguntas ?? []).map((p, i) => ({
+            enunciado: p.enunciado,
+            tipo: p.tipo,
+            orden: i + 1,
+            puntos: p.puntos,
+            explicacion: p.explicacion ?? null,
+            opciones: (p.opciones ?? []).map(o => ({
+              texto: o.texto,
+              esCorrecta: o.esCorrecta,
+              orden: o.orden
+            }))
+          }))
+        };
+        this.testService.crearTest(dto).subscribe({
+          next: (nuevo) => {
+            this.misTests = [...this.misTests, nuevo];
+            this.duplicandoId = null;
+            const sb = this.snackBar.open(`Test duplicado como "${nuevo.titulo}"`, 'Editar', { duration: 5000 });
+            sb.onAction().subscribe(() => this.router.navigate(['/tests/editar', nuevo.id]));
+          },
+          error: () => {
+            this.duplicandoId = null;
+            this.snackBar.open('No se pudo duplicar el test.', 'Cerrar', { duration: 4000 });
+          }
+        });
+      },
+      error: () => {
+        this.duplicandoId = null;
+        this.snackBar.open('No se pudo obtener los datos del test.', 'Cerrar', { duration: 4000 });
+      }
+    });
   }
 
   eliminarTest(test: Test): void {

@@ -49,6 +49,14 @@
                     <button class="btn-accion btn-editar" (click)="editarTest(test, $event)" title="Editar test">
                         <mat-icon>edit</mat-icon>
                     </button>
+                    <button class="btn-accion btn-duplicar" (click)="duplicarTest(test, $event)"
+                        [disabled]="duplicandoId === test.id" title="Duplicar test">
+                        @if (duplicandoId === test.id) {
+                        <mat-spinner diameter="14"></mat-spinner>
+                        } @else {
+                        <mat-icon>content_copy</mat-icon>
+                        }
+                    </button>
                     <button class="btn-accion btn-eliminar" (click)="eliminarTest(test, $event)"
                         [disabled]="eliminandoId === test.id" title="Eliminar test">
                         @if (eliminandoId === test.id) {

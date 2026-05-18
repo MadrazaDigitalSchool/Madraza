@@ -1,6 +1,6 @@
 .lista-container {
     min-height: 100vh;
-    background: #f8f9fa;
+    background: var(--madraza-bg);
 }
 
 .hero {
@@ -73,16 +73,16 @@
         gap: 12px;
         padding: 40px 16px;
         text-align: center;
-        color: #6b7280;
-        background: white;
+        color: var(--madraza-text-muted);
+        background: var(--madraza-surface);
         border-radius: var(--madraza-radius-lg);
-        border: 1px solid #f0f0f0;
+        border: 1px solid var(--madraza-border);
 
         mat-icon {
             font-size: 48px;
             width: 48px;
             height: 48px;
-            color: #9ca3af;
+            color: var(--madraza-text-muted);
         }
     }
 }
@@ -94,18 +94,18 @@
 }
 
 .mis-test-item {
-    background: white;
+    background: var(--madraza-surface);
     border-radius: var(--madraza-radius-lg);
     padding: 16px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--madraza-border);
     transition: box-shadow 0.2s ease;
 
     &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .test-info {
@@ -134,7 +134,7 @@
                 gap: 4px;
                 font-size: 12px;
                 font-weight: 500;
-                color: #6b7280;
+                color: var(--madraza-text-muted);
 
                 mat-icon {
                     font-size: 14px;
@@ -176,33 +176,27 @@
             &.btn-ver {
                 background: rgba(124, 58, 237, 0.1);
                 color: var(--madraza-primary);
-
-                &:hover {
-                    background: rgba(124, 58, 237, 0.2);
-                }
+                &:hover { background: rgba(124, 58, 237, 0.2); }
             }
 
             &.btn-editar {
                 background: rgba(234, 179, 8, 0.12);
                 color: #ca8a04;
+                &:hover { background: rgba(234, 179, 8, 0.25); }
+            }
 
-                &:hover {
-                    background: rgba(234, 179, 8, 0.25);
-                }
+            &.btn-duplicar {
+                background: rgba(20, 184, 166, 0.1);
+                color: #0d9488;
+                &:hover { background: rgba(20, 184, 166, 0.2); }
+                &:disabled { opacity: 0.5; cursor: not-allowed; }
             }
 
             &.btn-eliminar {
                 background: rgba(244, 67, 54, 0.1);
                 color: #dc2626;
-
-                &:hover {
-                    background: rgba(244, 67, 54, 0.2);
-                }
-
-                &:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
+                &:hover { background: rgba(244, 67, 54, 0.2); }
+                &:disabled { opacity: 0.5; cursor: not-allowed; }
             }
         }
     }
@@ -215,16 +209,6 @@
     flex-wrap: wrap;
     padding-top: 32px;
     padding-bottom: 16px;
-    --mdc-outlined-text-field-outline-color: #e0e0e0;
-    --mdc-outlined-text-field-hover-outline-color: #9e9e9e;
-    --mdc-outlined-text-field-focus-outline-color: var(--madraza-primary);
-    --mdc-outlined-text-field-label-text-color: #757575;
-    --mdc-outlined-text-field-focus-label-text-color: var(--madraza-primary);
-    --mdc-outlined-text-field-input-text-color: #212121;
-    --mdc-outlined-text-field-caret-color: var(--madraza-primary);
-    --mat-select-enabled-trigger-text-color: #212121;
-    --mat-select-placeholder-text-color: #757575;
-    --mat-icon-color: #757575;
 
     .buscador {
         flex: 1;
@@ -256,7 +240,7 @@
     gap: 16px;
     padding: 80px 16px;
     text-align: center;
-    color: #6b7280;
+    color: var(--madraza-text-muted);
 
     .icon-error {
         font-size: 48px;
@@ -269,7 +253,7 @@
         font-size: 48px;
         width: 48px;
         height: 48px;
-        color: #9ca3af;
+        color: var(--madraza-text-muted);
     }
 
     .btn-reintentar {
@@ -282,7 +266,7 @@
     margin-bottom: 20px;
 
     .total {
-        color: #6b7280;
+        color: var(--madraza-text-muted);
         font-size: 14px;
     }
 }
@@ -294,18 +278,18 @@
 }
 
 .test-card {
-    background: #ffffff;
+    background: var(--madraza-surface);
     border-radius: var(--madraza-radius-lg);
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 16px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--madraza-border);
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -318,7 +302,7 @@
 
 .chip-categoria {
     background: rgba(124, 58, 237, 0.1);
-    color: var(--madraza-primary);
+    color: var(--madraza-primary-light);
     font-size: 12px;
     font-weight: 600;
     padding: 4px 10px;
@@ -338,17 +322,17 @@
 
     &.chip-baja {
         background: rgba(34, 197, 128, 0.12);
-        color: #16a34a;
+        color: #22c580;
     }
 
     &.chip-media {
         background: rgba(234, 179, 8, 0.12);
-        color: #ca8a04;
+        color: #fbbf24;
     }
 
     &.chip-alta {
         background: rgba(244, 67, 54, 0.12);
-        color: #dc2626;
+        color: #f87171;
     }
 }
 
@@ -356,7 +340,7 @@
     flex: 1;
 
     h3 {
-        color: #1e1839;
+        color: var(--madraza-text);
         font-size: 16px;
         font-weight: 600;
         margin-bottom: 8px;
@@ -364,7 +348,7 @@
     }
 
     .descripcion {
-        color: #6b7280;
+        color: var(--madraza-text-muted);
         font-size: 13px;
         line-height: 1.6;
         display: -webkit-box;
@@ -381,14 +365,14 @@
     justify-content: space-between;
     gap: 12px;
     padding-top: 16px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--madraza-border);
 }
 
 .card-meta {
     display: flex;
     align-items: center;
     gap: 12px;
-    color: #9ca3af;
+    color: var(--madraza-text-muted);
     font-size: 13px;
 
     span {
@@ -433,13 +417,8 @@
 
 @media (max-width: 768px) {
     .filtros {
-        .select-filtro {
-            width: 100%;
-        }
-
-        .buscador {
-            width: 100%;
-        }
+        .select-filtro { width: 100%; }
+        .buscador { width: 100%; }
     }
 
     .tests-grid {

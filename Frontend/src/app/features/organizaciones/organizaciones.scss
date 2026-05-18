@@ -10,9 +10,31 @@
 .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
 .form-card {
-  background: var(--surface, #1e1e2e); border-radius: 12px; padding: 24px;
-  margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;
-  h3 { margin: 0 0 8px; }
+  background: var(--madraza-surface, #282248);
+  border: 1px solid var(--madraza-border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h3 {
+    margin: 0 0 8px;
+    color: var(--madraza-text);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .mat-mdc-form-field {
+    --mdc-outlined-text-field-input-text-color: var(--madraza-text);
+    --mdc-outlined-text-field-label-text-color: var(--madraza-text-muted);
+    --mdc-outlined-text-field-outline-color: var(--madraza-border);
+    --mdc-outlined-text-field-hover-outline-color: var(--madraza-border-hover);
+    --mdc-outlined-text-field-focus-outline-color: var(--madraza-primary);
+    --mdc-outlined-text-field-focus-label-text-color: var(--madraza-primary-light);
+    --mdc-outlined-text-field-caret-color: var(--madraza-primary);
+  }
 }
 
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; }

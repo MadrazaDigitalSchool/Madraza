@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TestService } from '../../../core/services/test';
+import { TestService, CreateTestDTO } from '../../../core/services/test';
 import { AuthService } from '../../../core/services/auth';
 import { Test } from '../../../core/models/test.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
@@ -50,6 +50,7 @@ export class ListaTestsComponent implements OnInit {
   dificultadSeleccionada = '';
   categorias: string[] = [];
   eliminandoId: number | null = null;
+  duplicandoId: number | null = null;
 
   ngOnInit(): void {
     this.cargarTests();
@@ -156,5 +157,52 @@ export class ListaTestsComponent implements OnInit {
     evento.preventDefault();
     evento.stopPropagation();
     this.router.navigate(['/tests/editar', test.id]);
+  }
+
+  duplicarTest(test: Test, evento: Event): void {
+    evento.preventDefault();
+    evento.stopPropagation();
+    this.duplicandoId = test.id;
+
+    this.testService.getTestById(test.id).subscribe({
+      next: (fullTest) => {
+        const dto: CreateTestDTO = {
+          titulo: `Copia de ${fullTest.titulo}`,
+          descripcion: fullTest.descripcion,
+          categoria: fullTest.categoria,
+          dificultad: fullTest.dificultad,
+          tiempoLimite: fullTest.tiempoLimite,
+          visibilidad: 'PRIVADO',
+          preguntas: (fullTest.preguntas ?? []).map((p, i) => ({
+            enunciado: p.enunciado,
+            tipo: p.tipo,
+            orden: i + 1,
+            puntos: p.puntos,
+            explicacion: p.explicacion ?? null,
+            opciones: (p.opciones ?? []).map(o => ({
+              texto: o.texto,
+              esCorrecta: o.esCorrecta,
+              orden: o.orden
+            }))
+          }))
+        };
+        this.testService.crearTest(dto).subscribe({
+          next: (nuevo) => {
+            this.misTests = [...this.misTests, nuevo];
+            this.duplicandoId = null;
+            const sb = this.snackBar.open(`Test duplicado como "${nuevo.titulo}"`, 'Editar', { duration: 5000 });
+            sb.onAction().subscribe(() => this.router.navigate(['/tests/editar', nuevo.id]));
+          },
+          error: () => {
+            this.duplicandoId = null;
+            this.snackBar.open('No se pudo duplicar el test.', 'Cerrar', { duration: 4000 });
+          }
+        });
+      },
+      error: () => {
+        this.duplicandoId = null;
+        this.snackBar.open('No se pudo obtener los datos del test.', 'Cerrar', { duration: 4000 });
+      }
+    });
   }
 }

@@ -12,9 +12,15 @@
   <aside class="apuntes-sidebar">
     <div class="sidebar-header">
       <span class="sidebar-title">Mis apuntes</span>
-      <button mat-icon-button (click)="nuevoApunte()" title="Nuevo apunte">
-        <mat-icon>add</mat-icon>
-      </button>
+      <div style="display:flex;gap:4px">
+        <button mat-icon-button (click)="themeService.toggle()"
+          [title]="themeService.temaClaro() ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro'">
+          <mat-icon>{{ themeService.temaClaro() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+        </button>
+        <button mat-icon-button (click)="nuevoApunte()" title="Nuevo apunte">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
     </div>
 
     @if (cargando()) {
@@ -75,9 +81,9 @@
       </mat-form-field>
     </div>
 
-    @if (parsearTags(tags).length) {
+    @if (tagsParsados.length) {
     <div class="tags-preview">
-      @for (tag of parsearTags(tags); track tag) {
+      @for (tag of tagsParsados; track tag) {
       <mat-chip>{{ tag }}</mat-chip>
       }
     </div>
