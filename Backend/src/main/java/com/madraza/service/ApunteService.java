@@ -60,7 +60,8 @@ public class ApunteService {
 
         if (testId != null) {
             testRepo.findById(testId).ifPresent(apunte::setTestAsociado);
-        } else if (testId == null && apunte.getTestAsociado() != null) {
+        } else if (apunte.getTestAsociado() != null) {
+            // si mandaron testId=null y tenía uno asociado, lo quitamos
             apunte.setTestAsociado(null);
         }
 

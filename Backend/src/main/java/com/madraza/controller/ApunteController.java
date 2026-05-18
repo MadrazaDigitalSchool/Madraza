@@ -1,6 +1,8 @@
 package com.madraza.controller;
 
 import com.madraza.entity.Apunte;
+import com.madraza.entity.Usuario;
+import com.madraza.repository.UsuarioRepository;
 import com.madraza.security.services.UserDetailsImpl;
 import com.madraza.service.ApunteService;
 import com.madraza.service.IaService;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,7 @@ public class ApunteController {
 
     @Autowired private ApunteService apunteService;
     @Autowired private IaService iaService;
+    @Autowired private UsuarioRepository usuarioRepository;
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getMisApuntes(
@@ -78,16 +82,22 @@ public class ApunteController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Endpoint de IA — requiere suscripción activa (verificada en servicio).
-     * body: { modo: "asistente"|"generacion", accion?, contenidoActual?, textoSeleccionado?, tema?, contexto? }
-     */
+    // Endpoint de IA — solo premium, el frontend ya lo oculta pero verificamos aquí también
+    // body: { modo: "asistente"|"generacion", accion?, contenidoActual?, textoSeleccionado?, tema?, contexto? }
     @PostMapping("/ia")
     public ResponseEntity<?> ia(
             @RequestBody Map<String, String> body,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         if (!iaService.isDisponible())
             return ResponseEntity.status(503).body(Map.of("error", "El asistente de IA no está disponible actualmente"));
+
+        // comprobamos que sea premium por si accede sin pasar por el frontend
+        Usuario usuario = usuarioRepository.findById(userDetails.getId()).orElse(null);
+        boolean esPremium = usuario != null && usuario.isSuscripcionActiva()
+                && (usuario.getSuscripcionExpiry() == null
+                    || usuario.getSuscripcionExpiry().isAfter(LocalDateTime.now()));
+        if (!esPremium)
+            return ResponseEntity.status(403).body(Map.of("error", "La IA es exclusiva de usuarios Premium"));
 
         String modo = body.getOrDefault("modo", "asistente");
         try {

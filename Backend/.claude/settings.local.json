@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"E:\\\\desarrollo_web\\\\daw\\\\2_daw\\\\proyecto_madraza\\\\Backend\\\\src\\\\main\\\\java\\\\com\\\\madraza\" -Recurse -Filter \"*.java\")",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(Out-String)"
+    ]
+  }
+}
