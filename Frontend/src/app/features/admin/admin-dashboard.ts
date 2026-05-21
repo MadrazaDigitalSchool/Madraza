@@ -14,12 +14,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import {
-  AdminService, AdminStats, AdminUsuario, AdminTest
+  AdminService, AdminStats, AdminUsuario, AdminTest, AdminOrganizacion
 } from '../../core/services/admin.service';
 import { AuthService } from '../../core/services/auth';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 
-type Tab = 'resumen' | 'usuarios' | 'tests';
+type Tab = 'resumen' | 'usuarios' | 'tests' | 'organizaciones';
 type ModoForm = 'crear' | 'editar' | null;
 
 @Component({
@@ -46,17 +46,26 @@ export class AdminDashboardComponent implements OnInit {
   tabActiva = signal<Tab>('resumen');
 
   // ── Datos ─────────────────────────────────────────────────
-  stats    = signal<AdminStats | null>(null);
-  usuarios = signal<AdminUsuario[]>([]);
-  tests    = signal<AdminTest[]>([]);
+  stats          = signal<AdminStats | null>(null);
+  usuarios       = signal<AdminUsuario[]>([]);
+  tests          = signal<AdminTest[]>([]);
+  organizaciones = signal<AdminOrganizacion[]>([]);
 
-  cargandoStats    = signal(false);
-  cargandoUsuarios = signal(false);
-  cargandoTests    = signal(false);
+  cargandoStats         = signal(false);
+  cargandoUsuarios      = signal(false);
+  cargandoTests         = signal(false);
+  cargandoOrganizaciones  = signal(false);
+  guardandoOrg            = signal(false);
+  orgEditando             = signal<AdminOrganizacion | null>(null);
+  fOrgNombre    = '';
+  fOrgTipo      = 'CENTRO_EDUCATIVO';
+  fOrgDescripcion = '';
+  fOrgActiva    = true;
 
   // ── Búsqueda ──────────────────────────────────────────────
   busquedaUsuario = signal('');
   busquedaTest    = signal('');
+  busquedaOrg     = signal('');
 
   usuariosFiltrados = computed(() => {
     const q = this.busquedaUsuario().toLowerCase();
@@ -75,6 +84,16 @@ export class AdminDashboardComponent implements OnInit {
       t.titulo.toLowerCase().includes(q) ||
       t.categoria.toLowerCase().includes(q) ||
       t.creador.toLowerCase().includes(q)
+    );
+  });
+
+  orgsFiltradas = computed(() => {
+    const q = this.busquedaOrg().toLowerCase();
+    return this.organizaciones().filter(o =>
+      !q ||
+      o.nombre.toLowerCase().includes(q) ||
+      o.adminNombre.toLowerCase().includes(q) ||
+      o.adminEmail.toLowerCase().includes(q)
     );
   });
 
@@ -102,7 +121,7 @@ export class AdminDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.cargarStats();
     const tab = this.route.snapshot.queryParamMap.get('tab') as Tab | null;
-    if (tab && ['resumen', 'usuarios', 'tests'].includes(tab)) {
+    if (tab && ['resumen', 'usuarios', 'tests', 'organizaciones'].includes(tab)) {
       this.setTab(tab);
     }
   }
@@ -110,8 +129,9 @@ export class AdminDashboardComponent implements OnInit {
   setTab(tab: Tab): void {
     this.tabActiva.set(tab);
     this.modoForm.set(null);
-    if (tab === 'usuarios' && this.usuarios().length === 0) this.cargarUsuarios();
-    if (tab === 'tests'    && this.tests().length    === 0) this.cargarTests();
+    if (tab === 'usuarios'       && this.usuarios().length       === 0) this.cargarUsuarios();
+    if (tab === 'tests'          && this.tests().length          === 0) this.cargarTests();
+    if (tab === 'organizaciones' && this.organizaciones().length === 0) this.cargarOrganizaciones();
   }
 
   cargarStats(): void {
@@ -136,6 +156,77 @@ export class AdminDashboardComponent implements OnInit {
       next: t => { this.tests.set(t); this.cargandoTests.set(false); },
       error: () => this.cargandoTests.set(false)
     });
+  }
+
+  cargarOrganizaciones(): void {
+    this.cargandoOrganizaciones.set(true);
+    this.adminService.getOrganizaciones().subscribe({
+      next: o => { this.organizaciones.set(o); this.cargandoOrganizaciones.set(false); },
+      error: () => this.cargandoOrganizaciones.set(false)
+    });
+  }
+
+  abrirEditarOrg(o: AdminOrganizacion): void {
+    this.fOrgNombre      = o.nombre;
+    this.fOrgTipo        = o.tipo;
+    this.fOrgDescripcion = o.descripcion ?? '';
+    this.fOrgActiva      = o.activa;
+    this.orgEditando.set(o);
+  }
+
+  cancelarEditarOrg(): void {
+    this.orgEditando.set(null);
+  }
+
+  guardarOrg(): void {
+    const o = this.orgEditando();
+    if (!o || !this.fOrgNombre.trim()) return;
+    this.guardandoOrg.set(true);
+    this.adminService.updateOrganizacion(o.id, {
+      nombre:      this.fOrgNombre.trim(),
+      tipo:        this.fOrgTipo,
+      descripcion: this.fOrgDescripcion.trim() || null,
+      activa:      this.fOrgActiva
+    }).subscribe({
+      next: updated => {
+        this.organizaciones.update(list =>
+          list.map(x => x.id === updated.id ? { ...x, ...updated } : x)
+        );
+        this.guardandoOrg.set(false);
+        this.orgEditando.set(null);
+        this.snackBar.open(`Organización "${updated.nombre}" actualizada.`, 'Cerrar', { duration: 3000 });
+      },
+      error: (err) => {
+        this.guardandoOrg.set(false);
+        this.snackBar.open(err.error?.error || 'Error al actualizar la organización.', 'Cerrar', { duration: 4000 });
+      }
+    });
+  }
+
+  eliminarOrganizacion(o: AdminOrganizacion): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        titulo: 'Eliminar organización',
+        mensaje: `¿Eliminar "${o.nombre}"? Se borrarán todos sus miembros y asignaciones. Esta acción no se puede deshacer.`,
+        labelConfirmar: 'Eliminar',
+        labelCancelar: 'Cancelar'
+      }
+    });
+    ref.afterClosed().subscribe(confirmado => {
+      if (!confirmado) return;
+      this.adminService.deleteOrganizacion(o.id).subscribe({
+        next: () => {
+          this.organizaciones.update(list => list.filter(x => x.id !== o.id));
+          this.snackBar.open(`Organización "${o.nombre}" eliminada.`, 'Cerrar', { duration: 3000 });
+        },
+        error: () => this.snackBar.open('No se pudo eliminar la organización.', 'Cerrar', { duration: 4000 })
+      });
+    });
+  }
+
+  getTipoOrgLabel(tipo: string): string {
+    return tipo === 'CENTRO_EDUCATIVO' ? 'Centro educativo' : 'Empresa';
   }
 
   abrirCrear(): void {

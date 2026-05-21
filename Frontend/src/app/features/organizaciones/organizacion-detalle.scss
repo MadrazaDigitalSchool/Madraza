@@ -8,8 +8,62 @@
 
 .page-header { display: flex; justify-content: space-between; align-items: flex-start;
   flex-wrap: wrap; gap: 16px; margin-bottom: 32px;
-  h1 { margin: 0 0 8px; font-size: 1.6rem; }
-  p { color: var(--text-secondary, #aaa); margin: 8px 0 0; }
+  h1 { margin: 0 0 8px; font-size: 1.6rem; color: var(--madraza-text); }
+  p { color: var(--madraza-text-muted); margin: 8px 0 0; }
+}
+
+.header-actions {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+
+.btn-editar-org {
+  color: var(--madraza-primary-light) !important;
+  border-color: rgba(124,58,237,0.4) !important;
+  &:hover { background: rgba(124,58,237,0.08) !important; }
+}
+
+.btn-eliminar-org {
+  color: #f87171 !important;
+  border-color: rgba(244,67,54,0.35) !important;
+  display: inline-flex !important; align-items: center !important; gap: 6px;
+  &:hover { background: rgba(244,67,54,0.06) !important; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  mat-spinner { --mdc-circular-progress-active-indicator-color: #f87171; }
+}
+
+.editar-form-card {
+  background: var(--madraza-surface);
+  border: 1px solid rgba(124,58,237,0.25);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.editar-form-titulo {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--madraza-text); font-size: 15px; font-weight: 600; margin: 0;
+  mat-icon { color: var(--madraza-primary-light); font-size: 18px; width: 18px; height: 18px; }
+}
+
+.editar-form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;
+  mat-form-field { width: 100%; }
+  .editar-field-full { grid-column: 1 / -1; }
+  @media (max-width: 600px) { grid-template-columns: 1fr; .editar-field-full { grid-column: 1; } }
+}
+
+.editar-form-actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+
+.btn-guardar-org {
+  background: var(--madraza-primary) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  display: inline-flex !important; align-items: center !important; gap: 6px;
+  mat-spinner { --mdc-circular-progress-active-indicator-color: white; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .tipo-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px;

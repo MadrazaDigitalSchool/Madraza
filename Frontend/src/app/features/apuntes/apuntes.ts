@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -32,7 +32,7 @@ type AccionIa = 'ampliar' | 'resumir' | 'preguntas' | 'explicar';
   templateUrl: './apuntes.html',
   styleUrl: './apuntes.scss'
 })
-export class ApuntesComponent implements OnInit {
+export class ApuntesComponent implements OnInit, OnDestroy {
 
   private apunteService = inject(ApunteService);
   private testService   = inject(TestService);
@@ -84,6 +84,10 @@ export class ApuntesComponent implements OnInit {
       this.testId = Number(testIdParam);
       this.nuevoApunte();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.themeService.reset();
   }
 
   cargarApuntes(): void {

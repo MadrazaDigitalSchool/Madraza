@@ -13,11 +13,59 @@
       @if (o.descripcion) { <p>{{ o.descripcion }}</p> }
     </div>
     @if (esAdmin) {
-    <button mat-stroked-button (click)="copiarCodigo()">
-      <mat-icon>link</mat-icon> Copiar código de invitación
-    </button>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="copiarCodigo()">
+        <mat-icon>link</mat-icon> Copiar código
+      </button>
+      <button mat-stroked-button class="btn-editar-org" (click)="abrirEdicion()">
+        <mat-icon>edit</mat-icon> Editar
+      </button>
+      <button mat-stroked-button class="btn-eliminar-org" (click)="eliminarOrganizacion()"
+              [disabled]="eliminando()">
+        @if (eliminando()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>delete</mat-icon>
+        }
+        Eliminar
+      </button>
+    </div>
     }
   </div>
+
+  <!-- Formulario de edición inline -->
+  @if (esAdmin && editando) {
+  <div class="editar-form-card">
+    <h3 class="editar-form-titulo">
+      <mat-icon>edit</mat-icon> Editar organización
+    </h3>
+    <div class="editar-form-grid">
+      <mat-form-field appearance="outline" class="editar-field-full">
+        <mat-label>Nombre *</mat-label>
+        <input matInput [(ngModel)]="fNombre" placeholder="Nombre de la organización" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <mat-select [(ngModel)]="fTipo">
+          <mat-option value="CENTRO_EDUCATIVO">Centro educativo</mat-option>
+          <mat-option value="EMPRESA">Empresa</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="editar-field-full">
+        <mat-label>Descripción (opcional)</mat-label>
+        <textarea matInput [(ngModel)]="fDescripcion" rows="2"
+                  placeholder="Describe brevemente la organización"></textarea>
+      </mat-form-field>
+    </div>
+    <div class="editar-form-actions">
+      <button mat-button (click)="cancelarEdicion()">Cancelar</button>
+      <button mat-flat-button class="btn-guardar-org" (click)="guardarEdicion()"
+              [disabled]="guardandoEdicion() || !fNombre.trim()">
+        @if (guardandoEdicion()) { <mat-spinner diameter="18"></mat-spinner> } @else { Guardar cambios }
+      </button>
+    </div>
+  </div>
+  }
 
   <mat-tab-group>
 
@@ -113,6 +161,40 @@
               @if (a.instrucciones) { <p class="asig-instrucciones">{{ a.instrucciones }}</p> }
             </div>
             <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Hacer examen</a>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Tab Exámenes propios -->
+    <mat-tab label="Exámenes ({{ examenesOrg.length }})">
+      <div class="tab-content">
+        @if (esAdmin) {
+        <a [routerLink]="['/tests/crear']" [queryParams]="{orgId: org()!.id}"
+           mat-flat-button color="primary" style="margin-bottom:16px; display:inline-flex; align-items:center; gap:6px;">
+          <mat-icon>add</mat-icon> Crear examen para esta organización
+        </a>
+        }
+        @if (!examenesOrg.length) {
+        <div class="estado-vacio">
+          <mat-icon>quiz</mat-icon>
+          <p>No hay exámenes exclusivos de esta organización.</p>
+          @if (esAdmin) {
+          <p class="sub">Crea un examen con visibilidad "Solo para mi organización" para que aparezca aquí.</p>
+          }
+        </div>
+        } @else {
+        <div class="asig-lista">
+          @for (t of examenesOrg; track t.id) {
+          <div class="asig-item">
+            <mat-icon>quiz</mat-icon>
+            <div class="asig-info">
+              <p class="asig-titulo">{{ t.titulo }}</p>
+              <p class="asig-meta">{{ t.categoria }} · {{ t.dificultad }}</p>
+            </div>
+            <a [routerLink]="['/examen', t.id]" mat-flat-button color="accent">Hacer examen</a>
           </div>
           }
         </div>

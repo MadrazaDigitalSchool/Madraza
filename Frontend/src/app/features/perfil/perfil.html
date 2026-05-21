@@ -69,7 +69,7 @@
               <mat-form-field appearance="outline" class="full">
                 <mat-label>Correo electrónico</mat-label>
                 <mat-icon matPrefix>mail</mat-icon>
-                <input matInput [value]="email" disabled />
+                <input matInput [ngModel]="email" name="email" disabled />
                 <mat-icon matSuffix>lock</mat-icon>
                 <mat-hint>El correo no se puede cambiar</mat-hint>
               </mat-form-field>

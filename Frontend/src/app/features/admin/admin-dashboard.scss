@@ -407,6 +407,56 @@
 .icon-btn-danger { color: #f87171 !important; }
 .icon-btn-blue   { color: #60a5fa !important; }
 
+// ── Edición inline de organización ──────────────────────────
+.fila-editando { background: rgba(124,58,237,0.07) !important; }
+
+.org-edit-form {
+  margin-top: 20px;
+  background: var(--madraza-surface);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.org-edit-titulo {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--madraza-text); font-size: 15px; font-weight: 600; margin: 0;
+  mat-icon { color: #a78bfa; font-size: 18px; width: 18px; height: 18px; }
+}
+
+.org-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  mat-form-field { width: 100%; }
+  .org-edit-full { grid-column: 1 / -1; }
+  @media (max-width: 600px) { grid-template-columns: 1fr; .org-edit-full { grid-column: 1; } }
+}
+
+.org-edit-estado {
+  .org-activa-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--madraza-text); font-size: 14px; cursor: pointer;
+    input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #7c3aed; }
+  }
+}
+
+.org-edit-actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+
+.btn-guardar-org-admin {
+  background: #7c3aed !important;
+  color: white !important;
+  border-radius: 8px !important;
+  display: inline-flex !important; align-items: center !important; gap: 6px;
+  mat-spinner { --mdc-circular-progress-active-indicator-color: white; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
 .plan-tag {
   background: rgba(96,165,250,0.12);
   color: #60a5fa;

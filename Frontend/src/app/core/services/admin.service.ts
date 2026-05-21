@@ -31,10 +31,22 @@ export interface AdminTest {
   titulo: string;
   categoria: string;
   dificultad: string;
-  visibilidad: 'PUBLICO' | 'PRIVADO';
+  visibilidad: 'PUBLICO' | 'PRIVADO' | 'ORGANIZACION';
   activo: boolean;
   totalPreguntas: number;
   creador: string;
+}
+
+export interface AdminOrganizacion {
+  id: number;
+  nombre: string;
+  tipo: string;
+  descripcion: string | null;
+  adminNombre: string;
+  adminEmail: string;
+  totalMiembros: number;
+  activa: boolean;
+  createdAt: string | null;
 }
 
 export interface UsuarioFormData {
@@ -98,5 +110,17 @@ export class AdminService {
 
   deleteTest(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/tests/${id}`);
+  }
+
+  getOrganizaciones(): Observable<AdminOrganizacion[]> {
+    return this.http.get<AdminOrganizacion[]>(`${this.apiUrl}/organizaciones`);
+  }
+
+  updateOrganizacion(id: number, datos: { nombre: string; tipo: string; descripcion: string | null; activa: boolean }): Observable<AdminOrganizacion> {
+    return this.http.put<AdminOrganizacion>(`${this.apiUrl}/organizaciones/${id}`, datos);
+  }
+
+  deleteOrganizacion(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/organizaciones/${id}`);
   }
 }

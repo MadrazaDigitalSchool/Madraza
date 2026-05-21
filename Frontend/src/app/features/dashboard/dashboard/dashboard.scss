@@ -392,6 +392,13 @@
                 &:hover { background: rgba(34, 197, 128, 0.18); }
             }
 
+            &.btn-duplicar {
+                background: rgba(20, 184, 166, 0.08);
+                color: #34d399;
+                &:hover { background: rgba(20, 184, 166, 0.18); }
+                &:disabled { opacity: 0.5; cursor: not-allowed; }
+            }
+
             &.btn-eliminar {
                 background: rgba(244, 67, 54, 0.08);
                 color: #dc2626;

@@ -151,6 +151,19 @@
     }
 }
 
+// ── Autofill del navegador ────────────────────────────────
+// Evita el fondo amarillo de Chrome y mantiene el texto legible.
+// El truco de transition 9999s hace que el background-color no cambie visualmente.
+.login-card input:-webkit-autofill,
+.login-card input:-webkit-autofill:hover,
+.login-card input:-webkit-autofill:focus,
+.login-card input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 40px #ffffff inset !important;
+    -webkit-text-fill-color: #212121 !important;
+    caret-color: #212121;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
 .registro-link {
     text-align: center;
     color: #6b7280;

@@ -61,6 +61,9 @@
       <button class="tab-btn" [class.active]="tabActiva() === 'tests'" (click)="setTab('tests')">
         <mat-icon>quiz</mat-icon> Tests
       </button>
+      <button class="tab-btn" [class.active]="tabActiva() === 'organizaciones'" (click)="setTab('organizaciones')">
+        <mat-icon>groups</mat-icon> Organizaciones
+      </button>
     </div>
 
     <!-- ═══════════════ TAB: RESUMEN ═══════════════ -->
@@ -444,6 +447,128 @@
               </div>
             }
           </div>
+        }
+      </div>
+    }
+
+    <!-- ═══════════════ TAB: ORGANIZACIONES ═══════════════ -->
+    @if (tabActiva() === 'organizaciones') {
+      <div class="tab-content">
+        <div class="tab-toolbar">
+          <h2>Gestión de organizaciones</h2>
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input type="text" placeholder="Buscar por nombre o admin..."
+              [value]="busquedaOrg()"
+              (input)="busquedaOrg.set($any($event.target).value)" />
+          </div>
+          <button mat-icon-button (click)="cargarOrganizaciones()" matTooltip="Recargar">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+
+        @if (cargandoOrganizaciones()) {
+          <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Administrador</th>
+                  <th>Miembros</th>
+                  <th>Creada el</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (o of orgsFiltradas(); track o.id) {
+                  <tr [class.fila-editando]="orgEditando()?.id === o.id">
+                    <td class="titulo-cell">{{ o.nombre }}</td>
+                    <td><span class="categoria-tag">{{ getTipoOrgLabel(o.tipo) }}</span></td>
+                    <td>
+                      <div>{{ o.adminNombre }}</div>
+                      <div class="text-muted text-sm">{{ o.adminEmail }}</div>
+                    </td>
+                    <td class="text-center">{{ o.totalMiembros }}</td>
+                    <td class="text-muted text-sm">
+                      {{ o.createdAt ? (o.createdAt | date:'dd/MM/yyyy') : '—' }}
+                    </td>
+                    <td>
+                      <span class="badge" [class.badge-activo]="o.activa" [class.badge-inactivo]="!o.activa">
+                        {{ o.activa ? 'Activa' : 'Inactiva' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="acciones-cell">
+                        <button mat-icon-button class="icon-btn-green"
+                                (click)="abrirEditarOrg(o)" matTooltip="Editar organización">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button class="icon-btn-danger"
+                                (click)="eliminarOrganizacion(o)" matTooltip="Eliminar organización">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @if (orgsFiltradas().length === 0 && !cargandoOrganizaciones()) {
+              <div class="empty-state">
+                <mat-icon>search_off</mat-icon>
+                <p>No se encontraron organizaciones</p>
+              </div>
+            }
+          </div>
+
+          <!-- Formulario de edición de organización -->
+          @if (orgEditando()) {
+          <div class="org-edit-form" id="org-edit-form">
+            <h3 class="org-edit-titulo">
+              <mat-icon>edit</mat-icon>
+              Editando: {{ orgEditando()!.nombre }}
+            </h3>
+            <div class="org-edit-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre *</mat-label>
+                <input matInput [(ngModel)]="fOrgNombre" placeholder="Nombre de la organización" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo</mat-label>
+                <mat-select [(ngModel)]="fOrgTipo">
+                  <mat-option value="CENTRO_EDUCATIVO">Centro educativo</mat-option>
+                  <mat-option value="EMPRESA">Empresa</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="org-edit-full">
+                <mat-label>Descripción (opcional)</mat-label>
+                <textarea matInput [(ngModel)]="fOrgDescripcion" rows="2"></textarea>
+              </mat-form-field>
+            </div>
+            <div class="org-edit-estado">
+              <label class="org-activa-label">
+                <input type="checkbox" [(ngModel)]="fOrgActiva" />
+                Organización activa
+              </label>
+            </div>
+            <div class="org-edit-actions">
+              <button mat-button (click)="cancelarEditarOrg()">Cancelar</button>
+              <button mat-flat-button class="btn-guardar-org-admin"
+                      (click)="guardarOrg()"
+                      [disabled]="guardandoOrg() || !fOrgNombre.trim()">
+                @if (guardandoOrg()) {
+                  <mat-spinner diameter="18"></mat-spinner> Guardando...
+                } @else {
+                  <mat-icon>save</mat-icon> Guardar cambios
+                }
+              </button>
+            </div>
+          </div>
+          }
         }
       </div>
     }

@@ -15,7 +15,8 @@ export interface CreateTestDTO {
   categoria: string;
   dificultad: 'BAJA' | 'MEDIA' | 'ALTA';
   tiempoLimite?: number | null;
-  visibilidad: 'PUBLICO' | 'PRIVADO';
+  visibilidad: 'PUBLICO' | 'PRIVADO' | 'ORGANIZACION';
+  organizacionId?: number | null;
   preguntas: {
     enunciado: string;
     tipo: 'OPCION_MULTIPLE' | 'VERDADERO_FALSO' | 'TEXTO_LIBRE';
@@ -57,6 +58,10 @@ export class TestService {
 
   eliminarTest(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getTestsOrganizacion(orgId: number): Observable<Test[]> {
+    return this.http.get<Test[]>(`${this.apiUrl}/organizacion/${orgId}`);
   }
 
   getCategorias(): Observable<Categoria[]> {

@@ -19,14 +19,16 @@
 
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Email</mat-label>
-                <input matInput type="email" [(ngModel)]="email" placeholder="tu@email.com" (keyup.enter)="login()" />
+                <input matInput type="email" autocomplete="email"
+                    [(ngModel)]="email" placeholder="tu@email.com" (keyup.enter)="login()" />
                 <mat-icon matSuffix>email</mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Contraseña</mat-label>
-                <input matInput [type]="mostrarPassword ? 'text' : 'password'" [(ngModel)]="password"
-                    (keyup.enter)="login()" />
+                <input matInput [type]="mostrarPassword ? 'text' : 'password'"
+                    autocomplete="current-password"
+                    [(ngModel)]="password" (keyup.enter)="login()" />
                 <mat-icon matSuffix style="cursor:pointer" (click)="mostrarPassword = !mostrarPassword">
                     {{ mostrarPassword ? 'visibility_off' : 'visibility' }}
                 </mat-icon>

@@ -58,7 +58,7 @@ export class OrganizacionesComponent implements OnInit {
     this.guardando.set(true);
     this.orgService.crear(this.fNombre.trim(), this.fTipo, this.fDescripcion.trim()).subscribe({
       next: org => {
-        this.organizaciones.update(list => [org, ...list]);
+        this.cargar();
         this.guardando.set(false);
         this.mostrarForm = false;
         this.fNombre = this.fDescripcion = '';

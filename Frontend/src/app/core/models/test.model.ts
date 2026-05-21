@@ -28,8 +28,9 @@ export interface Test {
     categoria: string;
     dificultad: 'BAJA' | 'MEDIA' | 'ALTA';
     tiempoLimite?: number;
-    visibilidad: 'PUBLICO' | 'PRIVADO';
+    visibilidad: 'PUBLICO' | 'PRIVADO' | 'ORGANIZACION';
     activo: boolean;
+    organizacion?: { id: number; nombre: string } | null;
     creador?: {
         id: number;
         nombre: string;

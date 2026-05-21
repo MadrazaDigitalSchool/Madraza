@@ -67,8 +67,58 @@ body {
   --mdc-outlined-text-field-focus-label-text-color: var(--madraza-primary-light);
   --mdc-outlined-text-field-input-text-color: var(--madraza-text);
   --mdc-outlined-text-field-disabled-input-text-color: var(--madraza-text-muted);
+  --mdc-outlined-text-field-disabled-label-text-color: var(--madraza-text-muted);
+  --mdc-outlined-text-field-disabled-outline-color: var(--madraza-border);
+  --mdc-outlined-text-field-disabled-supporting-text-color: var(--madraza-text-muted);
   --mdc-outlined-text-field-caret-color: var(--madraza-primary);
   --mdc-outlined-text-field-container-shape: var(--madraza-radius-sm);
+
+  .mat-mdc-input-element {
+    color: var(--madraza-text) !important;
+  }
+
+  // Valor seleccionado en mat-select
+  .mat-mdc-select-value-text,
+  .mat-mdc-select-value-text span,
+  .mat-mdc-select-placeholder {
+    color: var(--madraza-text) !important;
+  }
+
+  // Opciones del desplegable mat-select
+  .mat-mdc-option .mdc-list-item__primary-text {
+    color: var(--madraza-text) !important;
+  }
+
+  // Color del placeholder (solo cuando Angular Material decide mostrarlo)
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--madraza-text-muted) !important;
+  }
+}
+
+// Auth cards siempre tienen fondo claro → texto oscuro
+.login-card,
+.registro-card,
+.nueva-password-container .card,
+.auth-card {
+  .mat-mdc-form-field {
+    .mat-mdc-input-element { color: #212121 !important; }
+    .mat-mdc-select-value-text,
+    .mat-mdc-select-placeholder { color: #212121 !important; }
+    input::placeholder,
+    textarea::placeholder { color: #9ca3af !important; }
+  }
+
+  // Neutraliza el fondo amarillo del autofill del navegador
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 40px #ffffff inset !important;
+    -webkit-text-fill-color: #212121 !important;
+    caret-color: #212121;
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 // Sobrescritura para formularios sobre fondo blanco (auth siempre claro)
@@ -103,6 +153,9 @@ body.tema-claro .perfil-container .card {
     --mdc-outlined-text-field-input-text-color: #212121;
     --mdc-outlined-text-field-disabled-input-text-color: #9e9e9e;
     --mdc-outlined-text-field-caret-color: var(--madraza-primary);
+    .mat-mdc-input-element { color: #212121 !important; }
+    .mat-mdc-select-value-text,
+    .mat-mdc-select-placeholder { color: #212121 !important; }
   }
   .mat-icon { color: #9e9e9e; }
 }

@@ -42,6 +42,16 @@ export class OrganizacionDetalleComponent implements OnInit {
   cargando    = signal(true);
   usuarioId   = this.authService.getUsuarioActual()?.id ?? 0;
 
+  // Editar organización
+  editando        = false;
+  guardandoEdicion = signal(false);
+  fNombre      = '';
+  fTipo        = 'CENTRO_EDUCATIVO';
+  fDescripcion = '';
+
+  // Eliminar organización
+  eliminando = signal(false);
+
   // Invitar
   emailInvitar = '';
   invitando    = signal(false);
@@ -54,10 +64,14 @@ export class OrganizacionDetalleComponent implements OnInit {
   instrucciones = '';
   asignando    = signal(false);
 
+  // Exámenes propios de la organización
+  examenesOrg: Test[] = [];
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.cargar(id);
     this.testService.getMisTests().subscribe({ next: t => this.misTests = t });
+    this.testService.getTestsOrganizacion(id).subscribe({ next: t => this.examenesOrg = t, error: () => {} });
   }
 
   cargar(id: number): void {
@@ -69,6 +83,65 @@ export class OrganizacionDetalleComponent implements OnInit {
   }
 
   get esAdmin(): boolean { return this.org()?.adminId === this.usuarioId; }
+
+  abrirEdicion(): void {
+    const o = this.org();
+    if (!o) return;
+    this.fNombre      = o.nombre;
+    this.fTipo        = o.tipo;
+    this.fDescripcion = o.descripcion ?? '';
+    this.editando     = true;
+  }
+
+  cancelarEdicion(): void {
+    this.editando = false;
+  }
+
+  guardarEdicion(): void {
+    if (!this.fNombre.trim() || !this.org()) return;
+    this.guardandoEdicion.set(true);
+    this.orgService.actualizar(this.org()!.id, {
+      nombre:      this.fNombre.trim(),
+      tipo:        this.fTipo,
+      descripcion: this.fDescripcion.trim()
+    }).subscribe({
+      next: updated => {
+        this.org.update(o => ({ ...o!, nombre: updated.nombre, tipo: updated.tipo, descripcion: updated.descripcion }));
+        this.guardandoEdicion.set(false);
+        this.editando = false;
+        this.snackBar.open('Organización actualizada.', 'Cerrar', { duration: 3000 });
+      },
+      error: (err) => {
+        this.guardandoEdicion.set(false);
+        this.snackBar.open(err.error?.error || 'Error al actualizar', 'Cerrar', { duration: 4000 });
+      }
+    });
+  }
+
+  eliminarOrganizacion(): void {
+    const o = this.org();
+    if (!o) return;
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        titulo: 'Eliminar organización',
+        mensaje: `¿Eliminar "${o.nombre}"? Se perderán todos los miembros y asignaciones. Esta acción no se puede deshacer.`,
+        labelConfirmar: 'Eliminar',
+        labelCancelar:  'Cancelar'
+      }
+    });
+    ref.afterClosed().subscribe(confirmado => {
+      if (!confirmado) return;
+      this.eliminando.set(true);
+      this.orgService.eliminar(o.id).subscribe({
+        next: () => this.router.navigate(['/organizaciones']),
+        error: (err) => {
+          this.eliminando.set(false);
+          this.snackBar.open(err.error?.error || 'Error al eliminar', 'Cerrar', { duration: 4000 });
+        }
+      });
+    });
+  }
 
   invitar(): void {
     if (!this.emailInvitar.trim() || !this.org()) return;

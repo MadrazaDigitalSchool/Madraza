@@ -40,7 +40,7 @@ export class EditarTestComponent implements OnInit {
   categoria = '';
   dificultad: 'BAJA' | 'MEDIA' | 'ALTA' = 'MEDIA';
   tiempoLimite: number | null = null;
-  visibilidad: 'PUBLICO' | 'PRIVADO' = 'PUBLICO';
+  visibilidad: 'PUBLICO' | 'PRIVADO' | 'ORGANIZACION' = 'PUBLICO';
   preguntas: PreguntaForm[] = [];
   cargando = true;
   enviando = false;

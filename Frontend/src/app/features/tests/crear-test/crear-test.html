@@ -67,11 +67,27 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Visibilidad</mat-label>
-                    <mat-select [(ngModel)]="visibilidad">
+                    <mat-select [(ngModel)]="visibilidad" (ngModelChange)="organizacionId = null">
                         <mat-option value="PUBLICO">Público</mat-option>
-                        <mat-option value="PRIVADO">Privado</mat-option>
+                        <mat-option value="PRIVADO">Privado (solo tú)</mat-option>
+                        @if (misOrgsAdmin.length > 0) {
+                        <mat-option value="ORGANIZACION">Solo para mi organización</mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
+
+                @if (visibilidad === 'ORGANIZACION') {
+                <mat-form-field appearance="outline">
+                    <mat-label>Organización *</mat-label>
+                    <mat-icon matPrefix>groups</mat-icon>
+                    <mat-select [(ngModel)]="organizacionId">
+                        @for (org of misOrgsAdmin; track org.id) {
+                        <mat-option [value]="org.id">{{ org.nombre }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-hint>Solo los miembros podrán ver este examen</mat-hint>
+                </mat-form-field>
+                }
 
             </div>
         </section>

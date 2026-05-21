@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestService } from '../../../core/services/test';
+import { OrganizacionService, Organizacion } from '../../../core/services/organizacion.service';
+import { AuthService } from '../../../core/services/auth';
 
 interface OpcionForm {
   texto: string;
@@ -50,16 +52,21 @@ export class CrearTestComponent implements OnInit {
   categoria = '';
   dificultad: 'BAJA' | 'MEDIA' | 'ALTA' = 'MEDIA';
   tiempoLimite: number | null = null;
-  visibilidad: 'PUBLICO' | 'PRIVADO' = 'PUBLICO';
+  visibilidad: 'PUBLICO' | 'PRIVADO' | 'ORGANIZACION' = 'PUBLICO';
+  organizacionId: number | null = null;
 
   preguntas: PreguntaForm[] = [];
 
   enviando = false;
   categoriasSugeridas: string[] = [];
+  misOrgsAdmin: Organizacion[] = [];
 
-  private testService = inject(TestService);
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private testService   = inject(TestService);
+  private orgService    = inject(OrganizacionService);
+  private authService   = inject(AuthService);
+  private router        = inject(Router);
+  private route         = inject(ActivatedRoute);
+  private snackBar      = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.testService.getTestsPublicos().subscribe({
@@ -67,6 +74,17 @@ export class CrearTestComponent implements OnInit {
         this.categoriasSugeridas = [...new Set(tests.map(t => t.categoria))].sort();
       }
     });
+    const userId = this.authService.getUsuarioActual()?.id;
+    this.orgService.getMisOrganizaciones().subscribe({
+      next: orgs => {
+        this.misOrgsAdmin = orgs.filter(o => o.adminId === userId);
+      }
+    });
+    const orgId = this.route.snapshot.queryParamMap.get('orgId');
+    if (orgId) {
+      this.visibilidad = 'ORGANIZACION';
+      this.organizacionId = Number(orgId);
+    }
     this.agregarPregunta();
   }
 
@@ -127,6 +145,7 @@ export class CrearTestComponent implements OnInit {
 
   get esValido(): boolean {
     if (!this.titulo.trim() || !this.categoria.trim()) return false;
+    if (this.visibilidad === 'ORGANIZACION' && !this.organizacionId) return false;
     if (this.preguntas.length === 0) return false;
     return this.preguntas.every(p => {
       if (!p.enunciado.trim()) return false;
@@ -150,6 +169,7 @@ export class CrearTestComponent implements OnInit {
       dificultad: this.dificultad,
       tiempoLimite: this.tiempoLimite ? this.tiempoLimite * 60 : null,
       visibilidad: this.visibilidad,
+      organizacionId: this.visibilidad === 'ORGANIZACION' ? this.organizacionId : null,
       preguntas: this.preguntas.map(p => ({
         enunciado: p.enunciado.trim(),
         tipo: p.tipo,

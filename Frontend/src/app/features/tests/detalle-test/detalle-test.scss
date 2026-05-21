@@ -1,6 +1,6 @@
 .detalle-container {
     min-height: 100vh;
-    background: #f8f9fa;
+    background: var(--madraza-bg);
 }
 
 .estado-center {
@@ -92,13 +92,15 @@
     }
 }
 
+// Los chips están siempre sobre el hero oscuro → colores fijos independientes del tema
 .chip-categoria {
-    background: rgba(124, 58, 237, 0.2);
-    color: var(--madraza-primary-light);
+    background: rgba(167, 139, 250, 0.2);
+    color: #c4b5fd;
     font-size: 12px;
     font-weight: 600;
     padding: 4px 12px;
     border-radius: 20px;
+    border: 1px solid rgba(167, 139, 250, 0.3);
 }
 
 .chip-dificultad {
@@ -107,20 +109,9 @@
     padding: 4px 12px;
     border-radius: 20px;
 
-    &.chip-baja {
-        background: rgba(34, 197, 128, 0.2);
-        color: #22c580;
-    }
-
-    &.chip-media {
-        background: rgba(234, 179, 8, 0.2);
-        color: #eab308;
-    }
-
-    &.chip-alta {
-        background: rgba(244, 67, 54, 0.2);
-        color: #f44336;
-    }
+    &.chip-baja  { background: rgba(34, 197, 128, 0.2); color: #4ade80; border: 1px solid rgba(34,197,128,0.3); }
+    &.chip-media { background: rgba(234, 179, 8, 0.2);  color: #fde047; border: 1px solid rgba(234,179,8,0.3); }
+    &.chip-alta  { background: rgba(244, 67, 54, 0.2);  color: #fca5a5; border: 1px solid rgba(244,67,54,0.3); }
 }
 
 // Sección de información
@@ -138,11 +129,11 @@
 }
 
 .stat-card {
-    background: white;
+    background: var(--madraza-surface);
     border-radius: var(--madraza-radius-md);
     padding: 24px 16px;
     text-align: center;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--madraza-border);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -156,27 +147,27 @@
     }
 
     .stat-valor {
-        color: #1e1839;
+        color: var(--madraza-text);
         font-size: 22px;
         font-weight: 700;
     }
 
     .stat-label {
-        color: #9ca3af;
+        color: var(--madraza-text-muted);
         font-size: 12px;
     }
 }
 
 // Lista de preguntas
 .preguntas-section {
-    background: white;
+    background: var(--madraza-surface);
     border-radius: var(--madraza-radius-lg);
     padding: clamp(24px, 4vw, 40px);
     margin-bottom: 32px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--madraza-border);
 
     h2 {
-        color: #1e1839;
+        color: var(--madraza-text);
         font-size: 18px;
         font-weight: 600;
         margin-bottom: 20px;
@@ -194,9 +185,9 @@
     align-items: flex-start;
     gap: 12px;
     padding: 12px 16px;
-    background: #f8f9fa;
+    background: var(--madraza-overlay-subtle);
     border-radius: var(--madraza-radius-sm);
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--madraza-border);
 
     .pregunta-num {
         width: 28px;
@@ -214,7 +205,7 @@
 
     .pregunta-texto {
         flex: 1;
-        color: #374151;
+        color: var(--madraza-text);
         font-size: 14px;
         line-height: 1.5;
         margin: 2px 0 0;

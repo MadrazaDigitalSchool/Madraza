@@ -69,8 +69,14 @@
                     <mat-label>Visibilidad</mat-label>
                     <mat-select [(ngModel)]="visibilidad">
                         <mat-option value="PUBLICO">Público</mat-option>
-                        <mat-option value="PRIVADO">Privado</mat-option>
+                        <mat-option value="PRIVADO">Privado (solo tú)</mat-option>
+                        @if (visibilidad === 'ORGANIZACION') {
+                        <mat-option value="ORGANIZACION">Solo para mi organización</mat-option>
+                        }
                     </mat-select>
+                    @if (visibilidad === 'ORGANIZACION') {
+                    <mat-hint>Los tests de organización no pueden cambiar de visibilidad</mat-hint>
+                    }
                 </mat-form-field>
 
             </div>

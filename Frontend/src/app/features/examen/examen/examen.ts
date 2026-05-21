@@ -83,6 +83,7 @@ export class ExamenComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.pararTemporizador();
     clearTimeout(this.timeoutGlobal);
+    this.themeService.reset();
   }
 
   iniciarExamen(testId: number): void {

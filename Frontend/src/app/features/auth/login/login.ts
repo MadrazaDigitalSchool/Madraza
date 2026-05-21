@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -40,6 +40,8 @@ export class LoginComponent implements OnInit {
   readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorize/google`;
   readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorize/github`;
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -50,6 +52,9 @@ export class LoginComponent implements OnInit {
     if (savedEmail) {
       this.email = savedEmail;
       this.recordarme = true;
+      // Forzar detección de cambios para que el label del mat-form-field
+      // flote correctamente al ser el valor asignado programáticamente
+      this.cdr.detectChanges();
     }
   }
 
