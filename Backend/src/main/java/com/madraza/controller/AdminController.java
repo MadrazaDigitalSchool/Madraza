@@ -1,11 +1,14 @@
 package com.madraza.controller;
 
+import com.madraza.entity.Organizacion;
 import com.madraza.entity.Test;
 import com.madraza.entity.Usuario;
 import com.madraza.repository.IntentoRepository;
+import com.madraza.repository.OrganizacionRepository;
 import com.madraza.repository.RolRepository;
 import com.madraza.repository.TestRepository;
 import com.madraza.repository.UsuarioRepository;
+import com.madraza.service.TestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +36,13 @@ public class AdminController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private TestRepository    testRepository;
-    @Autowired private IntentoRepository intentoRepository;
-    @Autowired private RolRepository     rolRepository;
-    @Autowired private PasswordEncoder   passwordEncoder;
+    @Autowired private UsuarioRepository     usuarioRepository;
+    @Autowired private TestRepository        testRepository;
+    @Autowired private IntentoRepository     intentoRepository;
+    @Autowired private RolRepository         rolRepository;
+    @Autowired private OrganizacionRepository orgRepo;
+    @Autowired private PasswordEncoder       passwordEncoder;
+    @Autowired private TestService           testService;
 
     // ── Stats ─────────────────────────────────────────────────
 
@@ -168,7 +173,7 @@ public class AdminController {
         intentoRepository.deleteByUsuarioId(id);
 
         List<Test> testsDelUsuario = testRepository.findByCreadorIdConPreguntas(id);
-        for (Test t : testsDelUsuario) intentoRepository.deleteByTestId(t.getId());
+        for (Test t : testsDelUsuario) testService.borrarDependenciasTest(t.getId());
         testRepository.deleteAll(testsDelUsuario);
 
         usuarioRepository.deleteById(id);
@@ -233,10 +238,60 @@ public class AdminController {
     @Transactional
     public ResponseEntity<Void> deleteTest(@PathVariable Long id) {
         if (!testRepository.existsById(id)) return ResponseEntity.notFound().build();
-        intentoRepository.deleteByTestId(id);
+        testService.borrarDependenciasTest(id);
         testRepository.deleteById(id);
         log.info("Admin: test {} eliminado", id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ── Organizaciones ────────────────────────────────────────
+
+    @GetMapping("/organizaciones")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getOrganizaciones() {
+        return ResponseEntity.ok(
+            orgRepo.findAll().stream().map(this::buildAdminOrgMap).toList()
+        );
+    }
+
+    @PutMapping("/organizaciones/{id}")
+    @Transactional
+    public ResponseEntity<?> updateOrganizacion(@PathVariable Long id,
+                                                @RequestBody Map<String, Object> body) {
+        return orgRepo.findById(id).map(o -> {
+            if (body.get("nombre") instanceof String s && !s.isBlank()) o.setNombre(s.trim());
+            if (body.get("tipo")   instanceof String s)                 o.setTipo(s);
+            if (body.containsKey("descripcion"))
+                o.setDescripcion(body.get("descripcion") instanceof String s ? s.trim() : null);
+            if (body.containsKey("activa"))
+                o.setActiva(Boolean.TRUE.equals(body.get("activa")));
+            orgRepo.save(o);
+            log.info("Admin: organización {} actualizada", id);
+            return ResponseEntity.ok(buildAdminOrgMap(o));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/organizaciones/{id}")
+    @Transactional
+    public ResponseEntity<Void> deleteOrganizacion(@PathVariable Long id) {
+        if (!orgRepo.existsById(id)) return ResponseEntity.notFound().build();
+        orgRepo.deleteById(id);
+        log.info("Admin: organización {} eliminada", id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private Map<String, Object> buildAdminOrgMap(Organizacion o) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id",            o.getId());
+        m.put("nombre",        o.getNombre());
+        m.put("tipo",          o.getTipo());
+        m.put("descripcion",   o.getDescripcion());
+        m.put("adminNombre",   o.getAdmin().getNombre());
+        m.put("adminEmail",    o.getAdmin().getEmail());
+        m.put("totalMiembros", o.getMiembros().size());
+        m.put("activa",        o.isActiva());
+        m.put("createdAt",     o.getCreatedAt() != null ? o.getCreatedAt().toString() : null);
+        return m;
     }
 
     private Map<String, Object> buildUsuarioMap(Usuario u) {

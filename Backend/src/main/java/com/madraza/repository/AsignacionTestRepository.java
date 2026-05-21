@@ -10,4 +10,6 @@ import java.util.List;
 public interface AsignacionTestRepository extends JpaRepository<AsignacionTest, Long> {
 
     List<AsignacionTest> findByOrganizacionIdAndActivaTrue(Long organizacionId);
+
+    void deleteByTestId(Long testId);
 }

@@ -56,6 +56,14 @@ public class TestController {
         return ResponseEntity.ok(test);
     }
 
+    @GetMapping("/organizacion/{orgId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<Test>> getTestsOrganizacion(
+            @PathVariable Long orgId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(testService.getTestsDeOrganizacion(orgId, userDetails.getId()));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTest(
             @PathVariable Long id,

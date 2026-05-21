@@ -16,4 +16,6 @@ public interface CompartirRepository extends JpaRepository<CompartirTest, Long> 
     boolean existsByRemitenteIdAndDestinatarioIdAndTestId(Long remitenteId, Long destinatarioId, Long testId);
 
     long countByDestinatarioIdAndVistoFalse(Long destinatarioId);
+
+    void deleteByTestId(Long testId);
 }

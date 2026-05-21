@@ -33,6 +33,13 @@ public interface TestRepository extends JpaRepository<Test, Long> {
            "WHERE t.id = :id")
     Optional<Test> findByIdConPreguntas(@Param("id") Long id);
 
+    // Tests de una organización (visibilidad = ORGANIZACION)
+    @Query("SELECT DISTINCT t FROM Test t " +
+           "LEFT JOIN FETCH t.creador " +
+           "LEFT JOIN FETCH t.preguntas " +
+           "WHERE t.organizacion.id = :orgId AND t.activo = true")
+    List<Test> findByOrganizacionIdConPreguntas(@Param("orgId") Long orgId);
+
     // Conteo de tests de un usuario (para límite del plan FREE)
     long countByCreadorId(Long creadorId);
 }

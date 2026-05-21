@@ -10,8 +10,9 @@ public record TestRequest(
         @NotBlank String titulo,
         String descripcion,
         @NotBlank String categoria,
-        String dificultad,    // BAJA | MEDIA | ALTA
-        Integer tiempoLimite, // en segundos, puede ser null
-        String visibilidad,   // PUBLICO | PRIVADO
+        String dificultad,       // BAJA | MEDIA | ALTA
+        Integer tiempoLimite,    // en segundos, puede ser null
+        String visibilidad,      // PUBLICO | PRIVADO | ORGANIZACION
+        Long organizacionId,     // solo cuando visibilidad = ORGANIZACION
         List<PreguntaRequest> preguntas
 ) {}

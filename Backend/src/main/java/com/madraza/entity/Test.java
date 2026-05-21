@@ -55,6 +55,11 @@ public class Test {
     @JoinColumn(name = "creador_id", nullable = false)
     private Usuario creador;
 
+    // Organización propietaria — solo para tests con visibilidad=ORGANIZACION
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "organizacion_id")
+    private Organizacion organizacion;
+
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pregunta> preguntas = new ArrayList<>();
 }

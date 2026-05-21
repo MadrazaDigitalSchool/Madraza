@@ -2,10 +2,15 @@ package com.madraza.service;
 
 import com.madraza.dto.request.TestRequest;
 import com.madraza.entity.Opcion;
+import com.madraza.entity.Organizacion;
 import com.madraza.entity.Pregunta;
 import com.madraza.entity.Test;
 import com.madraza.entity.Usuario;
 import com.madraza.exception.ResourceNotFoundException;
+import com.madraza.repository.AsignacionTestRepository;
+import com.madraza.repository.CompartirRepository;
+import com.madraza.repository.MiembroOrganizacionRepository;
+import com.madraza.repository.OrganizacionRepository;
 import com.madraza.repository.TestRepository;
 import com.madraza.repository.UsuarioRepository;
 import com.madraza.repository.IntentoRepository;
@@ -22,9 +27,13 @@ import java.util.List;
 @Service
 public class TestService {
 
-    @Autowired private TestRepository testRepository;
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private IntentoRepository intentoRepository;
+    @Autowired private TestRepository           testRepository;
+    @Autowired private UsuarioRepository        usuarioRepository;
+    @Autowired private IntentoRepository        intentoRepository;
+    @Autowired private AsignacionTestRepository asignacionTestRepository;
+    @Autowired private CompartirRepository      compartirRepository;
+    @Autowired private OrganizacionRepository   organizacionRepository;
+    @Autowired private MiembroOrganizacionRepository miembroRepository;
 
     @Transactional(readOnly = true)
     public List<Test> getTestsPublicos() {
@@ -71,8 +80,19 @@ public class TestService {
         test.setCategoria(req.categoria());
         test.setDificultad(req.dificultad() != null ? req.dificultad() : "MEDIA");
         test.setTiempoLimite(req.tiempoLimite());
-        test.setVisibilidad(req.visibilidad() != null ? req.visibilidad() : "PUBLICO");
+        String visibilidad = req.visibilidad() != null ? req.visibilidad() : "PUBLICO";
+        test.setVisibilidad(visibilidad);
         test.setCreador(creador);
+
+        if ("ORGANIZACION".equals(visibilidad)) {
+            if (req.organizacionId() == null)
+                throw new IllegalArgumentException("Se requiere organizacionId para tests de organización");
+            Organizacion org = organizacionRepository.findById(req.organizacionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada"));
+            if (!org.getAdmin().getId().equals(creadorId))
+                throw new AccessDeniedException("Solo el administrador puede crear tests para la organización");
+            test.setOrganizacion(org);
+        }
 
         poblarPreguntas(test, req);
         // Las preguntas y opciones quedan en memoria tras poblarPreguntas → save no las desvincula
@@ -95,6 +115,10 @@ public class TestService {
         test.setTiempoLimite(req.tiempoLimite());
         test.setVisibilidad(req.visibilidad() != null ? req.visibilidad() : "PUBLICO");
 
+        // RespuestaIntento tiene FK a pregunta_id y opcion_id.
+        // Hay que borrar los intentos ANTES del orphan removal para evitar violación de FK.
+        intentoRepository.deleteByTestId(id);
+
         // Orphan removal elimina preguntas/opciones que se quitan
         test.getPreguntas().clear();
         poblarPreguntas(test, req);
@@ -109,9 +133,28 @@ public class TestService {
         if (!test.getCreador().getId().equals(usuarioId)) {
             throw new AccessDeniedException("No tienes permiso para eliminar este test");
         }
-        // Eliminar primero los intentos asociados para evitar error de foreign key
-        intentoRepository.deleteByTestId(id);
+        borrarDependenciasTest(id);
         testRepository.delete(test);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Test> getTestsDeOrganizacion(Long orgId, Long userId) {
+        Organizacion org = organizacionRepository.findById(orgId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada"));
+        boolean esAdmin   = org.getAdmin().getId().equals(userId);
+        boolean esMiembro = miembroRepository.existsByUsuarioIdAndOrganizacionId(userId, orgId);
+        if (!esAdmin && !esMiembro)
+            throw new AccessDeniedException("No tienes acceso a esta organización");
+        List<Test> tests = testRepository.findByOrganizacionIdConPreguntas(orgId);
+        tests.forEach(t -> t.getPreguntas().forEach(p -> p.getOpciones().size()));
+        return tests;
+    }
+
+    /** Elimina en orden correcto todos los registros dependientes de un test. */
+    public void borrarDependenciasTest(Long testId) {
+        asignacionTestRepository.deleteByTestId(testId);  // cascade borra AsignacionUsuario
+        compartirRepository.deleteByTestId(testId);
+        intentoRepository.deleteByTestId(testId);
     }
 
     private void poblarPreguntas(Test test, TestRequest req) {

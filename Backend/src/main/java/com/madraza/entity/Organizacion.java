@@ -30,7 +30,7 @@ public class Organizacion {
     @Column(length = 36, unique = true)
     private String codigoInvitacion;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "admin_id")
     private Usuario admin;
 
