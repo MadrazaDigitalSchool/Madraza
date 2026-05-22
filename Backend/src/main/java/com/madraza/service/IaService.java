@@ -1,17 +1,18 @@
 package com.madraza.service;
 
-import com.anthropic.client.AnthropicClient;
-import com.anthropic.client.okhttp.AnthropicOkHttpClient;
-import com.anthropic.models.messages.*;
-
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * Servicio de IA usando Claude API como proxy desde el backend.
+ * Servicio de IA usando DeepSeek API (compatible con OpenAI).
  * La API key nunca se expone al cliente.
  *
  * @author Hafdala Mehdi Sidi
@@ -21,10 +22,13 @@ public class IaService {
 
     private static final Logger log = LoggerFactory.getLogger(IaService.class);
 
-    @Value("${anthropic.api.key:}")
+    @Value("${deepseek.api.key:}")
     private String apiKey;
 
-    private AnthropicClient client;
+    private RestTemplate restTemplate;
+
+    private static final String API_URL = "https://api.deepseek.com/chat/completions";
+    private static final String MODEL   = "deepseek-chat";
 
     private static final String SYSTEM_PROMPT = """
             Eres un asistente educativo de Madraza, una plataforma de formación online.
@@ -37,22 +41,19 @@ public class IaService {
     @PostConstruct
     public void init() {
         if (apiKey != null && !apiKey.isBlank()) {
-            this.client = AnthropicOkHttpClient.builder()
-                    .apiKey(apiKey)
-                    .build();
-            log.info("IaService inicializado con Claude API");
+            this.restTemplate = new RestTemplate();
+            log.info("IaService inicializado con DeepSeek API");
         } else {
-            log.warn("ANTHROPIC_API_KEY no configurada — el asistente de IA no estará disponible");
+            log.warn("DEEPSEEK_API_KEY no configurada — el asistente de IA no estará disponible");
         }
     }
 
     public boolean isDisponible() {
-        return client != null;
+        return restTemplate != null;
     }
 
     /**
-     * Modo asistente: ayuda con el contenido que ya tiene el usuario.
-     * accion: "ampliar" | "resumir" | "preguntas" | "explicar"
+     * Modo asistente: ampliar, resumir, preguntas o explicar texto seleccionado.
      */
     public String asistir(String contenidoActual, String textoSeleccionado, String accion) {
         if (!isDisponible()) throw new IllegalStateException("El asistente de IA no está configurado");
@@ -73,7 +74,7 @@ public class IaService {
     }
 
     /**
-     * Modo generación: genera un apunte completo desde un prompt del usuario.
+     * Modo generación: crea un apunte completo en Markdown sobre el tema indicado.
      */
     public String generarApunte(String tema, String contextoAdicional) {
         if (!isDisponible()) throw new IllegalStateException("El asistente de IA no está configurado");
@@ -86,23 +87,31 @@ public class IaService {
         return llamarApi(prompt);
     }
 
+    @SuppressWarnings("unchecked")
     private String llamarApi(String userPrompt) {
         try {
-            MessageCreateParams params = MessageCreateParams.builder()
-                    .model(Model.CLAUDE_SONNET_4_6)
-                    .maxTokens(2048L)
-                    .system(SYSTEM_PROMPT)
-                    .addUserMessage(userPrompt)
-                    .build();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
 
-            Message message = client.messages().create(params);
-            return message.content().stream()
-                    .filter(ContentBlock::isText)
-                    .map(b -> b.asText().text())
-                    .findFirst()
-                    .orElse("");
+            Map<String, Object> body = Map.of(
+                "model",    MODEL,
+                "messages", List.of(
+                    Map.of("role", "system", "content", SYSTEM_PROMPT),
+                    Map.of("role", "user",   "content", userPrompt)
+                ),
+                "max_tokens", 2048
+            );
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            Map<String, Object> response = restTemplate.postForObject(API_URL, request, Map.class);
+
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+            Map<String, Object> message       = (Map<String, Object>)       choices.get(0).get("message");
+
+            return (String) message.get("content");
         } catch (Exception e) {
-            log.error("Error llamando a Claude API: {}", e.getMessage());
+            log.error("Error llamando a DeepSeek API: {}", e.getMessage());
             throw new RuntimeException("Error al contactar con el asistente de IA. Inténtalo de nuevo.");
         }
     }

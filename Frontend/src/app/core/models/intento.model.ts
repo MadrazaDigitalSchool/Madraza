@@ -37,4 +37,36 @@ export interface ResultadoResponse {
     porcentaje: number;
     estado: string;
     tiempoEmpleado: number;
+    pendienteCorreccion: boolean;
+}
+
+export interface DetalleRespuesta {
+    preguntaId: number;
+    enunciado: string;
+    tipo: 'OPCION_MULTIPLE' | 'VERDADERO_FALSO' | 'TEXTO_LIBRE';
+    puntos: number;
+    explicacion?: string;
+    textoLibre?: string;
+    esCorrecta: boolean;
+    pendienteCorreccion: boolean;
+    opcionSeleccionadaId?: number;
+    opciones: { id: number; texto: string; esCorrecta: boolean | null; orden: number }[];
+}
+
+export interface PendienteCorreccion {
+    testId: number;
+    testTitulo: string;
+    pendientes: number;
+}
+
+export interface IntentoParaCorregir {
+    intentoId: number;
+    inicio: string;
+    respuestasPendientes: {
+        respuestaId: number;
+        enunciado: string;
+        explicacion?: string;
+        textoLibre?: string;
+        puntos: number;
+    }[];
 }

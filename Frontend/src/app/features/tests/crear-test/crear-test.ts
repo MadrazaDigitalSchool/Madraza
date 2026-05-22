@@ -12,6 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestService } from '../../../core/services/test';
 import { OrganizacionService, Organizacion } from '../../../core/services/organizacion.service';
 import { AuthService } from '../../../core/services/auth';
+import { LimitesFreePlan } from '../../../core/models/usuario.model';
 
 interface OpcionForm {
   texto: string;
@@ -60,6 +61,8 @@ export class CrearTestComponent implements OnInit {
   enviando = false;
   categoriasSugeridas: string[] = [];
   misOrgsAdmin: Organizacion[] = [];
+  limiteAlcanzado = false;
+  limitesInfo: LimitesFreePlan | null = null;
 
   private testService   = inject(TestService);
   private orgService    = inject(OrganizacionService);
@@ -80,6 +83,14 @@ export class CrearTestComponent implements OnInit {
         this.misOrgsAdmin = orgs.filter(o => o.adminId === userId);
       }
     });
+    if (!this.authService.tieneSubscripcion()) {
+      this.authService.getLimites().subscribe({
+        next: (l) => {
+          this.limitesInfo = l;
+          this.limiteAlcanzado = (l.testsCreados ?? 0) >= (l.limiteTests ?? 3);
+        }
+      });
+    }
     const orgId = this.route.snapshot.queryParamMap.get('orgId');
     if (orgId) {
       this.visibilidad = 'ORGANIZACION';
@@ -186,8 +197,10 @@ export class CrearTestComponent implements OnInit {
 
     this.testService.crearTest(payload).subscribe({
       next: (test) => this.router.navigate(['/tests', test.id]),
-      error: () => {
-        this.snackBar.open('No se pudo crear el test. Inténtalo de nuevo.', 'Cerrar', { duration: 4000 });
+      error: (err: any) => {
+        const msg = err.error?.error || 'No se pudo crear el test. Inténtalo de nuevo.';
+        const sb = this.snackBar.open(msg, 'Ver planes', { duration: 7000 });
+        sb.onAction().subscribe(() => this.router.navigate(['/precios']));
         this.enviando = false;
       }
     });

@@ -6,7 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TestService } from '../../../core/services/test';
+import { ApunteService, Apunte } from '../../../core/services/apunte.service';
 import { AuthService } from '../../../core/services/auth';
+import { IntentoService } from '../../../core/services/intento';
 import { Test } from '../../../core/models/test.model';
 
 /**
@@ -31,14 +33,18 @@ import { Test } from '../../../core/models/test.model';
 export class DetalleTestComponent implements OnInit {
 
   test: Test | null = null;
+  apuntesRelacionados: Apunte[] = [];
   cargando = true;
   error = '';
+  pendientesCorreccion = 0;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private testService: TestService,
-    public authService: AuthService
+    private apunteService: ApunteService,
+    public authService: AuthService,
+    private intentoService: IntentoService
   ) { }
 
   ngOnInit(): void {
@@ -54,6 +60,20 @@ export class DetalleTestComponent implements OnInit {
       next: (test) => {
         this.test = test;
         this.cargando = false;
+        if (this.authService.isLoggedIn() && this.authService.tieneSubscripcion()) {
+          this.apunteService.getApuntesPorTest(id).subscribe({
+            next: (apuntes) => { this.apuntesRelacionados = apuntes; },
+            error: () => {}
+          });
+        }
+        // Si el usuario es el creador, carga el número de respuestas pendientes de corrección
+        const userId = this.authService.getUsuarioActual()?.id;
+        if (userId && test.creador?.id === userId) {
+          this.intentoService.getParaCorregir(id).subscribe({
+            next: (lista) => { this.pendientesCorreccion = lista.length; },
+            error: () => {}
+          });
+        }
       },
       error: () => {
         this.error = 'No se pudo cargar el test';

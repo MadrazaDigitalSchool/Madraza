@@ -2,6 +2,8 @@ package com.madraza.controller;
 
 import com.madraza.dto.request.TestRequest;
 import com.madraza.entity.Test;
+import com.madraza.repository.ApunteRepository;
+import com.madraza.repository.AsignacionTestRepository;
 import com.madraza.security.services.UserDetailsImpl;
 import com.madraza.service.TestService;
 import jakarta.validation.Valid;
@@ -12,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Hafdala Mehdi Sidi
@@ -21,6 +24,8 @@ import java.util.List;
 public class TestController {
 
     @Autowired private TestService testService;
+    @Autowired private AsignacionTestRepository asignacionRepo;
+    @Autowired private ApunteRepository apunteRepo;
 
     @GetMapping
     public ResponseEntity<List<Test>> getTestsPublicos() {
@@ -62,6 +67,15 @@ public class TestController {
             @PathVariable Long orgId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(testService.getTestsDeOrganizacion(orgId, userDetails.getId()));
+    }
+
+    @GetMapping("/{id}/dependencias")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Long>> getDependencias(@PathVariable Long id) {
+        return ResponseEntity.ok(Map.of(
+            "asignaciones",     asignacionRepo.countByTestIdAndActivaTrue(id),
+            "apuntesAsociados", apunteRepo.countByTestAsociadoId(id)
+        ));
     }
 
     @DeleteMapping("/{id}")

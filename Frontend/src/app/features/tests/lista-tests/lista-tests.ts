@@ -12,6 +12,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestService, CreateTestDTO } from '../../../core/services/test';
+import { ApunteService, Apunte } from '../../../core/services/apunte.service';
+import { RecursoGuardService } from '../../../core/services/recurso-guard.service';
 import { AuthService } from '../../../core/services/auth';
 import { Test } from '../../../core/models/test.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
@@ -35,14 +37,17 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 })
 export class ListaTestsComponent implements OnInit {
 
-  private router = inject(Router);
-  private testService = inject(TestService);
-  public authService = inject(AuthService);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private router        = inject(Router);
+  private testService   = inject(TestService);
+  private apunteService = inject(ApunteService);
+  private recursoGuard  = inject(RecursoGuardService);
+  public  authService   = inject(AuthService);
+  private dialog        = inject(MatDialog);
+  private snackBar      = inject(MatSnackBar);
 
   tests: Test[] = [];
   misTests: Test[] = [];
+  misApuntes: Apunte[] = [];
   cargando = true;
   error = '';
   busqueda = '';
@@ -51,11 +56,15 @@ export class ListaTestsComponent implements OnInit {
   categorias: string[] = [];
   eliminandoId: number | null = null;
   duplicandoId: number | null = null;
+  eliminandoApunteId: number | null = null;
 
   ngOnInit(): void {
     this.cargarTests();
     if (this.authService.isLoggedIn()) {
       this.cargarMisTests();
+      if (this.authService.tieneSubscripcion()) {
+        this.cargarMisApuntes();
+      }
     }
   }
 
@@ -83,6 +92,32 @@ export class ListaTestsComponent implements OnInit {
     this.testService.getMisTests().subscribe({
       next: (tests) => { this.misTests = tests; },
       error: () => {}
+    });
+  }
+
+  cargarMisApuntes(): void {
+    this.apunteService.getMisApuntes().subscribe({
+      next: (apuntes) => { this.misApuntes = apuntes; },
+      error: () => {}
+    });
+  }
+
+  eliminarApunte(apunte: Apunte, evento: Event): void {
+    evento.stopPropagation();
+    this.recursoGuard.confirmarEliminarApunte(apunte).subscribe(ok => {
+      if (!ok) return;
+      this.eliminandoApunteId = apunte.id;
+      this.apunteService.eliminar(apunte.id).subscribe({
+        next: () => {
+          this.misApuntes = this.misApuntes.filter(a => a.id !== apunte.id);
+          this.eliminandoApunteId = null;
+          this.snackBar.open(`Apunte "${apunte.titulo}" eliminado.`, 'Cerrar', { duration: 3000 });
+        },
+        error: () => {
+          this.eliminandoApunteId = null;
+          this.snackBar.open('Error al eliminar el apunte.', 'Cerrar', { duration: 4000 });
+        }
+      });
     });
   }
 
@@ -126,16 +161,7 @@ export class ListaTestsComponent implements OnInit {
   eliminarTest(test: Test, evento: Event): void {
     evento.preventDefault();
     evento.stopPropagation();
-    const ref = this.dialog.open(ConfirmDialogComponent, {
-      width: '380px',
-      data: {
-        titulo: 'Eliminar test',
-        mensaje: `¿Seguro que quieres eliminar "${test.titulo}"? Esta acción no se puede deshacer.`,
-        labelConfirmar: 'Eliminar',
-        labelCancelar: 'Cancelar'
-      }
-    });
-    ref.afterClosed().subscribe(confirmado => {
+    this.recursoGuard.confirmarEliminarTest(test).subscribe(confirmado => {
       if (!confirmado) return;
       this.eliminandoId = test.id;
       this.testService.eliminarTest(test.id).subscribe({
@@ -156,7 +182,9 @@ export class ListaTestsComponent implements OnInit {
   editarTest(test: Test, evento: Event): void {
     evento.preventDefault();
     evento.stopPropagation();
-    this.router.navigate(['/tests/editar', test.id]);
+    this.recursoGuard.confirmarEditarTest(test).subscribe(confirmado => {
+      if (confirmado) this.router.navigate(['/tests/editar', test.id]);
+    });
   }
 
   duplicarTest(test: Test, evento: Event): void {

@@ -73,6 +73,62 @@
     </section>
     }
 
+    <!-- Mis apuntes (solo usuarios premium) -->
+    @if (authService.isLoggedIn() && authService.tieneSubscripcion()) {
+    <section class="mis-apuntes-section container">
+        <div class="section-header">
+            <h2><mat-icon>edit_note</mat-icon> Mis apuntes</h2>
+            <a routerLink="/apuntes" class="btn-crear">
+                <mat-icon>add</mat-icon>
+                Nuevo apunte
+            </a>
+        </div>
+
+        @if (misApuntes.length === 0) {
+        <div class="estado-vacio">
+            <mat-icon>edit_note</mat-icon>
+            <p>Aún no tienes apuntes creados</p>
+            <a routerLink="/apuntes" mat-stroked-button>Crear mi primer apunte</a>
+        </div>
+        } @else {
+        <div class="mis-apuntes-lista">
+            @for (apunte of misApuntes; track apunte.id) {
+            <div class="mis-apunte-item">
+                <div class="apunte-icono">
+                    <mat-icon>edit_note</mat-icon>
+                </div>
+                <div class="apunte-info">
+                    <p class="apunte-titulo">{{ apunte.titulo }}</p>
+                    <div class="apunte-meta">
+                        @if (apunte.testTitulo) {
+                        <span class="chip-test">
+                            <mat-icon>quiz</mat-icon>{{ apunte.testTitulo }}
+                        </span>
+                        }
+                        <span class="apunte-fecha">{{ apunte.updatedAt | date:'dd/MM/yy' }}</span>
+                    </div>
+                </div>
+                <div class="apunte-acciones">
+                    <a routerLink="/apuntes" class="btn-accion btn-ver" title="Editar apunte">
+                        <mat-icon>open_in_new</mat-icon>
+                    </a>
+                    <button class="btn-accion btn-eliminar"
+                            [disabled]="eliminandoApunteId === apunte.id"
+                            (click)="eliminarApunte(apunte, $event)" title="Eliminar apunte">
+                        @if (eliminandoApunteId === apunte.id) {
+                        <mat-spinner diameter="14"></mat-spinner>
+                        } @else {
+                        <mat-icon>delete</mat-icon>
+                        }
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </section>
+    }
+
     <!-- Filtros -->
     <section class="filtros container">
 

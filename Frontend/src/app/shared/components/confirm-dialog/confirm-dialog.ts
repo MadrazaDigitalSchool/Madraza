@@ -6,6 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 export interface ConfirmDialogData {
   titulo: string;
   mensaje: string;
+  advertencia?: string;        // bloque amarillo de aviso (opcional)
+  detalles?: string[];         // lista de impactos concretos (opcional)
   labelConfirmar?: string;
   labelCancelar?: string;
 }

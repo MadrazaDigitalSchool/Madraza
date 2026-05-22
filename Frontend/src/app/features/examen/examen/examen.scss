@@ -296,6 +296,55 @@
     }
 }
 
+// ── TEXTO LIBRE ───────────────────────────────────────────
+
+.texto-libre-container {
+    margin-bottom: 24px;
+}
+
+.texto-libre-input {
+    width: 100%;
+    background: var(--madraza-surface);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--madraza-text);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 16px;
+    resize: vertical;
+    min-height: 140px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+
+    &::placeholder { color: var(--madraza-text-muted); }
+
+    &:focus {
+        outline: none;
+        border-color: var(--madraza-primary-light);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.texto-libre-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--madraza-text-muted);
+    font-size: 13px;
+    margin: 8px 0 0;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+}
+
 // Acciones del examen
 .examen-actions {
     display: flex;

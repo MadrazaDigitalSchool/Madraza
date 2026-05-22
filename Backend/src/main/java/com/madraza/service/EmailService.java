@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * @author Hafdala Mehdi Sidi
  */
@@ -70,6 +73,46 @@ public class EmailService {
             enviar(email, "Restablece tu contraseña de Madraza", html);
         } catch (Exception e) {
             log.error("Error al enviar email de recuperación a {}: {}", email, e.getMessage());
+        }
+    }
+
+    @Async
+    public void enviarInvitacionOrganizacion(String email, String nombre, String orgNombre, String orgTipo, String adminNombre) {
+        try {
+            Context ctx = new Context();
+            ctx.setVariable("nombre", nombre);
+            ctx.setVariable("orgNombre", orgNombre);
+            ctx.setVariable("orgTipo", "CENTRO_EDUCATIVO".equals(orgTipo) ? "Centro educativo" : "Empresa");
+            ctx.setVariable("adminNombre", adminNombre);
+            ctx.setVariable("organizacionesUrl", frontendUrl + "/organizaciones");
+
+            String html = templateEngine.process("email/invitacion-organizacion", ctx);
+            enviar(email, "Te han añadido a una organización en Madraza", html);
+        } catch (Exception e) {
+            log.error("Error al enviar email de invitación a {}: {}", email, e.getMessage());
+        }
+    }
+
+    @Async
+    public void enviarAsignacionTest(String email, String nombre, String testTitulo, String orgNombre,
+                                      String instrucciones, LocalDateTime fechaLimite, Long testId) {
+        try {
+            Context ctx = new Context();
+            ctx.setVariable("nombre", nombre);
+            ctx.setVariable("testTitulo", testTitulo);
+            ctx.setVariable("orgNombre", orgNombre);
+            ctx.setVariable("instrucciones", instrucciones != null && !instrucciones.isBlank() ? instrucciones : null);
+            ctx.setVariable("tieneFechaLimite", fechaLimite != null);
+            if (fechaLimite != null) {
+                ctx.setVariable("fechaLimite",
+                    fechaLimite.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm")));
+            }
+            ctx.setVariable("examUrl", frontendUrl + "/examen/" + testId);
+
+            String html = templateEngine.process("email/asignacion-test", ctx);
+            enviar(email, "Nuevo recurso asignado: " + testTitulo, html);
+        } catch (Exception e) {
+            log.error("Error al enviar email de asignación a {}: {}", email, e.getMessage());
         }
     }
 

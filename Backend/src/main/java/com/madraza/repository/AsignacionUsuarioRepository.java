@@ -2,6 +2,8 @@ package com.madraza.repository;
 
 import com.madraza.entity.AsignacionUsuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +19,11 @@ public interface AsignacionUsuarioRepository extends JpaRepository<AsignacionUsu
     Optional<AsignacionUsuario> findByAsignacionIdAndUsuarioId(Long asignacionId, Long usuarioId);
 
     long countByUsuarioIdAndEstado(Long usuarioId, String estado);
+
+    @Query("SELECT au FROM AsignacionUsuario au " +
+           "WHERE au.usuario.id = :usuarioId " +
+           "AND au.asignacion.tipoRecurso = 'APUNTE' " +
+           "AND au.asignacion.activa = true " +
+           "AND au.asignacion.apunte IS NOT NULL")
+    List<AsignacionUsuario> findApuntesAsignadosActivos(@Param("usuarioId") Long usuarioId);
 }

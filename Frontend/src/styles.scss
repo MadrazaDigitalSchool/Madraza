@@ -70,8 +70,22 @@ body {
   --mdc-outlined-text-field-disabled-label-text-color: var(--madraza-text-muted);
   --mdc-outlined-text-field-disabled-outline-color: var(--madraza-border);
   --mdc-outlined-text-field-disabled-supporting-text-color: var(--madraza-text-muted);
+  --mdc-outlined-text-field-disabled-leading-icon-color: var(--madraza-text-muted);
+  --mdc-outlined-text-field-disabled-trailing-icon-color: var(--madraza-text-muted);
   --mdc-outlined-text-field-caret-color: var(--madraza-primary);
   --mdc-outlined-text-field-container-shape: var(--madraza-radius-sm);
+
+  &.mat-form-field-disabled {
+    .mat-mdc-form-field-icon-prefix mat-icon,
+    .mat-mdc-form-field-icon-suffix mat-icon {
+      color: var(--madraza-text-muted) !important;
+      opacity: 1 !important;
+    }
+    .mdc-floating-label {
+      color: var(--madraza-text-muted) !important;
+      opacity: 1 !important;
+    }
+  }
 
   .mat-mdc-input-element {
     color: var(--madraza-text) !important;
@@ -193,8 +207,23 @@ body.tema-claro {
     --mdc-outlined-text-field-label-text-color: rgba(0, 0, 0, 0.55);
     --mdc-outlined-text-field-focus-label-text-color: var(--madraza-primary);
     --mdc-outlined-text-field-input-text-color: #1a1a2e;
-    --mdc-outlined-text-field-disabled-input-text-color: rgba(0, 0, 0, 0.38);
+    --mdc-outlined-text-field-disabled-input-text-color: rgba(0, 0, 0, 0.55);
+    --mdc-outlined-text-field-disabled-label-text-color: rgba(0, 0, 0, 0.55);
+    --mdc-outlined-text-field-disabled-leading-icon-color: rgba(0, 0, 0, 0.55);
+    --mdc-outlined-text-field-disabled-trailing-icon-color: rgba(0, 0, 0, 0.55);
     --mdc-outlined-text-field-caret-color: var(--madraza-primary);
+
+    &.mat-form-field-disabled {
+      .mat-mdc-form-field-icon-prefix mat-icon,
+      .mat-mdc-form-field-icon-suffix mat-icon {
+        color: rgba(0, 0, 0, 0.55) !important;
+        opacity: 1 !important;
+      }
+      .mdc-floating-label {
+        color: rgba(0, 0, 0, 0.55) !important;
+        opacity: 1 !important;
+      }
+    }
   }
 
   // Examen — valores hardcodeados con rgba blanco

@@ -12,4 +12,6 @@ public interface ApunteRepository extends JpaRepository<Apunte, Long> {
     List<Apunte> findByUsuarioIdOrderByUpdatedAtDesc(Long usuarioId);
 
     List<Apunte> findByUsuarioIdAndTestAsociadoId(Long usuarioId, Long testId);
+
+    long countByTestAsociadoId(Long testId);
 }

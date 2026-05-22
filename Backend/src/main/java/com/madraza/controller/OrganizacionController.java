@@ -109,18 +109,41 @@ public class OrganizacionController {
             @PathVariable Long id,
             @RequestBody Map<String, Object> body,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Object testIdObj = body.get("testId");
-        if (testIdObj == null)
-            return ResponseEntity.badRequest().body(Map.of("error", "testId es obligatorio"));
+        String tipoRecurso = (String) body.getOrDefault("tipoRecurso", "TEST");
+        Long testId    = body.get("testId")    != null ? Long.parseLong(body.get("testId").toString())    : null;
+        Long apunteId  = body.get("apunteId")  != null ? Long.parseLong(body.get("apunteId").toString())  : null;
 
-        Long testId = Long.parseLong(testIdObj.toString());
+        if ("TEST".equals(tipoRecurso) && testId == null)
+            return ResponseEntity.badRequest().body(Map.of("error", "testId es obligatorio para tipo TEST"));
+        if ("APUNTE".equals(tipoRecurso) && apunteId == null)
+            return ResponseEntity.badRequest().body(Map.of("error", "apunteId es obligatorio para tipo APUNTE"));
+
         LocalDateTime fechaLimite = body.get("fechaLimite") != null
                 ? LocalDateTime.parse((String) body.get("fechaLimite")) : null;
         String instrucciones = (String) body.getOrDefault("instrucciones", "");
+        Long usuarioId = body.get("usuarioId") != null
+                ? Long.parseLong(body.get("usuarioId").toString()) : null;
 
         return ResponseEntity.ok(buildAsignacionMap(
-            orgService.asignarTest(id, testId, fechaLimite, instrucciones, userDetails.getId())
+            orgService.asignarTest(id, testId, apunteId, tipoRecurso,
+                                   fechaLimite, instrucciones, userDetails.getId(), usuarioId)
         ));
+    }
+
+    @GetMapping("/{id}/asignaciones/{asignacionId}/resultados")
+    public ResponseEntity<List<Map<String, Object>>> getResultadosAsignacion(
+            @PathVariable Long id,
+            @PathVariable Long asignacionId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(orgService.getResultadosAsignacion(id, asignacionId, userDetails.getId()));
+    }
+
+    @GetMapping("/{id}/miembros/{miembroId}/stats")
+    public ResponseEntity<Map<String, Object>> getEstadisticasMiembro(
+            @PathVariable Long id,
+            @PathVariable Long miembroId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(orgService.getEstadisticasMiembro(id, miembroId, userDetails.getId()));
     }
 
     // ── Builders ──────────────────────────────────────────────
@@ -154,13 +177,24 @@ public class OrganizacionController {
     private Map<String, Object> buildAsignacionMap(AsignacionTest a) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id",              a.getId());
-        m.put("testId",          a.getTest().getId());
-        m.put("testTitulo",      a.getTest().getTitulo());
+        m.put("tipoRecurso",     a.getTipoRecurso() != null ? a.getTipoRecurso() : "TEST");
+        m.put("testId",          a.getTest()   != null ? a.getTest().getId()      : null);
+        m.put("testTitulo",      a.getTest()   != null ? a.getTest().getTitulo()  : null);
+        m.put("apunteId",        a.getApunte() != null ? a.getApunte().getId()    : null);
+        m.put("apunteTitulo",    a.getApunte() != null ? a.getApunte().getTitulo(): null);
         m.put("asignadoPorNombre", a.getAsignadoPor().getNombre());
         m.put("fechaAsignacion", a.getFechaAsignacion() != null ? a.getFechaAsignacion().toString() : null);
         m.put("fechaLimite",     a.getFechaLimite() != null ? a.getFechaLimite().toString() : null);
         m.put("instrucciones",   a.getInstrucciones());
         m.put("activa",          a.isActiva());
+        Usuario dest = a.getUsuarioDestino();
+        if (dest != null) {
+            m.put("destinatarioId",     dest.getId());
+            m.put("destinatarioNombre", dest.getNombre() + (dest.getApellidos() != null ? " " + dest.getApellidos() : ""));
+        } else {
+            m.put("destinatarioId",     null);
+            m.put("destinatarioNombre", null);
+        }
         return m;
     }
 }

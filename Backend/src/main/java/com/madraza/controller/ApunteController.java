@@ -2,6 +2,8 @@ package com.madraza.controller;
 
 import com.madraza.entity.Apunte;
 import com.madraza.entity.Usuario;
+import com.madraza.repository.AsignacionTestRepository;
+import com.madraza.repository.AsignacionUsuarioRepository;
 import com.madraza.repository.UsuarioRepository;
 import com.madraza.security.services.UserDetailsImpl;
 import com.madraza.service.ApunteService;
@@ -9,6 +11,7 @@ import com.madraza.service.IaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -26,12 +29,40 @@ public class ApunteController {
     @Autowired private ApunteService apunteService;
     @Autowired private IaService iaService;
     @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private AsignacionTestRepository asignacionRepo;
+    @Autowired private AsignacionUsuarioRepository asignacionUsuarioRepo;
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getMisApuntes(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(
             apunteService.getMisApuntes(userDetails.getId()).stream().map(this::buildMap).toList()
+        );
+    }
+
+    @GetMapping("/mis-asignados")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getMisApuntesAsignados(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(
+            asignacionUsuarioRepo.findApuntesAsignadosActivos(userDetails.getId()).stream()
+                .map(au -> {
+                    var asig   = au.getAsignacion();
+                    var apunte = asig.getApunte();
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("asignacionId",  asig.getId());
+                    m.put("id",            apunte.getId());
+                    m.put("titulo",        apunte.getTitulo());
+                    m.put("contenido",     apunte.getContenido());
+                    m.put("tags",          apunte.getTags());
+                    m.put("testId",        apunte.getTestAsociado() != null ? apunte.getTestAsociado().getId()     : null);
+                    m.put("testTitulo",    apunte.getTestAsociado() != null ? apunte.getTestAsociado().getTitulo() : null);
+                    m.put("orgNombre",     asig.getOrganizacion().getNombre());
+                    m.put("instrucciones", asig.getInstrucciones());
+                    m.put("fechaLimite",   asig.getFechaLimite() != null ? asig.getFechaLimite().toString() : null);
+                    return m;
+                })
+                .toList()
         );
     }
 
@@ -72,6 +103,13 @@ public class ApunteController {
                 (String) body.get("tags"),
                 testId
         )));
+    }
+
+    @GetMapping("/{id}/dependencias")
+    public ResponseEntity<Map<String, Long>> getDependencias(@PathVariable Long id) {
+        return ResponseEntity.ok(Map.of(
+            "asignaciones", asignacionRepo.countByApunteIdAndActivaTrue(id)
+        ));
     }
 
     @DeleteMapping("/{id}")

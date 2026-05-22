@@ -29,20 +29,61 @@ export interface Miembro {
 
 export interface AsignacionOrg {
   id: number;
-  testId: number;
-  testTitulo: string;
+  tipoRecurso: 'TEST' | 'APUNTE';
+  testId: number | null;
+  testTitulo: string | null;
+  apunteId: number | null;
+  apunteTitulo: string | null;
   asignadoPorNombre: string;
   fechaAsignacion: string;
   fechaLimite: string | null;
   instrucciones: string;
   activa: boolean;
+  destinatarioId: number | null;
+  destinatarioNombre: string | null;
+}
+
+export interface ResultadoAsignacion {
+  usuarioId: number;
+  nombre: string;
+  email: string;
+  estado: string;
+  fechaCompletado: string | null;
+  porcentaje: number | null;
+  correctas: number | null;
+  totalPreguntas: number | null;
+  puntuacion: number | null;
+  estadoIntento: string | null;
+}
+
+export interface EstadisticasMiembro {
+  usuarioId: number;
+  nombre: string;
+  email: string;
+  total: number;
+  completadas: number;
+  pendientes: number;
+  mediaAciertos: number;
+  asignaciones: {
+    asignacionId: number;
+    titulo: string;
+    estado: string;
+    fechaLimite: string | null;
+    fechaCompletado: string | null;
+    porcentaje?: number;
+    correctas?: number;
+    totalPreguntas?: number;
+  }[];
 }
 
 export interface MiAsignacion {
   id: number;
   asignacionId: number;
-  testId: number;
-  testTitulo: string;
+  tipoRecurso: 'TEST' | 'APUNTE';
+  testId: number | null;
+  testTitulo: string | null;
+  apunteId: number | null;
+  apunteTitulo: string | null;
   orgNombre: string;
   asignadoPor: string;
   instrucciones: string;
@@ -91,8 +132,20 @@ export class OrganizacionService {
     return this.http.get<Organizacion>(`${this.apiUrl}/unirse/${codigo}`);
   }
 
-  asignarTest(orgId: number, testId: number, fechaLimite: string | null, instrucciones: string): Observable<AsignacionOrg> {
-    return this.http.post<AsignacionOrg>(`${this.apiUrl}/${orgId}/asignar`, { testId, fechaLimite, instrucciones });
+  asignarRecurso(orgId: number, tipoRecurso: 'TEST' | 'APUNTE',
+                 testId: number | null, apunteId: number | null,
+                 fechaLimite: string | null, instrucciones: string,
+                 usuarioId?: number | null): Observable<AsignacionOrg> {
+    return this.http.post<AsignacionOrg>(`${this.apiUrl}/${orgId}/asignar`,
+      { tipoRecurso, testId, apunteId, fechaLimite, instrucciones, usuarioId: usuarioId ?? null });
+  }
+
+  getResultadosAsignacion(orgId: number, asignacionId: number): Observable<ResultadoAsignacion[]> {
+    return this.http.get<ResultadoAsignacion[]>(`${this.apiUrl}/${orgId}/asignaciones/${asignacionId}/resultados`);
+  }
+
+  getEstadisticasMiembro(orgId: number, miembroId: number): Observable<EstadisticasMiembro> {
+    return this.http.get<EstadisticasMiembro>(`${this.apiUrl}/${orgId}/miembros/${miembroId}/stats`);
   }
 
   getMisAsignaciones(): Observable<MiAsignacion[]> {

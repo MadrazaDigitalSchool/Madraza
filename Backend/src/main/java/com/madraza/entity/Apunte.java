@@ -31,7 +31,7 @@ public class Apunte {
     private String tags;
 
     // Apunte vinculado a un recurso/test concreto (opcional)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "test_id")
     private Test testAsociado;
 

@@ -11,5 +11,9 @@ public interface AsignacionTestRepository extends JpaRepository<AsignacionTest, 
 
     List<AsignacionTest> findByOrganizacionIdAndActivaTrue(Long organizacionId);
 
+    long countByTestIdAndActivaTrue(Long testId);
+
+    long countByApunteIdAndActivaTrue(Long apunteId);
+
     void deleteByTestId(Long testId);
 }

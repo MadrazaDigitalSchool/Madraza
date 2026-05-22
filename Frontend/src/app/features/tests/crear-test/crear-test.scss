@@ -399,6 +399,64 @@
     }
 }
 
+// ── BANNER LÍMITE PLAN ────────────────────────────────────
+
+.limite-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    font-size: 14px;
+
+    mat-icon {
+        flex-shrink: 0;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    span { flex: 1; }
+
+    &--error {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #fca5a5;
+
+        mat-icon { color: #ef4444; }
+    }
+
+    &--info {
+        background: rgba(var(--madraza-primary-rgb, 99, 102, 241), 0.1);
+        border: 1px solid rgba(var(--madraza-primary-rgb, 99, 102, 241), 0.3);
+        color: var(--madraza-text-muted);
+
+        mat-icon { color: var(--madraza-primary-light); }
+    }
+
+    .btn-upgrade {
+        flex-shrink: 0;
+        background: #ef4444;
+        color: #fff;
+        font-size: 13px;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 14px;
+        border-radius: 6px;
+    }
+
+    .link-upgrade {
+        flex-shrink: 0;
+        color: var(--madraza-primary-light);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+
+        &:hover { text-decoration: underline; }
+    }
+}
+
 // ── ACCIONES FINALES ──────────────────────────────────────
 
 .crear-actions {

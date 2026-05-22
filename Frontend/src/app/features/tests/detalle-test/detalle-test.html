@@ -97,8 +97,53 @@
             </div>
         </div>
 
+        <!-- Apuntes relacionados (usuarios premium) -->
+        @if (authService.isLoggedIn() && authService.tieneSubscripcion()) {
+        <div class="apuntes-relacionados">
+            <div class="apuntes-header">
+                <h2><mat-icon>edit_note</mat-icon> Mis apuntes para este test</h2>
+                <a routerLink="/apuntes" [queryParams]="{testId: test!.id}" mat-stroked-button class="btn-nuevo-apunte">
+                    <mat-icon>add</mat-icon> Nuevo apunte
+                </a>
+            </div>
+
+            @if (apuntesRelacionados.length === 0) {
+            <div class="apuntes-vacio">
+                <mat-icon>note_add</mat-icon>
+                <p>No tienes apuntes para este test todavía.</p>
+                <a routerLink="/apuntes" [queryParams]="{testId: test!.id}" class="link-crear">
+                    Crear apunte vinculado a este test
+                </a>
+            </div>
+            } @else {
+            <div class="apuntes-lista">
+                @for (apunte of apuntesRelacionados; track apunte.id) {
+                <a routerLink="/apuntes" class="apunte-chip">
+                    <mat-icon>description</mat-icon>
+                    <span class="apunte-chip-titulo">{{ apunte.titulo }}</span>
+                    <span class="apunte-chip-fecha">{{ apunte.updatedAt | date:'dd/MM/yy' }}</span>
+                    <mat-icon class="apunte-chip-arrow">chevron_right</mat-icon>
+                </a>
+                }
+            </div>
+            }
+        </div>
+        }
+
         <!-- CTA -->
         <div class="cta-section">
+
+            <!-- Botón de corrección (solo visible para el creador del test) -->
+            @if (authService.isLoggedIn() && test.creador?.id === authService.getUsuarioActual()?.id) {
+            <a [routerLink]="['/tests', test.id, 'corregir']" mat-stroked-button class="btn-corregir">
+                <mat-icon>rate_review</mat-icon>
+                Corregir respuestas
+                @if (pendientesCorreccion > 0) {
+                <span class="badge-pendiente">{{ pendientesCorreccion }}</span>
+                }
+            </a>
+            }
+
             @if (authService.isLoggedIn()) {
             <button mat-flat-button class="btn-iniciar" (click)="iniciarExamen()">
                 <mat-icon>play_arrow</mat-icon>

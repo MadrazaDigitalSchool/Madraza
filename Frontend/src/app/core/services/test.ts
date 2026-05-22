@@ -60,6 +60,10 @@ export class TestService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  getDependencias(id: number): Observable<{ asignaciones: number; apuntesAsociados: number }> {
+    return this.http.get<{ asignaciones: number; apuntesAsociados: number }>(`${this.apiUrl}/${id}/dependencias`);
+  }
+
   getTestsOrganizacion(orgId: number): Observable<Test[]> {
     return this.http.get<Test[]>(`${this.apiUrl}/organizacion/${orgId}`);
   }

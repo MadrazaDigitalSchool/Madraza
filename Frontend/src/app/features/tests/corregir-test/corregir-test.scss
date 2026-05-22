@@ -1,0 +1,165 @@
+.corregir-container {
+    min-height: 100vh;
+    background: var(--madraza-bg);
+}
+
+.corregir-header {
+    background: var(--madraza-surface);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 24px 0;
+
+    .container { display: flex; flex-direction: column; gap: 14px; }
+
+    .header-info {
+        h1 { color: var(--madraza-text); font-size: clamp(20px,3vw,28px); font-weight:700; margin:0 0 4px; }
+        p  { color: var(--madraza-text-muted); font-size:14px; margin:0; }
+    }
+}
+
+.btn-back {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--madraza-primary-light); text-decoration: none;
+    font-size: 14px; font-weight: 500; width: fit-content;
+    mat-icon { font-size:18px; width:18px; height:18px; }
+}
+
+.corregir-body { padding: 32px 0 64px; }
+
+// ── ESTADOS ────────────────────────────────────────────────
+
+.estado-center {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 16px; min-height: 300px;
+    text-align: center; color: var(--madraza-text-muted);
+
+    mat-icon { font-size:56px; width:56px; height:56px; }
+    .icon-error { color: #ef4444; }
+    .icon-ok    { color: #22c55e; }
+    p { font-size:16px; max-width:400px; margin:0; }
+}
+
+// ── LISTA DE INTENTOS ─────────────────────────────────────
+
+.intento-card {
+    background: var(--madraza-surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    margin-bottom: 28px;
+    overflow: hidden;
+}
+
+.intento-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+
+    mat-icon { color: var(--madraza-primary-light); }
+    .intento-id   { font-weight: 600; color: var(--madraza-text); }
+    .intento-fecha { color: var(--madraza-text-muted); font-size:13px; flex:1; }
+    .intento-badge {
+        background: rgba(var(--madraza-primary-rgb,99,102,241),0.15);
+        color: var(--madraza-primary-light);
+        border-radius: 20px; padding: 2px 12px; font-size: 12px; font-weight: 600;
+    }
+}
+
+.respuestas-lista { padding: 0 20px; }
+
+.respuesta-item {
+    display: flex; gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+
+    &:last-child { border-bottom: none; }
+}
+
+.respuesta-num {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(var(--madraza-primary-rgb,99,102,241),0.15);
+    color: var(--madraza-primary-light);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+    margin-top: 2px;
+}
+
+.respuesta-contenido { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+.respuesta-enunciado {
+    font-weight: 600; font-size: 15px;
+    color: var(--madraza-text); margin: 0;
+}
+
+.respuesta-modelo {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: rgba(var(--madraza-primary-rgb,99,102,241),0.08);
+    border-left: 3px solid var(--madraza-primary-light);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 12px; font-size: 14px;
+    color: var(--madraza-text-muted);
+
+    mat-icon { color: #eab308; flex-shrink:0; font-size:16px; width:16px; height:16px; margin-top:2px; }
+    strong { color: var(--madraza-text); }
+}
+
+.respuesta-alumno {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px; padding: 10px 12px; font-size: 14px;
+    color: var(--madraza-text);
+
+    mat-icon { flex-shrink:0; font-size:16px; width:16px; height:16px; margin-top:2px; color: var(--madraza-text-muted); }
+    .texto-vacio { color: var(--madraza-text-muted); font-style: italic; }
+}
+
+.puntos-info {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--madraza-text-muted);
+    mat-icon { font-size:14px; width:14px; height:14px; color: #eab308; }
+}
+
+// ── BOTONES CORRECCIÓN ────────────────────────────────────
+
+.correccion-btns { display: flex; gap: 10px; }
+
+.btn-correcto,
+.btn-incorrecto {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.15s;
+    background: rgba(255,255,255,0.06);
+    color: var(--madraza-text-muted);
+
+    mat-icon { font-size:18px; width:18px; height:18px; }
+}
+
+.btn-correcto {
+    &:hover  { border-color: rgba(34,197,94,0.5); color: #22c55e; }
+    &.activo { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.6); color: #22c55e; }
+}
+
+.btn-incorrecto {
+    &:hover  { border-color: rgba(239,68,68,0.5); color: #ef4444; }
+    &.activo { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.6); color: #ef4444; }
+}
+
+// ── ACCIONES INTENTO ──────────────────────────────────────
+
+.intento-actions {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-guardar {
+    background: var(--madraza-primary); color: #fff;
+    &:disabled { opacity: 0.5; }
+}
+
+.aviso-incompleto {
+    font-size: 13px; color: var(--madraza-text-muted); font-style: italic;
+}

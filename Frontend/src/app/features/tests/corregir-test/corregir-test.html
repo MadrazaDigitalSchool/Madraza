@@ -1,0 +1,132 @@
+<div class="corregir-container">
+
+    <!-- Cabecera -->
+    <div class="corregir-header">
+        <div class="container">
+            <a [routerLink]="['/tests', testId]" class="btn-back">
+                <mat-icon>arrow_back</mat-icon>
+                Volver al test
+            </a>
+            <div class="header-info">
+                <h1>Corrección de respuestas</h1>
+                <p>Marca cada respuesta de texto libre como correcta o incorrecta</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="corregir-body container">
+
+        <!-- Cargando -->
+        @if (cargando) {
+        <div class="estado-center">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Cargando respuestas pendientes...</p>
+        </div>
+        }
+
+        <!-- Error -->
+        @if (error) {
+        <div class="estado-center">
+            <mat-icon class="icon-error">error_outline</mat-icon>
+            <p>{{ error }}</p>
+            <a routerLink="/dashboard" mat-flat-button>Ir al panel</a>
+        </div>
+        }
+
+        <!-- Sin pendientes -->
+        @if (!cargando && !error && intentos.length === 0) {
+        <div class="estado-center">
+            <mat-icon class="icon-ok">check_circle</mat-icon>
+            <p>No hay respuestas pendientes de corrección para este test.</p>
+            <a [routerLink]="['/tests', testId]" mat-flat-button>Volver al test</a>
+        </div>
+        }
+
+        <!-- Intentos pendientes -->
+        @if (!cargando && !error && intentos.length > 0) {
+        <div class="intentos-lista">
+
+            @for (intento of intentos; track intento.intentoId) {
+            <div class="intento-card">
+
+                <div class="intento-header">
+                    <mat-icon>person</mat-icon>
+                    <span class="intento-id">Intento #{{ intento.intentoId }}</span>
+                    <span class="intento-fecha">{{ formatearFecha(intento.inicio) }}</span>
+                    <span class="intento-badge">
+                        {{ intento.respuestasPendientes.length }} pregunta{{ intento.respuestasPendientes.length !== 1 ? 's' : '' }}
+                    </span>
+                </div>
+
+                <div class="respuestas-lista">
+                    @for (resp of intento.respuestasPendientes; track resp.respuestaId; let i = $index) {
+                    <div class="respuesta-item">
+
+                        <div class="respuesta-num">{{ i + 1 }}</div>
+
+                        <div class="respuesta-contenido">
+                            <p class="respuesta-enunciado">{{ resp.enunciado }}</p>
+
+                            @if (resp.explicacion) {
+                            <div class="respuesta-modelo">
+                                <mat-icon>lightbulb</mat-icon>
+                                <span><strong>Respuesta esperada:</strong> {{ resp.explicacion }}</span>
+                            </div>
+                            }
+
+                            <div class="respuesta-alumno">
+                                <mat-icon>edit_note</mat-icon>
+                                <span class="{{ resp.textoLibre ? '' : 'texto-vacio' }}">
+                                    {{ resp.textoLibre || 'El alumno no respondió esta pregunta' }}
+                                </span>
+                            </div>
+
+                            <div class="puntos-info">
+                                <mat-icon>star</mat-icon>
+                                {{ resp.puntos }} punto{{ resp.puntos !== 1 ? 's' : '' }}
+                            </div>
+
+                            <!-- Botones de corrección -->
+                            <div class="correccion-btns">
+                                <button
+                                    class="btn-correcto"
+                                    [class.activo]="getCorreccion(intento.intentoId, resp.respuestaId) === true"
+                                    (click)="setCorreccion(intento.intentoId, resp.respuestaId, true)">
+                                    <mat-icon>check_circle</mat-icon>
+                                    Correcto
+                                </button>
+                                <button
+                                    class="btn-incorrecto"
+                                    [class.activo]="getCorreccion(intento.intentoId, resp.respuestaId) === false"
+                                    (click)="setCorreccion(intento.intentoId, resp.respuestaId, false)">
+                                    <mat-icon>cancel</mat-icon>
+                                    Incorrecto
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    }
+                </div>
+
+                <div class="intento-actions">
+                    <button mat-flat-button class="btn-guardar"
+                        [disabled]="!intentoCompleto(intento.intentoId) || guardando"
+                        (click)="guardarIntento(intento.intentoId)">
+                        @if (guardando) { <mat-spinner diameter="18"></mat-spinner> }
+                        @if (!guardando) { <mat-icon>save</mat-icon> }
+                        Guardar corrección
+                    </button>
+                    @if (!intentoCompleto(intento.intentoId)) {
+                    <span class="aviso-incompleto">Debes corregir todas las preguntas antes de guardar</span>
+                    }
+                </div>
+
+            </div>
+            }
+
+        </div>
+        }
+
+    </div>
+</div>

@@ -20,10 +20,12 @@ public class ApunteService {
     @Autowired private UsuarioRepository usuarioRepo;
     @Autowired private TestRepository testRepo;
 
+    @Transactional(readOnly = true)
     public List<Apunte> getMisApuntes(Long usuarioId) {
         return apunteRepo.findByUsuarioIdOrderByUpdatedAtDesc(usuarioId);
     }
 
+    @Transactional(readOnly = true)
     public List<Apunte> getApuntesPorTest(Long testId, Long usuarioId) {
         return apunteRepo.findByUsuarioIdAndTestAsociadoId(usuarioId, testId);
     }

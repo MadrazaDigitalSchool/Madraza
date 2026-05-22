@@ -4,6 +4,19 @@
 </h2>
 
 <mat-dialog-content>
+  @if (data.advertencia) {
+  <div class="dialog-advertencia">
+    <mat-icon>warning_amber</mat-icon>
+    <span>{{ data.advertencia }}</span>
+  </div>
+  }
+  @if (data.detalles?.length) {
+  <ul class="dialog-detalles">
+    @for (d of data.detalles!; track d) {
+    <li><mat-icon>chevron_right</mat-icon>{{ d }}</li>
+    }
+  </ul>
+  }
   <p class="dialog-mensaje">{{ data.mensaje }}</p>
 </mat-dialog-content>
 

@@ -13,6 +13,8 @@ public interface IntentoRepository extends JpaRepository<Intento, Long> {
     List<Intento> findByUsuarioIdOrderByInicioDesc(Long usuarioId);
 
     List<Intento> findByTestId(Long testId);
+    List<Intento> findByTestIdAndPendienteCorreccionTrueOrderByInicioDesc(Long testId);
+    List<Intento> findByTestCreadorIdAndPendienteCorreccionTrue(Long creadorId);
     void deleteByTestId(Long testId);
 
     void deleteByUsuarioId(Long usuarioId);

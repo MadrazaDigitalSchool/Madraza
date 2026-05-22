@@ -3,6 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export interface ApunteAsignado {
+  asignacionId: number;
+  id: number;
+  titulo: string;
+  contenido: string | null;
+  tags: string | null;
+  testId: number | null;
+  testTitulo: string | null;
+  orgNombre: string;
+  instrucciones: string | null;
+  fechaLimite: string | null;
+}
+
 export interface Apunte {
   id: number;
   titulo: string;
@@ -48,6 +61,14 @@ export class ApunteService {
 
   eliminar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getMisApuntesAsignados(): Observable<ApunteAsignado[]> {
+    return this.http.get<ApunteAsignado[]>(`${this.apiUrl}/mis-asignados`);
+  }
+
+  getDependencias(id: number): Observable<{ asignaciones: number }> {
+    return this.http.get<{ asignaciones: number }>(`${this.apiUrl}/${id}/dependencias`);
   }
 
   asistirConIa(req: IaRequest): Observable<{ resultado: string }> {

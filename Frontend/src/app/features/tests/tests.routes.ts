@@ -23,6 +23,13 @@ export const TESTS_ROUTES: Routes = [
                 .then(m => m.EditarTestComponent)
     },
     {
+        path: ':id/corregir',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./corregir-test/corregir-test')
+                .then(m => m.CorregirTestComponent)
+    },
+    {
         path: ':id',
         loadComponent: () =>
             import('./detalle-test/detalle-test')

@@ -32,8 +32,10 @@ public class Intento {
     private int incorrectas = 0;
     private double porcentaje = 0.0;
 
-    // EN_CURSO | COMPLETADO | ABANDONADO
+    // EN_CURSO | COMPLETADO | ABANDONADO | PENDIENTE_CORRECCION
     private String estado = "EN_CURSO";
+
+    private boolean pendienteCorreccion = false;
 
     private LocalDateTime inicio = LocalDateTime.now();
     private LocalDateTime fin;
@@ -45,7 +47,7 @@ public class Intento {
 
     // Solo serializa id, titulo, categoria, visibilidad (historial ligero)
     @JsonIgnoreProperties({"preguntas", "descripcion", "tiempoLimite", "activo", "createdAt", "creador"})
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "test_id", nullable = false)
     private Test test;
 

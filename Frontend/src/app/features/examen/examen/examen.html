@@ -11,15 +11,24 @@
     <!-- Error -->
     @if (error) {
     <div class="estado-center">
-        <mat-icon class="icon-error">error_outline</mat-icon>
+        <mat-icon class="icon-error">{{ esErrorDeLimite ? 'lock' : 'error_outline' }}</mat-icon>
         <p>{{ error }}</p>
         <div class="error-actions">
+            @if (esErrorDeLimite) {
+            <a routerLink="/precios" mat-flat-button>
+                <mat-icon>star</mat-icon> Ver planes Premium
+            </a>
+            <a routerLink="/tests" mat-stroked-button>
+                <mat-icon>arrow_back</mat-icon> Volver a los tests
+            </a>
+            } @else {
             <button mat-flat-button (click)="reintentar()">
                 <mat-icon>refresh</mat-icon> Reintentar
             </button>
             <a routerLink="/tests" mat-stroked-button>
                 <mat-icon>arrow_back</mat-icon> Volver a los tests
             </a>
+            }
         </div>
     </div>
     }
@@ -87,7 +96,8 @@
             </div>
         </div>
 
-        <!-- Opciones de respuesta -->
+        <!-- Opciones de respuesta (opción múltiple / verdadero-falso) -->
+        @if (!esTextoLibre) {
         <div class="opciones-lista">
             @for (opcion of (preguntaActual.opciones ?? []); track opcion.id) {
             <button class="opcion-btn" [class.seleccionada]="opcionSeleccionada === opcion.id"
@@ -102,11 +112,29 @@
             </button>
             }
         </div>
+        }
+
+        <!-- Respuesta de texto libre -->
+        @if (esTextoLibre) {
+        <div class="texto-libre-container">
+            <textarea
+                class="texto-libre-input"
+                [(ngModel)]="textoLibreActual"
+                placeholder="Escribe tu respuesta aquí..."
+                rows="6"
+                [disabled]="respondiendo">
+            </textarea>
+            <p class="texto-libre-hint">
+                <mat-icon>edit_note</mat-icon>
+                Escribe tu respuesta. Si la dejas en blanco no se contabilizará como correcta.
+            </p>
+        </div>
+        }
 
         <!-- Botón siguiente / finalizar -->
         <div class="examen-actions">
             <button mat-flat-button class="btn-siguiente" (click)="siguiente()"
-                [disabled]="!opcionSeleccionada || respondiendo">
+                [disabled]="!puedeAvanzar">
                 @if (respondiendo) {
                     <mat-spinner diameter="20"></mat-spinner>
                 } @else if (preguntaIndex < totalPreguntas - 1) {

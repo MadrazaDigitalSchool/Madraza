@@ -22,7 +22,11 @@
       @for (a of pendientes; track a.id) {
       <div class="asig-card">
         <div class="asig-header">
-          <h3>{{ a.testTitulo }}</h3>
+          <div class="asig-tipo-badge" [class.apunte]="a.tipoRecurso === 'APUNTE'">
+            <mat-icon>{{ a.tipoRecurso === 'APUNTE' ? 'edit_note' : 'quiz' }}</mat-icon>
+            {{ a.tipoRecurso === 'APUNTE' ? 'Apunte' : 'Examen' }}
+          </div>
+          <h3>{{ a.tipoRecurso === 'APUNTE' ? a.apunteTitulo : a.testTitulo }}</h3>
           <span class="org-tag">{{ a.orgNombre }}</span>
         </div>
         <p class="asig-meta">Asignado por <strong>{{ a.asignadoPor }}</strong></p>
@@ -38,9 +42,13 @@
         </p>
         }
         <div class="asig-actions">
-          <a [routerLink]="['/tests', a.testId]" mat-stroked-button>Ver recurso</a>
-          @if (!estaVencida(a.fechaLimite)) {
-          <a [routerLink]="['/examen', a.testId]" mat-flat-button color="primary">Hacer examen</a>
+          @if (a.tipoRecurso === 'APUNTE') {
+            <a routerLink="/apuntes" [queryParams]="{apunteId: a.apunteId}" mat-flat-button color="primary">Ver apunte</a>
+          } @else {
+            <a [routerLink]="['/tests', a.testId]" mat-stroked-button>Ver recurso</a>
+            @if (!estaVencida(a.fechaLimite)) {
+            <a [routerLink]="['/examen', a.testId]" mat-flat-button color="primary">Hacer examen</a>
+            }
           }
         </div>
       </div>
@@ -56,7 +64,7 @@
       @for (a of completadas; track a.id) {
       <div class="asig-card completada">
         <div class="asig-header">
-          <h3>{{ a.testTitulo }}</h3>
+          <h3>{{ a.tipoRecurso === 'APUNTE' ? a.apunteTitulo : a.testTitulo }}</h3>
           <mat-icon class="check-icon">check_circle</mat-icon>
         </div>
         <p class="asig-meta">{{ a.orgNombre }} · Completada {{ a.fechaCompletado | date:'dd/MM/yyyy' }}</p>

@@ -87,17 +87,86 @@
 
         <div class="miembros-lista">
           @for (m of o.miembros; track m.id) {
-          <div class="miembro-item">
-            <div class="miembro-avatar">{{ m.nombre.charAt(0).toUpperCase() }}</div>
-            <div class="miembro-info">
-              <p class="miembro-nombre">{{ m.nombre }} {{ m.apellidos }}</p>
-              <p class="miembro-email">{{ m.email }}</p>
+          <div class="miembro-card">
+            <div class="miembro-item">
+              <div class="miembro-avatar">{{ m.nombre.charAt(0).toUpperCase() }}</div>
+              <div class="miembro-info">
+                <p class="miembro-nombre">{{ m.nombre }} {{ m.apellidos }}</p>
+                <p class="miembro-email">{{ m.email }}</p>
+              </div>
+              <span class="rol-badge" [class.admin]="m.rol === 'ADMIN'">{{ m.rol }}</span>
+              @if (esAdmin) {
+              <button mat-stroked-button class="btn-stats" (click)="toggleStatsMiembro(m)">
+                <mat-icon>bar_chart</mat-icon>
+                {{ statsMiembro.has(m.usuarioId) ? 'Ocultar' : 'Estadísticas' }}
+              </button>
+              }
+              @if (esAdmin && m.usuarioId !== usuarioId) {
+              <button mat-icon-button class="btn-expulsar" (click)="expulsar(m)" title="Expulsar">
+                <mat-icon>person_remove</mat-icon>
+              </button>
+              }
             </div>
-            <span class="rol-badge" [class.admin]="m.rol === 'ADMIN'">{{ m.rol }}</span>
-            @if (esAdmin && m.usuarioId !== usuarioId) {
-            <button mat-icon-button class="btn-expulsar" (click)="expulsar(m)" title="Expulsar">
-              <mat-icon>person_remove</mat-icon>
-            </button>
+
+            <!-- Estadísticas del miembro -->
+            @if (cargandoStats.has(m.usuarioId)) {
+            <div class="stats-loading"><mat-spinner diameter="24"></mat-spinner></div>
+            }
+            @if (statsMiembro.get(m.usuarioId); as s) {
+            <div class="stats-panel">
+              <div class="stats-resumen">
+                <div class="stats-kpi">
+                  <span class="kpi-valor">{{ s.total }}</span>
+                  <span class="kpi-label">Asignadas</span>
+                </div>
+                <div class="stats-kpi">
+                  <span class="kpi-valor color-ok">{{ s.completadas }}</span>
+                  <span class="kpi-label">Completadas</span>
+                </div>
+                <div class="stats-kpi">
+                  <span class="kpi-valor color-warn">{{ s.pendientes }}</span>
+                  <span class="kpi-label">Pendientes</span>
+                </div>
+                <div class="stats-kpi">
+                  <span class="kpi-valor">{{ s.mediaAciertos }}%</span>
+                  <span class="kpi-label">Media aciertos</span>
+                </div>
+              </div>
+              @if (s.asignaciones.length > 0) {
+              <table class="stats-tabla">
+                <thead>
+                  <tr>
+                    <th>Recurso</th>
+                    <th>Estado</th>
+                    <th>Resultado</th>
+                    <th>Fecha límite</th>
+                    <th>Completado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of s.asignaciones; track a.asignacionId) {
+                  <tr>
+                    <td>{{ a.titulo }}</td>
+                    <td>
+                      <span class="estado-chip" [class.completado]="a.estado === 'COMPLETADO'">
+                        {{ a.estado }}
+                      </span>
+                    </td>
+                    <td>
+                      @if (a.porcentaje != null) {
+                        <span [class]="a.porcentaje >= 70 ? 'color-ok' : a.porcentaje >= 50 ? 'color-warn' : 'color-err'">
+                          {{ a.porcentaje | number:'1.0-0' }}% ({{ a.correctas }}/{{ a.totalPreguntas }})
+                        </span>
+                      } @else { — }
+                    </td>
+                    <td>{{ a.fechaLimite ? (a.fechaLimite | date:'dd/MM/yy HH:mm') : '—' }}</td>
+                    <td>{{ a.fechaCompletado ? (a.fechaCompletado | date:'dd/MM/yy HH:mm') : '—' }}</td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+              }
+            </div>
             }
           </div>
           }
@@ -116,17 +185,64 @@
 
         @if (mostrarAsignar) {
         <div class="asignar-form">
+
+          <!-- Tipo de recurso -->
           <mat-form-field appearance="outline" style="width:100%">
-            <mat-label>Recurso a asignar</mat-label>
+            <mat-label>Tipo de recurso</mat-label>
+            <mat-select [(ngModel)]="tipoRecurso"
+                        (ngModelChange)="testSeleccionado = null; apunteSeleccionado = null">
+              <mat-option value="TEST">
+                <mat-icon style="vertical-align:middle;margin-right:6px;font-size:18px">quiz</mat-icon>
+                Examen / Test
+              </mat-option>
+              <mat-option value="APUNTE">
+                <mat-icon style="vertical-align:middle;margin-right:6px;font-size:18px">edit_note</mat-icon>
+                Apunte
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Selector de examen (solo si tipo = TEST) -->
+          @if (tipoRecurso === 'TEST') {
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Examen a asignar</mat-label>
+            <mat-icon matPrefix>quiz</mat-icon>
             <mat-select [(ngModel)]="testSeleccionado">
               @for (t of misTests; track t.id) {
               <mat-option [value]="t.id">{{ t.titulo }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
+          }
+
+          <!-- Selector de apunte (solo si tipo = APUNTE) -->
+          @if (tipoRecurso === 'APUNTE') {
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Apunte a asignar</mat-label>
+            <mat-icon matPrefix>edit_note</mat-icon>
+            <mat-select [(ngModel)]="apunteSeleccionado">
+              @if (misApuntes.length === 0) {
+                <mat-option disabled>No tienes apuntes creados</mat-option>
+              }
+              @for (a of misApuntes; track a.id) {
+              <mat-option [value]="a.id">{{ a.titulo }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline" style="width:100%">
+            <mat-label>Asignar a</mat-label>
+            <mat-select [(ngModel)]="miembroSeleccionado">
+              <mat-option [value]="null">Todos los miembros</mat-option>
+              @for (m of org()!.miembros; track m.id) {
+              <mat-option [value]="m.usuarioId">{{ m.nombre }} {{ m.apellidos }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
           <mat-form-field appearance="outline" style="width:100%">
             <mat-label>Fecha límite (opcional)</mat-label>
-            <input matInput type="datetime-local" [(ngModel)]="fechaLimite" />
+            <input matInput type="datetime-local" [(ngModel)]="fechaLimite" [min]="fechaMinima" />
           </mat-form-field>
           <mat-form-field appearance="outline" style="width:100%">
             <mat-label>Instrucciones (opcional)</mat-label>
@@ -134,7 +250,8 @@
           </mat-form-field>
           <div class="form-actions">
             <button mat-button (click)="mostrarAsignar = false">Cancelar</button>
-            <button mat-flat-button color="primary" (click)="asignar()" [disabled]="asignando() || !testSeleccionado">
+            <button mat-flat-button color="primary" (click)="asignar()"
+                    [disabled]="asignando() || (tipoRecurso === 'TEST' ? !testSeleccionado : !apunteSeleccionado)">
               @if (asignando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Asignar }
             </button>
           </div>
@@ -150,17 +267,104 @@
         } @else {
         <div class="asig-lista">
           @for (a of o.asignaciones; track a.id) {
-          <div class="asig-item">
-            <mat-icon>quiz</mat-icon>
-            <div class="asig-info">
-              <p class="asig-titulo">{{ a.testTitulo }}</p>
-              <p class="asig-meta">
-                Asignado por {{ a.asignadoPorNombre }}
-                @if (a.fechaLimite) { · Límite: {{ a.fechaLimite | date:'dd/MM/yyyy' }} }
-              </p>
-              @if (a.instrucciones) { <p class="asig-instrucciones">{{ a.instrucciones }}</p> }
+          <div class="asig-card">
+            <div class="asig-item">
+              <div class="asig-tipo-icon" [class.apunte]="a.tipoRecurso === 'APUNTE'">
+                <mat-icon>{{ a.tipoRecurso === 'APUNTE' ? 'edit_note' : 'quiz' }}</mat-icon>
+              </div>
+              <div class="asig-info">
+                <div class="asig-titulo-row">
+                  <span class="asig-tipo-label" [class.apunte]="a.tipoRecurso === 'APUNTE'">
+                    {{ a.tipoRecurso === 'APUNTE' ? 'Apunte' : 'Examen' }}
+                  </span>
+                  <p class="asig-titulo">{{ a.tipoRecurso === 'APUNTE' ? a.apunteTitulo : a.testTitulo }}</p>
+                </div>
+                <p class="asig-meta">
+                  Asignado por {{ a.asignadoPorNombre }} ·
+                  @if (a.destinatarioNombre) {
+                    <span class="dest-badge dest-individual">{{ a.destinatarioNombre }}</span>
+                  } @else {
+                    <span class="dest-badge dest-todos">Todos los miembros</span>
+                  }
+                  @if (a.fechaLimite) { · Límite: {{ a.fechaLimite | date:'dd/MM/yyyy HH:mm' }} }
+                </p>
+                @if (a.instrucciones) { <p class="asig-instrucciones">{{ a.instrucciones }}</p> }
+              </div>
+              <div class="asig-acciones">
+                @if (esAdmin && a.tipoRecurso === 'TEST') {
+                <button mat-stroked-button class="btn-resultados" (click)="toggleResultados(a)">
+                  <mat-icon>leaderboard</mat-icon>
+                  {{ resultadosAsignacion.has(a.id) ? 'Ocultar' : 'Resultados' }}
+                </button>
+                }
+                @if (a.tipoRecurso === 'APUNTE') {
+                  <a routerLink="/apuntes" mat-flat-button color="accent">Ver apunte</a>
+                } @else {
+                  <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Hacer examen</a>
+                }
+              </div>
             </div>
-            <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Hacer examen</a>
+
+            <!-- Resultados de la asignación -->
+            @if (cargandoResultados.has(a.id)) {
+            <div class="stats-loading"><mat-spinner diameter="24"></mat-spinner></div>
+            }
+            @if (resultadosAsignacion.get(a.id); as resultados) {
+            <div class="resultados-panel">
+              <h4 class="resultados-titulo">
+                <mat-icon>leaderboard</mat-icon>
+                Resultados por alumno
+              </h4>
+              @if (resultados.length === 0) {
+              <p class="resultados-vacio">Ningún miembro ha completado esta asignación todavía.</p>
+              } @else {
+              <table class="stats-tabla">
+                <thead>
+                  <tr>
+                    <th>Alumno</th>
+                    <th>Estado</th>
+                    <th>Resultado</th>
+                    <th>Completado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (r of resultados; track r.usuarioId) {
+                  <tr>
+                    <td>
+                      <div class="alumno-cell">
+                        <span class="alumno-avatar">{{ r.nombre.charAt(0) }}</span>
+                        <div>
+                          <span class="alumno-nombre">{{ r.nombre }}</span>
+                          <span class="alumno-email">{{ r.email }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="estado-chip" [class.completado]="r.estado === 'COMPLETADO'">
+                        {{ r.estado }}
+                      </span>
+                      @if (r.estadoIntento === 'PENDIENTE_CORRECCION') {
+                      <span class="estado-chip pendiente-corr">Corrección pendiente</span>
+                      }
+                    </td>
+                    <td>
+                      @if (r.porcentaje != null) {
+                      <div class="resultado-cell">
+                        <span [class]="r.porcentaje >= 70 ? 'color-ok' : r.porcentaje >= 50 ? 'color-warn' : 'color-err'">
+                          {{ r.porcentaje | number:'1.0-0' }}%
+                        </span>
+                        <span class="resultado-detalle">{{ r.correctas }}/{{ r.totalPreguntas }} correctas</span>
+                      </div>
+                      } @else { — }
+                    </td>
+                    <td>{{ r.fechaCompletado ? (r.fechaCompletado | date:'dd/MM/yy HH:mm') : '—' }}</td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+              }
+            </div>
+            }
           </div>
           }
         </div>
@@ -194,7 +398,14 @@
               <p class="asig-titulo">{{ t.titulo }}</p>
               <p class="asig-meta">{{ t.categoria }} · {{ t.dificultad }}</p>
             </div>
-            <a [routerLink]="['/examen', t.id]" mat-flat-button color="accent">Hacer examen</a>
+            <div class="item-acciones">
+              @if (esAdmin) {
+              <a [routerLink]="['/tests/editar', t.id]" mat-icon-button title="Editar examen">
+                <mat-icon>edit</mat-icon>
+              </a>
+              }
+              <a [routerLink]="['/examen', t.id]" mat-flat-button color="accent">Hacer examen</a>
+            </div>
           </div>
           }
         </div>

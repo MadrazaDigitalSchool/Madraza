@@ -11,8 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganizacionService, Organizacion, Miembro, AsignacionOrg } from '../../core/services/organizacion.service';
+import { OrganizacionService, Organizacion, Miembro, AsignacionOrg, ResultadoAsignacion, EstadisticasMiembro } from '../../core/services/organizacion.service';
 import { TestService } from '../../core/services/test';
+import { ApunteService, Apunte } from '../../core/services/apunte.service';
 import { AuthService } from '../../core/services/auth';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { Test } from '../../core/models/test.model';
@@ -30,11 +31,12 @@ import { Test } from '../../core/models/test.model';
 })
 export class OrganizacionDetalleComponent implements OnInit {
 
-  private route      = inject(ActivatedRoute);
-  private router     = inject(Router);
-  private orgService = inject(OrganizacionService);
-  private testService = inject(TestService);
-  private authService = inject(AuthService);
+  private route        = inject(ActivatedRoute);
+  private router       = inject(Router);
+  private orgService   = inject(OrganizacionService);
+  private testService  = inject(TestService);
+  private apunteService = inject(ApunteService);
+  private authService  = inject(AuthService);
   private snackBar   = inject(MatSnackBar);
   private dialog     = inject(MatDialog);
 
@@ -56,21 +58,34 @@ export class OrganizacionDetalleComponent implements OnInit {
   emailInvitar = '';
   invitando    = signal(false);
 
-  // Asignar test
-  mostrarAsignar  = false;
-  misTests: Test[] = [];
-  testSeleccionado: number | null = null;
-  fechaLimite  = '';
+  // Asignar recurso
+  mostrarAsignar      = false;
+  tipoRecurso: 'TEST' | 'APUNTE' = 'TEST';
+  misTests: Test[]    = [];
+  misApuntes: Apunte[] = [];
+  testSeleccionado:   number | null = null;
+  apunteSeleccionado: number | null = null;
+  miembroSeleccionado: number | null = null;
+  fechaLimite   = '';
   instrucciones = '';
-  asignando    = signal(false);
+  asignando     = signal(false);
 
   // Exámenes propios de la organización
   examenesOrg: Test[] = [];
+
+  // Resultados de asignación expandida
+  resultadosAsignacion = new Map<number, ResultadoAsignacion[]>();
+  cargandoResultados   = new Set<number>();
+
+  // Estadísticas de miembro expandido
+  statsMiembro = new Map<number, EstadisticasMiembro>();
+  cargandoStats = new Set<number>();
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.cargar(id);
     this.testService.getMisTests().subscribe({ next: t => this.misTests = t });
+    this.apunteService.getMisApuntes().subscribe({ next: a => this.misApuntes = a });
     this.testService.getTestsOrganizacion(id).subscribe({ next: t => this.examenesOrg = t, error: () => {} });
   }
 
@@ -83,6 +98,12 @@ export class OrganizacionDetalleComponent implements OnInit {
   }
 
   get esAdmin(): boolean { return this.org()?.adminId === this.usuarioId; }
+
+  get fechaMinima(): string {
+    // Mínimo = ahora mismo (no se permite fecha+hora anterior al momento actual)
+    const ahora = new Date();
+    return new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  }
 
   abrirEdicion(): void {
     const o = this.org();
@@ -177,24 +198,64 @@ export class OrganizacionDetalleComponent implements OnInit {
   }
 
   asignar(): void {
-    if (!this.testSeleccionado || !this.org()) return;
+    const recursoOk = this.tipoRecurso === 'TEST' ? !!this.testSeleccionado : !!this.apunteSeleccionado;
+    if (!recursoOk || !this.org()) return;
+    if (this.fechaLimite && new Date(this.fechaLimite) <= new Date()) {
+      this.snackBar.open('La fecha límite debe ser posterior al momento actual.', 'Cerrar', { duration: 4000 });
+      return;
+    }
     this.asignando.set(true);
-    this.orgService.asignarTest(
-      this.org()!.id, this.testSeleccionado,
-      this.fechaLimite || null, this.instrucciones
+    this.orgService.asignarRecurso(
+      this.org()!.id,
+      this.tipoRecurso,
+      this.tipoRecurso === 'TEST'   ? this.testSeleccionado   : null,
+      this.tipoRecurso === 'APUNTE' ? this.apunteSeleccionado : null,
+      this.fechaLimite || null,
+      this.instrucciones,
+      this.miembroSeleccionado
     ).subscribe({
       next: asig => {
         this.org.update(o => ({ ...o!, asignaciones: [...(o!.asignaciones ?? []), asig] }));
-        this.mostrarAsignar = false;
-        this.testSeleccionado = null;
+        this.mostrarAsignar    = false;
+        this.testSeleccionado  = null;
+        this.apunteSeleccionado = null;
+        this.miembroSeleccionado = null;
+        this.tipoRecurso = 'TEST';
         this.fechaLimite = this.instrucciones = '';
         this.asignando.set(false);
-        this.snackBar.open('Recurso asignado a todos los miembros.', 'Cerrar', { duration: 3000 });
+        const dest = asig.destinatarioNombre ?? 'todos los miembros';
+        this.snackBar.open(`Recurso asignado a ${dest}.`, 'Cerrar', { duration: 3000 });
       },
       error: (err) => {
         this.asignando.set(false);
         this.snackBar.open(err.error?.error || 'Error al asignar', 'Cerrar', { duration: 4000 });
       }
+    });
+  }
+
+  toggleResultados(asig: AsignacionOrg): void {
+    if (!this.esAdmin || asig.tipoRecurso !== 'TEST') return;
+    if (this.resultadosAsignacion.has(asig.id)) {
+      this.resultadosAsignacion.delete(asig.id);
+      return;
+    }
+    this.cargandoResultados.add(asig.id);
+    this.orgService.getResultadosAsignacion(this.org()!.id, asig.id).subscribe({
+      next: r => { this.resultadosAsignacion.set(asig.id, r); this.cargandoResultados.delete(asig.id); },
+      error: () => this.cargandoResultados.delete(asig.id)
+    });
+  }
+
+  toggleStatsMiembro(miembro: Miembro): void {
+    if (!this.esAdmin) return;
+    if (this.statsMiembro.has(miembro.usuarioId)) {
+      this.statsMiembro.delete(miembro.usuarioId);
+      return;
+    }
+    this.cargandoStats.add(miembro.usuarioId);
+    this.orgService.getEstadisticasMiembro(this.org()!.id, miembro.usuarioId).subscribe({
+      next: s => { this.statsMiembro.set(miembro.usuarioId, s); this.cargandoStats.delete(miembro.usuarioId); },
+      error: () => this.cargandoStats.delete(miembro.usuarioId)
     });
   }
 

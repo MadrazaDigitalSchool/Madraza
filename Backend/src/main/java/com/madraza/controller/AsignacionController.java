@@ -57,18 +57,24 @@ public class AsignacionController {
     }
 
     private Map<String, Object> buildMap(AsignacionUsuario au) {
+        var asig  = au.getAsignacion();
+        String tipo = asig.getTipoRecurso() != null ? asig.getTipoRecurso() : "TEST";
+        boolean esApunte = "APUNTE".equals(tipo);
+
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id",                  au.getId());
-        m.put("asignacionId",        au.getAsignacion().getId());
-        m.put("testId",              au.getAsignacion().getTest().getId());
-        m.put("testTitulo",          au.getAsignacion().getTest().getTitulo());
-        m.put("orgNombre",           au.getAsignacion().getOrganizacion().getNombre());
-        m.put("asignadoPor",         au.getAsignacion().getAsignadoPor().getNombre());
-        m.put("instrucciones",       au.getAsignacion().getInstrucciones());
-        m.put("fechaLimite",         au.getAsignacion().getFechaLimite() != null
-                                         ? au.getAsignacion().getFechaLimite().toString() : null);
-        m.put("estado",              au.getEstado());
-        m.put("fechaCompletado",     au.getFechaCompletado() != null ? au.getFechaCompletado().toString() : null);
+        m.put("id",            au.getId());
+        m.put("asignacionId",  asig.getId());
+        m.put("tipoRecurso",   tipo);
+        m.put("testId",        !esApunte && asig.getTest()   != null ? asig.getTest().getId()      : null);
+        m.put("testTitulo",    !esApunte && asig.getTest()   != null ? asig.getTest().getTitulo()  : null);
+        m.put("apunteId",       esApunte && asig.getApunte() != null ? asig.getApunte().getId()    : null);
+        m.put("apunteTitulo",   esApunte && asig.getApunte() != null ? asig.getApunte().getTitulo(): null);
+        m.put("orgNombre",     asig.getOrganizacion().getNombre());
+        m.put("asignadoPor",   asig.getAsignadoPor().getNombre());
+        m.put("instrucciones", asig.getInstrucciones());
+        m.put("fechaLimite",   asig.getFechaLimite() != null ? asig.getFechaLimite().toString() : null);
+        m.put("estado",        au.getEstado());
+        m.put("fechaCompletado", au.getFechaCompletado() != null ? au.getFechaCompletado().toString() : null);
         return m;
     }
 }

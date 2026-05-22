@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Te han añadido a una organización - Madraza</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f2f5;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1e1839 0%,#7c3aed 100%);padding:40px 48px;text-align:center;">
+              <div style="font-size:48px;margin-bottom:12px;">🏫</div>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;">¡Te han añadido a una organización!</h1>
+              <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">Ya formas parte de un nuevo equipo en Madraza</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:48px;">
+              <h2 style="margin:0 0 16px;color:#1a1a2e;font-size:22px;">Hola, <span th:text="${nombre}">Usuario</span></h2>
+              <p style="color:#555;line-height:1.7;margin:0 0 28px;">
+                <strong th:text="${adminNombre}">Admin</strong> te ha añadido como miembro a la organización
+                <strong th:text="${orgNombre}">Mi Organización</strong>.
+                Ya tienes acceso a todos los recursos y exámenes compartidos en ella.
+              </p>
+
+              <!-- Detalles de la organización -->
+              <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;padding:24px;margin-bottom:32px;">
+                <h3 style="margin:0 0 16px;color:#5b21b6;font-size:15px;">Detalles de la organización</h3>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="color:#555;padding:6px 0;font-size:14px;">Nombre</td>
+                    <td style="color:#1a1a2e;font-weight:700;text-align:right;font-size:14px;" th:text="${orgNombre}">Mi Organización</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#555;padding:6px 0;font-size:14px;">Tipo</td>
+                    <td style="color:#1a1a2e;font-weight:700;text-align:right;font-size:14px;" th:text="${orgTipo}">Centro educativo</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#555;padding:6px 0;font-size:14px;">Añadido por</td>
+                    <td style="color:#1a1a2e;font-weight:700;text-align:right;font-size:14px;" th:text="${adminNombre}">Admin</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="text-align:center;margin:32px 0;">
+                <a th:href="${organizacionesUrl}" style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#ffffff;padding:16px 40px;border-radius:50px;text-decoration:none;font-weight:700;font-size:16px;">
+                  Ver mis organizaciones
+                </a>
+              </div>
+
+              <p style="color:#aaa;font-size:13px;text-align:center;margin:0;">¿Tienes alguna pregunta? Escríbenos a <a href="mailto:soporte@madraza.es" style="color:#7c3aed;">soporte@madraza.es</a></p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background:#fafafa;padding:24px 48px;border-top:1px solid #f0f0f0;text-align:center;">
+              <p style="color:#bbb;font-size:12px;margin:0;">© 2026 Madraza · Desarrollado por Hafdala Mehdi Sidi</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -20,13 +20,31 @@
     @if (!cargando && !error && resultado) {
     <div class="resultados-inner container">
 
+        <!-- Banner corrección pendiente -->
+        @if (tienePendientes) {
+        <div class="pendiente-banner">
+            <mat-icon>pending_actions</mat-icon>
+            <div class="pendiente-info">
+                <strong>Corrección pendiente</strong>
+                <span>Las preguntas de texto libre están siendo corregidas por el creador del test. La puntuación mostrada es provisional y se actualizará cuando se complete la corrección.</span>
+            </div>
+        </div>
+        }
+
         <!-- Puntuación principal -->
         <div class="score-card">
             <p class="mensaje">{{ getMensaje() }}</p>
 
             <div class="score-circle" [ngClass]="getColorPorcentaje()">
+                @if (tienePendientes) {
+                <span class="score-valor" style="font-size:28px">
+                    {{ resultado.porcentaje | number:'1.0-0' }}%*
+                </span>
+                <span class="score-label">Provisional</span>
+                } @else {
                 <span class="score-valor">{{ resultado.porcentaje | number:'1.0-0' }}%</span>
                 <span class="score-label">Puntuación</span>
+                }
             </div>
 
             <div class="stats-row">
@@ -63,10 +81,15 @@
 
             <div class="preguntas-lista">
                 @for (item of desglose; track $index) {
-                <div class="pregunta-resultado" [class.correcta]="item.esCorrecta" [class.incorrecta]="!item.esCorrecta">
+                <div class="pregunta-resultado"
+                    [class.correcta]="item.esCorrecta && !item.pendienteCorreccion"
+                    [class.incorrecta]="!item.esCorrecta && !item.pendienteCorreccion"
+                    [class.pendiente]="item.pendienteCorreccion">
                     <div class="pregunta-resultado-header">
                         <div class="estado-icon">
-                            @if (item.esCorrecta) {
+                            @if (item.pendienteCorreccion) {
+                            <mat-icon class="pending-icon">schedule</mat-icon>
+                            } @else if (item.esCorrecta) {
                             <mat-icon class="check-icon">check_circle</mat-icon>
                             } @else {
                             <mat-icon class="x-icon">cancel</mat-icon>
@@ -76,6 +99,8 @@
                         <p class="pregunta-enunciado">{{ item.pregunta.enunciado }}</p>
                     </div>
 
+                    <!-- Opciones (opción múltiple / verdadero-falso) -->
+                    @if (item.pregunta.tipo !== 'TEXTO_LIBRE') {
                     <div class="opciones-resultado">
                         @for (opcion of (item.pregunta.opciones ?? []); track opcion.id) {
                         <div class="opcion-resultado"
@@ -92,11 +117,46 @@
                         </div>
                         }
                     </div>
-
                     @if (item.pregunta.explicacion) {
                     <div class="explicacion">
                         <mat-icon>info</mat-icon>
                         {{ item.pregunta.explicacion }}
+                    </div>
+                    }
+                    }
+
+                    <!-- Texto libre -->
+                    @if (item.pregunta.tipo === 'TEXTO_LIBRE') {
+                    <div class="texto-libre-resultado">
+                        <div class="tl-bloque">
+                            <span class="tl-label">
+                                <mat-icon>edit_note</mat-icon>
+                                Tu respuesta
+                            </span>
+                            <p [class]="'tl-texto' + (item.textoLibre ? '' : ' tl-vacio')">
+                                {{ item.textoLibre || 'No respondiste esta pregunta' }}
+                            </p>
+                        </div>
+                        @if (item.pendienteCorreccion) {
+                        <div class="tl-estado-pendiente">
+                            <mat-icon>schedule</mat-icon>
+                            Pendiente de corrección por el creador del test
+                        </div>
+                        } @else {
+                        <div class="tl-veredicto" [class.tl-veredicto-ok]="item.esCorrecta" [class.tl-veredicto-mal]="!item.esCorrecta">
+                            <mat-icon>{{ item.esCorrecta ? 'check_circle' : 'cancel' }}</mat-icon>
+                            {{ item.esCorrecta ? 'Respuesta correcta' : 'Respuesta incorrecta' }}
+                        </div>
+                        @if (item.pregunta.explicacion) {
+                        <div class="tl-bloque tl-modelo">
+                            <span class="tl-label">
+                                <mat-icon>lightbulb</mat-icon>
+                                Respuesta esperada
+                            </span>
+                            <p class="tl-texto">{{ item.pregunta.explicacion }}</p>
+                        </div>
+                        }
+                        }
                     </div>
                     }
                 </div>

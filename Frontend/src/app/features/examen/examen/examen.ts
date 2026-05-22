@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +18,7 @@ interface RespuestaUsuario {
   preguntaId: number;
   preguntaIndex: number;
   opcionId: number | null;
+  textoLibre: string | null;
 }
 
 @Component({
@@ -24,6 +26,7 @@ interface RespuestaUsuario {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     MatButtonModule,
     MatIconModule,
@@ -41,9 +44,11 @@ export class ExamenComponent implements OnInit, OnDestroy {
   intentoId: number | null = null;
   cargando = true;
   error = '';
+  esErrorDeLimite = false;
 
   preguntaIndex = 0;
   opcionSeleccionada: number | null = null;
+  textoLibreActual = '';
   respondiendo = false;
 
   // Registro de respuestas del usuario para mostrar en resultados
@@ -87,7 +92,8 @@ export class ExamenComponent implements OnInit, OnDestroy {
   }
 
   iniciarExamen(testId: number): void {
-    // Timeout global: si en 30s no ha cargado, mostramos error
+    this.esErrorDeLimite = false;
+
     this.timeoutGlobal = setTimeout(() => {
       if (this.cargando) {
         this.cargando = false;
@@ -100,9 +106,13 @@ export class ExamenComponent implements OnInit, OnDestroy {
       catchError(() => of(null as Test | null))
     );
 
+    let intentoErrorMsg: string | null = null;
     const intento$ = this.intentoService.iniciarIntento(testId).pipe(
       timeout(15_000),
-      catchError(() => of(null as Intento | null))
+      catchError((err) => {
+        intentoErrorMsg = err?.error?.error ?? null;
+        return of(null as Intento | null);
+      })
     );
 
     forkJoin({ test: test$, intento: intento$ }).subscribe({
@@ -114,7 +124,8 @@ export class ExamenComponent implements OnInit, OnDestroy {
         } else if (!test) {
           this.error = 'No se pudo cargar el test. Inténtalo de nuevo.';
         } else if (!intento) {
-          this.error = 'No se pudo iniciar el examen. Inténtalo de nuevo.';
+          this.error = intentoErrorMsg || 'No se pudo iniciar el examen. Inténtalo de nuevo.';
+          this.esErrorDeLimite = !!intentoErrorMsg;
         } else {
           this.test = test;
           this.intentoId = intento.id;
@@ -160,30 +171,43 @@ export class ExamenComponent implements OnInit, OnDestroy {
     return (this.preguntaIndex / this.totalPreguntas) * 100;
   }
 
+  get esTextoLibre(): boolean {
+    return this.preguntaActual?.tipo === 'TEXTO_LIBRE';
+  }
+
+  get puedeAvanzar(): boolean {
+    if (this.respondiendo) return false;
+    if (this.esTextoLibre) return true;
+    return this.opcionSeleccionada !== null;
+  }
+
   seleccionarOpcion(opcionId: number): void {
     if (this.respondiendo) return;
     this.opcionSeleccionada = opcionId;
   }
 
   siguiente(): void {
-    if (this.opcionSeleccionada === null || !this.intentoId || !this.preguntaActual) return;
+    if (!this.puedeAvanzar || !this.intentoId || !this.preguntaActual) return;
     this.respondiendo = true;
 
     this.respuestasUsuario.push({
       preguntaId: this.preguntaActual.id,
       preguntaIndex: this.preguntaIndex,
-      opcionId: this.opcionSeleccionada
+      opcionId: this.esTextoLibre ? null : this.opcionSeleccionada,
+      textoLibre: this.esTextoLibre ? this.textoLibreActual : null
     });
 
     const respuesta: RespuestaRequest = {
       preguntaId: this.preguntaActual.id,
-      opcionId: this.opcionSeleccionada
+      opcionId: this.esTextoLibre ? undefined : (this.opcionSeleccionada ?? undefined),
+      textoLibre: this.esTextoLibre ? this.textoLibreActual : undefined
     };
 
     this.intentoService.responder(this.intentoId, respuesta).subscribe({
       next: () => {
         this.respondiendo = false;
         this.opcionSeleccionada = null;
+        this.textoLibreActual = '';
         if (this.preguntaIndex < this.totalPreguntas - 1) {
           this.preguntaIndex++;
         } else {
@@ -198,11 +222,13 @@ export class ExamenComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.error = '';
+      this.esErrorDeLimite = false;
       this.cargando = true;
       this.test = null;
       this.intentoId = null;
       this.preguntaIndex = 0;
       this.opcionSeleccionada = null;
+      this.textoLibreActual = '';
       this.respuestasUsuario = [];
       this.pararTemporizador();
       clearTimeout(this.timeoutGlobal);

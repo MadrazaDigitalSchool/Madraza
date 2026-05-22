@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nuevo recurso asignado - Madraza</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f2f5;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1d4ed8 0%,#7c3aed 100%);padding:40px 48px;text-align:center;">
+              <div style="font-size:48px;margin-bottom:12px;">📋</div>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;">¡Tienes un nuevo recurso asignado!</h1>
+              <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">Tu organización te ha asignado un examen para completar</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:48px;">
+              <h2 style="margin:0 0 16px;color:#1a1a2e;font-size:22px;">Hola, <span th:text="${nombre}">Usuario</span></h2>
+              <p style="color:#555;line-height:1.7;margin:0 0 28px;">
+                La organización <strong th:text="${orgNombre}">Mi Organización</strong> te ha asignado
+                el siguiente recurso. Accede a él cuando estés listo/a.
+              </p>
+
+              <!-- Detalles de la asignación -->
+              <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:24px;margin-bottom:24px;">
+                <h3 style="margin:0 0 16px;color:#1e40af;font-size:15px;">Detalles de la asignación</h3>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="color:#555;padding:7px 0;font-size:14px;vertical-align:top;">Recurso</td>
+                    <td style="color:#1a1a2e;font-weight:700;text-align:right;font-size:15px;" th:text="${testTitulo}">Título del test</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#555;padding:7px 0;font-size:14px;">Organización</td>
+                    <td style="color:#1a1a2e;font-weight:700;text-align:right;font-size:14px;" th:text="${orgNombre}">Mi Organización</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Fecha límite (si existe) -->
+              <div th:if="${tieneFechaLimite}"
+                   style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:12px;">
+                <div>
+                  <p style="margin:0 0 4px;color:#c2410c;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">⏰ Fecha límite</p>
+                  <p style="margin:0;color:#1a1a2e;font-size:18px;font-weight:700;" th:text="${fechaLimite}">01/06/2026 a las 23:59</p>
+                  <p style="margin:4px 0 0;color:#92400e;font-size:13px;">Asegúrate de completarlo antes de esta fecha y hora.</p>
+                </div>
+              </div>
+
+              <!-- Instrucciones (si existen) -->
+              <div th:if="${instrucciones != null}"
+                   style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
+                <p style="margin:0 0 8px;color:#166534;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">📝 Instrucciones</p>
+                <p style="margin:0;color:#1a1a2e;font-size:14px;line-height:1.6;" th:text="${instrucciones}">Instrucciones del test</p>
+              </div>
+
+              <div style="text-align:center;margin:32px 0;">
+                <a th:href="${examUrl}" style="display:inline-block;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#ffffff;padding:16px 40px;border-radius:50px;text-decoration:none;font-weight:700;font-size:16px;">
+                  Hacer el examen ahora
+                </a>
+              </div>
+
+              <p style="color:#aaa;font-size:13px;text-align:center;margin:0;">¿Tienes alguna pregunta? Escríbenos a <a href="mailto:soporte@madraza.es" style="color:#7c3aed;">soporte@madraza.es</a></p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background:#fafafa;padding:24px 48px;border-top:1px solid #f0f0f0;text-align:center;">
+              <p style="color:#bbb;font-size:12px;margin:0;">© 2026 Madraza · Desarrollado por Hafdala Mehdi Sidi</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

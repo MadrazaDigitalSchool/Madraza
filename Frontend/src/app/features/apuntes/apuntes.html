@@ -1,4 +1,4 @@
-@if (!esPremium) {
+@if (!esPremium && apuntesAsignados.length === 0) {
 <div class="premium-gate container">
   <mat-icon>lock</mat-icon>
   <h2>Los apuntes son exclusivos de Premium</h2>
@@ -10,6 +10,7 @@
 
   <!-- Sidebar con lista de apuntes -->
   <aside class="apuntes-sidebar">
+    @if (esPremium) {
     <div class="sidebar-header">
       <span class="sidebar-title">Mis apuntes</span>
       <div style="display:flex;gap:4px">
@@ -30,7 +31,8 @@
     } @else {
     <ul class="apuntes-lista">
       @for (a of apuntes(); track a.id) {
-      <li class="apunte-item" [class.activo]="apunteActual()?.id === a.id" (click)="seleccionarApunte(a)">
+      <li class="apunte-item" [class.activo]="apunteActual()?.id === a.id && !apunteAsignadoActual"
+          (click)="seleccionarApunte(a)">
         <div class="apunte-item-info">
           <p class="apunte-titulo">{{ a.titulo }}</p>
           <p class="apunte-fecha">{{ a.updatedAt | date:'dd/MM/yy' }}</p>
@@ -45,41 +47,103 @@
       }
     </ul>
     }
+    }
+
+    <!-- Apuntes asignados por organizaciones -->
+    @if (apuntesAsignados.length > 0) {
+    <div class="sidebar-section-sep">
+      <span class="sidebar-section-label">
+        <mat-icon>assignment</mat-icon> Asignados
+      </span>
+    </div>
+    <ul class="apuntes-lista">
+      @for (a of apuntesAsignados; track a.asignacionId) {
+      <li class="apunte-item apunte-asignado"
+          [class.activo]="apunteAsignadoActual?.asignacionId === a.asignacionId"
+          (click)="seleccionarApunteAsignado(a)">
+        <div class="apunte-item-info">
+          <p class="apunte-titulo">{{ a.titulo }}</p>
+          <p class="apunte-fecha">
+            <mat-icon style="font-size:12px;width:12px;height:12px;vertical-align:middle">groups</mat-icon>
+            {{ a.orgNombre }}
+          </p>
+          @if (a.fechaLimite) {
+          <p class="apunte-test" style="color:#f59e0b">
+            <mat-icon>schedule</mat-icon>{{ a.fechaLimite | date:'dd/MM/yy HH:mm' }}
+          </p>
+          }
+        </div>
+      </li>
+      }
+    </ul>
+    }
   </aside>
 
   <!-- Editor -->
   <main class="apuntes-editor">
+
+    <!-- Banner de apunte asignado (solo lectura) -->
+    @if (apunteAsignadoActual) {
+    <div class="banner-asignado">
+      <mat-icon>assignment</mat-icon>
+      <div class="banner-asignado-info">
+        <span class="banner-asignado-org">Asignado por <strong>{{ apunteAsignadoActual.orgNombre }}</strong></span>
+        @if (apunteAsignadoActual.fechaLimite) {
+        <span class="banner-asignado-fecha">
+          <mat-icon>schedule</mat-icon>
+          Fecha límite: {{ apunteAsignadoActual.fechaLimite | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+        }
+        @if (apunteAsignadoActual.instrucciones) {
+        <span class="banner-asignado-instrucciones">{{ apunteAsignadoActual.instrucciones }}</span>
+        }
+      </div>
+      <span class="banner-asignado-badge">Solo lectura</span>
+    </div>
+    }
+
     <div class="editor-toolbar">
       <mat-form-field appearance="outline" class="titulo-field">
         <mat-label>Título del apunte</mat-label>
-        <input matInput [(ngModel)]="titulo" placeholder="Escribe un título..." />
+        <input matInput [(ngModel)]="titulo" [readonly]="!!apunteAsignadoActual"
+               placeholder="Escribe un título..." />
       </mat-form-field>
 
       <div class="toolbar-actions">
+        @if (!apunteAsignadoActual) {
         <button mat-stroked-button (click)="mostrarIa = !mostrarIa" class="btn-ia" [class.activo]="mostrarIa">
           <mat-icon>auto_awesome</mat-icon> IA
         </button>
         <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando()">
           @if (guardando()) { <mat-spinner diameter="18"></mat-spinner> } @else { Guardar }
         </button>
+        }
       </div>
     </div>
 
+    @if (!apunteAsignadoActual) {
     <div class="editor-meta">
       <mat-form-field appearance="outline" class="tags-field">
         <mat-label>Tags (separados por coma)</mat-label>
         <input matInput [(ngModel)]="tags" placeholder="matemáticas, álgebra..." />
       </mat-form-field>
       <mat-form-field appearance="outline" class="test-field">
-        <mat-label>Recurso asociado (opcional)</mat-label>
+        <mat-label>Examen asociado (opcional)</mat-label>
+        <mat-icon matPrefix>quiz</mat-icon>
         <mat-select [(ngModel)]="testId">
           <mat-option [value]="null">Ninguno</mat-option>
-          @for (t of misTests; track t.id) {
+          @for (t of examenes; track t.id) {
           <mat-option [value]="t.id">{{ t.titulo }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
     </div>
+    } @else if (apunteAsignadoActual.testTitulo) {
+    <div class="editor-meta-readonly">
+      <mat-icon>quiz</mat-icon>
+      <span>Examen asociado: <strong>{{ apunteAsignadoActual.testTitulo }}</strong></span>
+    </div>
+    }
 
     @if (tagsParsados.length) {
     <div class="tags-preview">
@@ -89,10 +153,83 @@
     </div>
     }
 
-    <textarea class="editor-area" [(ngModel)]="contenido"
-      placeholder="Escribe tu apunte aquí... (Markdown soportado)"
-      (mouseup)="capturarTextoSeleccionado($event)">
-    </textarea>
+    <!-- Barra de herramientas de tabla (solo modo edición) -->
+    @if (!apunteAsignadoActual) {
+    <div class="tabla-toolbar">
+      <button class="tabla-btn tabla-btn-primary"
+          (click)="mostrarPanelTabla = !mostrarPanelTabla"
+          [class.activo]="mostrarPanelTabla"
+          matTooltip="Insertar tabla">
+        <mat-icon>table_chart</mat-icon>
+        <span>Tabla</span>
+        <mat-icon class="chevron">{{ mostrarPanelTabla ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+
+      <div class="tabla-sep"></div>
+
+      <button class="tabla-btn" (click)="agregarFilaArriba()" matTooltip="Insertar fila arriba">
+        <mat-icon>vertical_align_top</mat-icon>
+      </button>
+      <button class="tabla-btn" (click)="agregarFilaAbajo()" matTooltip="Insertar fila abajo">
+        <mat-icon>vertical_align_bottom</mat-icon>
+      </button>
+      <button class="tabla-btn" (click)="agregarColumnaIzq()" matTooltip="Insertar columna izquierda">
+        <mat-icon>format_indent_decrease</mat-icon>
+      </button>
+      <button class="tabla-btn" (click)="agregarColumnaDer()" matTooltip="Insertar columna derecha">
+        <mat-icon>format_indent_increase</mat-icon>
+      </button>
+
+      <div class="tabla-sep"></div>
+
+      <button class="tabla-btn tabla-btn-danger" (click)="eliminarFila()" matTooltip="Eliminar fila">
+        <mat-icon>remove</mat-icon>F
+      </button>
+      <button class="tabla-btn tabla-btn-danger" (click)="eliminarColumna()" matTooltip="Eliminar columna">
+        <mat-icon>remove</mat-icon>C
+      </button>
+      <button class="tabla-btn tabla-btn-danger" (click)="eliminarTabla()" matTooltip="Eliminar tabla">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+
+      <!-- Panel crear tabla -->
+      @if (mostrarPanelTabla) {
+      <div class="tabla-panel">
+        <p class="tabla-panel-titulo">Nueva tabla</p>
+        <div class="tabla-panel-inputs">
+          <label>Filas
+            <input type="number" [(ngModel)]="tablaFilas" min="1" max="20" />
+          </label>
+          <span>×</span>
+          <label>Columnas
+            <input type="number" [(ngModel)]="tablaCols" min="1" max="10" />
+          </label>
+        </div>
+        <button mat-flat-button class="tabla-panel-btn" (click)="insertarTabla()">
+          <mat-icon>add</mat-icon> Insertar
+        </button>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Editor Quill (modo edición) -->
+    @if (!apunteAsignadoActual) {
+    <quill-editor
+      class="apunte-quill-editor"
+      [(ngModel)]="contenido"
+      [modules]="quillModules"
+      placeholder="Escribe tu apunte aquí..."
+      (onEditorCreated)="onEditorCreated($event)"
+      (onSelectionChanged)="onSelectionChanged($event)">
+    </quill-editor>
+    }
+
+    <!-- Vista lectura (apunte asignado) -->
+    @if (apunteAsignadoActual) {
+    <div class="apunte-readonly-content ql-editor" [innerHTML]="contenido"></div>
+    }
+
   </main>
 
   <!-- Panel IA -->

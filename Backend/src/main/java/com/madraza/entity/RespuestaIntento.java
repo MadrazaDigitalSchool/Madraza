@@ -22,6 +22,7 @@ public class RespuestaIntento {
 
     private boolean esCorrecta = false;
     private int tiempoRespuesta = 0;
+    private boolean pendienteCorreccion = false;
 
     // Para preguntas sin opciones (texto libre)
     private String textoLibre;

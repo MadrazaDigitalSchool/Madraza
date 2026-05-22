@@ -15,6 +15,25 @@
 
     <div class="dashboard-main container">
 
+        <!-- Banner correcciones pendientes de texto libre -->
+        @if (pendientesCorreccion().length > 0) {
+        <div class="correccion-banner">
+            <mat-icon>rate_review</mat-icon>
+            <div class="correccion-banner-info">
+                <strong>Tienes exámenes pendientes de corregir</strong>
+                <div class="correccion-lista">
+                    @for (p of pendientesCorreccion(); track p.testId) {
+                    <a [routerLink]="['/tests', p.testId, 'corregir']" class="correccion-item">
+                        <mat-icon>quiz</mat-icon>
+                        <span>{{ p.testTitulo }}</span>
+                        <span class="correccion-badge">{{ p.pendientes }}</span>
+                    </a>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+
         <!-- Banner plan FREE -->
         @if (limites() && !limites()!.esPremium) {
         <div class="free-banner">
@@ -69,7 +88,7 @@
                         <mat-icon>edit_note</mat-icon>
                     </div>
                     <div class="stat-info">
-                        <span class="stat-valor">{{ misTests.length }}</span>
+                        <span class="stat-valor">{{ totalRecursosCreados }}</span>
                         <span class="stat-label">Recursos creados</span>
                     </div>
                 </div>
@@ -132,7 +151,7 @@
                     <a routerLink="/tests/crear" class="ver-mas">+ Crear recurso</a>
                 </div>
 
-                @if (misTests.length === 0) {
+                @if (totalRecursosCreados === 0) {
                 <div class="estado-vacio">
                     <mat-icon>add_circle_outline</mat-icon>
                     <p>Aún no has creado ningún recurso</p>
@@ -142,10 +161,15 @@
                 </div>
                 }
 
-                @if (misTests.length > 0) {
+                @if (totalRecursosCreados > 0) {
                 <div class="mis-tests-lista">
-                    @for (test of misTests.slice(0, 6); track test.id) {
+
+                    <!-- Exámenes -->
+                    @for (test of misTests.slice(0, 5); track test.id) {
                     <div class="mis-tests-item">
+                        <div class="recurso-tipo-icon tipo-examen">
+                            <mat-icon>quiz</mat-icon>
+                        </div>
                         <div class="test-info">
                             <p class="test-titulo">{{ test.titulo }}</p>
                             <div class="test-meta">
@@ -155,17 +179,39 @@
                             </div>
                         </div>
                         <div class="test-acciones">
-                            <span class="visibilidad" [class.publico]="test.visibilidad === 'PUBLICO'">
-                                {{ test.visibilidad === 'PUBLICO' ? 'Público' : 'Privado' }}
+                            <span class="visibilidad"
+                                [class.publico]="test.visibilidad === 'PUBLICO'"
+                                [class.org]="test.visibilidad === 'ORGANIZACION'">
+                                {{ test.visibilidad === 'PUBLICO' ? 'Público' : test.visibilidad === 'ORGANIZACION' ? 'Org' : 'Privado' }}
                             </span>
                             <a [routerLink]="['/tests', test.id]" class="btn-accion btn-ver" title="Ver test">
                                 <mat-icon>visibility</mat-icon>
                             </a>
-                            <button class="btn-accion btn-editar" (click)="editarTest(test, $event)" title="Editar test">
+                            <button class="btn-accion btn-editar" (click)="editarTest(test, $event)" title="Editar">
                                 <mat-icon>edit</mat-icon>
                             </button>
+                            @if (misOrgsAdmin.length > 0) {
+                            <button class="btn-accion btn-asignar"
+                                [matMenuTriggerFor]="menuOrgs"
+                                (click)="$event.preventDefault(); $event.stopPropagation()"
+                                [disabled]="asignandoTestId === test.id"
+                                title="Asignar a organización">
+                                @if (asignandoTestId === test.id) {
+                                <mat-spinner diameter="14"></mat-spinner>
+                                } @else {
+                                <mat-icon>assignment_ind</mat-icon>
+                                }
+                            </button>
+                            <mat-menu #menuOrgs="matMenu">
+                                @for (org of misOrgsAdmin; track org.id) {
+                                <button mat-menu-item (click)="asignarAOrg(test, org, $event)">
+                                    <mat-icon>groups</mat-icon>{{ org.nombre }}
+                                </button>
+                                }
+                            </mat-menu>
+                            }
                             <button class="btn-accion btn-duplicar" (click)="duplicarTest(test, $event)"
-                                [disabled]="duplicandoId === test.id" title="Duplicar test">
+                                [disabled]="duplicandoId === test.id" title="Duplicar">
                                 @if (duplicandoId === test.id) {
                                 <mat-spinner diameter="14"></mat-spinner>
                                 } @else {
@@ -173,7 +219,7 @@
                                 }
                             </button>
                             <button class="btn-accion btn-eliminar" (click)="eliminarTest(test, $event)"
-                                [disabled]="eliminandoId === test.id" title="Eliminar test">
+                                [disabled]="eliminandoId === test.id" title="Eliminar">
                                 @if (eliminandoId === test.id) {
                                 <mat-spinner diameter="14"></mat-spinner>
                                 } @else {
@@ -183,6 +229,39 @@
                         </div>
                     </div>
                     }
+
+                    <!-- Apuntes (solo premium) -->
+                    @for (apunte of misApuntes.slice(0, 4); track apunte.id) {
+                    <div class="mis-tests-item">
+                        <div class="recurso-tipo-icon tipo-apunte">
+                            <mat-icon>edit_note</mat-icon>
+                        </div>
+                        <div class="test-info">
+                            <p class="test-titulo">{{ apunte.titulo }}</p>
+                            <div class="test-meta">
+                                @if (apunte.testTitulo) {
+                                <span><mat-icon style="font-size:12px;width:12px;height:12px;vertical-align:middle">quiz</mat-icon> {{ apunte.testTitulo }}</span>
+                                <span class="separador">·</span>
+                                }
+                                <span>{{ apunte.updatedAt | date:'dd/MM/yy' }}</span>
+                            </div>
+                        </div>
+                        <div class="test-acciones">
+                            <a routerLink="/apuntes" class="btn-accion btn-editar" title="Editar apunte">
+                                <mat-icon>open_in_new</mat-icon>
+                            </a>
+                            <button class="btn-accion btn-eliminar" (click)="eliminarApunte(apunte, $event)"
+                                [disabled]="eliminandoApunteId === apunte.id" title="Eliminar apunte">
+                                @if (eliminandoApunteId === apunte.id) {
+                                <mat-spinner diameter="14"></mat-spinner>
+                                } @else {
+                                <mat-icon>delete</mat-icon>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                    }
+
                 </div>
                 }
             </section>
@@ -230,12 +309,21 @@
                     @for (a of asignaciones(); track a.id) {
                     <div class="asig-item">
                         <div class="asig-info">
-                            <p class="asig-titulo">{{ a.testTitulo }}</p>
+                            <p class="asig-titulo">
+                                <mat-icon style="font-size:14px;width:14px;height:14px;vertical-align:middle;margin-right:4px">
+                                    {{ a.tipoRecurso === 'APUNTE' ? 'edit_note' : 'quiz' }}
+                                </mat-icon>
+                                {{ a.tipoRecurso === 'APUNTE' ? a.apunteTitulo : a.testTitulo }}
+                            </p>
                             <p class="asig-meta">{{ a.orgNombre }}
                                 @if (a.fechaLimite) { · Límite: {{ a.fechaLimite | date:'dd/MM' }} }
                             </p>
                         </div>
-                        <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Empezar</a>
+                        @if (a.tipoRecurso === 'APUNTE') {
+                            <a routerLink="/apuntes" mat-flat-button color="accent">Ver apunte</a>
+                        } @else {
+                            <a [routerLink]="['/examen', a.testId]" mat-flat-button color="accent">Empezar</a>
+                        }
                     </div>
                     }
                 </div>

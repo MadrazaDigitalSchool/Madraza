@@ -113,7 +113,11 @@ public class TestService {
         test.setCategoria(req.categoria());
         test.setDificultad(req.dificultad() != null ? req.dificultad() : "MEDIA");
         test.setTiempoLimite(req.tiempoLimite());
-        test.setVisibilidad(req.visibilidad() != null ? req.visibilidad() : "PUBLICO");
+        String nuevaVisibilidad = req.visibilidad() != null ? req.visibilidad() : "PUBLICO";
+        test.setVisibilidad(nuevaVisibilidad);
+        if (!"ORGANIZACION".equals(nuevaVisibilidad)) {
+            test.setOrganizacion(null);
+        }
 
         // RespuestaIntento tiene FK a pregunta_id y opcion_id.
         // Hay que borrar los intentos ANTES del orphan removal para evitar violación de FK.

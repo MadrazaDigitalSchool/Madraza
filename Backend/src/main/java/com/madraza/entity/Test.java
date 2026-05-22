@@ -56,6 +56,8 @@ public class Test {
     private Usuario creador;
 
     // Organización propietaria — solo para tests con visibilidad=ORGANIZACION
+    // Se excluyen miembros (lazy) y admin (datos sensibles); el front solo necesita id y nombre
+    @JsonIgnoreProperties({"miembros", "admin", "tipo", "descripcion", "codigoInvitacion", "activa", "createdAt"})
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "organizacion_id")
     private Organizacion organizacion;
