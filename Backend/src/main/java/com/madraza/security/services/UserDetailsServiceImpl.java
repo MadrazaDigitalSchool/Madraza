@@ -16,8 +16,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Spring Security llama a este método automáticamente
-    // cuando alguien intenta iniciar sesión
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

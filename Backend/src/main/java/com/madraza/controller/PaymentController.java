@@ -173,7 +173,7 @@ public class PaymentController {
 
     /**
      * POST /api/pago/setup-intent
-     * Crea un SetupIntent de Stripe para capturar un nuevo método de pago sin cobrar.
+     * Crea un SetupIntent de Stripe para capturar un nuevo metodo de pago sin cobrar.
      * Devuelve { clientSecret }.
      */
     @PostMapping("/setup-intent")
@@ -191,7 +191,7 @@ public class PaymentController {
 
     /**
      * PUT /api/pago/metodo-pago
-     * Actualiza el método de pago por defecto de la suscripción activa.
+     * Actualiza el metodo de pago por defecto de la suscripción activa.
      * Body: { "paymentMethodId": "pm_xxx", "metodoPago": "tarjeta" }
      */
     @PutMapping("/metodo-pago")

@@ -3,7 +3,6 @@ package com.madraza.dto.response;
 /**
  * @author Hafdala Mehdi Sidi
  */
-// Lo que devolvemos al frontend cuando termina el examen
 public record ResultadoResponse(
         Long intentoId,
         int puntuacion,
@@ -13,5 +12,6 @@ public record ResultadoResponse(
         double porcentaje,
         String estado,
         long tiempoEmpleado,
-        boolean pendienteCorreccion
+        boolean pendienteCorreccion,
+        Integer nota
 ) {}

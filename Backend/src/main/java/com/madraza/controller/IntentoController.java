@@ -1,5 +1,6 @@
 package com.madraza.controller;
 
+import com.madraza.dto.request.CorreccionRequest;
 import com.madraza.dto.request.RespuestaRequest;
 import com.madraza.dto.response.ResultadoResponse;
 import com.madraza.entity.Intento;
@@ -55,7 +56,6 @@ public class IntentoController {
         return ResponseEntity.ok(intentoService.getHistorial(userDetails.getId()));
     }
 
-    // Detalle de respuestas de un intento (para el alumno: ver sus respuestas corregidas)
     @GetMapping("/{intentoId}/detalle")
     public ResponseEntity<List<Map<String, Object>>> getDetalle(
             @PathVariable Long intentoId,
@@ -63,7 +63,6 @@ public class IntentoController {
         return ResponseEntity.ok(intentoService.getDetalle(intentoId, userDetails.getId()));
     }
 
-    // Para el creador: listar intentos con texto libre pendiente de corrección
     @GetMapping("/mis-pendientes-correccion")
     public ResponseEntity<List<Map<String, Object>>> getMisPendientesCorreccion(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -77,13 +76,12 @@ public class IntentoController {
         return ResponseEntity.ok(intentoService.getParaCorregir(testId, userDetails.getId()));
     }
 
-    // Para el creador: enviar correcciones de texto libre
     @PutMapping("/{intentoId}/corregir")
     public ResponseEntity<ResultadoResponse> corregir(
             @PathVariable Long intentoId,
-            @RequestBody Map<Long, Boolean> correcciones,
+            @RequestBody CorreccionRequest body,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(intentoService.corregir(intentoId, userDetails.getId(), correcciones));
+        return ResponseEntity.ok(intentoService.corregir(intentoId, userDetails.getId(), body));
     }
 
     @GetMapping("/{intentoId}/pdf")

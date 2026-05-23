@@ -266,11 +266,9 @@ public class PdfService {
     private String preprocesarHtml(String html) {
         if (html == null || html.isBlank()) return "<p>&nbsp;</p>";
 
-        // Párrafos vacíos: iText los colapsa y puede desordenar el layout
         html = html.replace("<p><br></p>", "<p>&nbsp;</p>");
         html = html.replace("<p><br/></p>", "<p>&nbsp;</p>");
 
-        // Quill a veces genera <br> sueltos dentro de párrafos alineados
         html = html.replaceAll("<p([^>]*)><br\\s*/?>", "<p$1>&nbsp;");
 
         // Imágenes: forzar max-width para que no desborden la página
@@ -283,8 +281,6 @@ public class PdfService {
         html = html.replaceAll("(<table[^>]*?)\\s+width=\"[^\"]*\"", "$1");
         html = html.replaceAll("(<col[^>]*?)\\s+width=\"[^\"]*\"", "$1");
 
-        // Spans con tamaños de fuente enormes (Quill permite font-size libre)
-        // Los dejamos pasar — iText los escala dentro de la caja
 
         return html;
     }

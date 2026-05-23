@@ -30,8 +30,6 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    // Construye el UserDetailsImpl a partir de nuestra entidad Usuario
-    // Convierte los roles en authorities que entiende Spring Security
     public static UserDetailsImpl build(Usuario usuario) {
         List<GrantedAuthority> authorities = usuario.getRoles().stream()
                 .map(rol -> new SimpleGrantedAuthority(rol.getNombre()))
@@ -48,8 +46,6 @@ public class UserDetailsImpl implements UserDetails {
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
 
-    // Spring Security usa getUsername() para identificar al usuario
-    // nosotros usamos el email como identificador
     @Override public String getUsername() { return email; }
     @Override public String getPassword() { return password; }
     @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }

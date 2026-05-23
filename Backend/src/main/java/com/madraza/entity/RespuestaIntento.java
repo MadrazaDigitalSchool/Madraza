@@ -24,8 +24,10 @@ public class RespuestaIntento {
     private int tiempoRespuesta = 0;
     private boolean pendienteCorreccion = false;
 
-    // Para preguntas sin opciones (texto libre)
     private String textoLibre;
+
+    @Column(length = 1000)
+    private String anotacion;
 
     // A qué intento, pregunta y opción pertenece esta respuesta
     @JsonIgnore

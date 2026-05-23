@@ -218,7 +218,7 @@ public class PaymentService {
 
     /**
      * Procesa eventos del webhook de Stripe.
-     * El endpoint debe ser público y verificar la firma antes de llamar a este método.
+     * El endpoint debe ser público y verificar la firma antes de llamar a este metodo.
      */
     @Transactional
     public void procesarWebhook(String payload, String sigHeader) throws Exception {
@@ -248,7 +248,7 @@ public class PaymentService {
 
     /**
      * Crea un Stripe SetupIntent ligado al Customer del usuario.
-     * El frontend usa el clientSecret para capturar el nuevo método sin cobrar.
+     * El frontend usa el clientSecret para capturar el nuevo metodo sin cobrar.
      */
     public String crearSetupIntent(Long usuarioId) throws Exception {
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -282,7 +282,7 @@ public class PaymentService {
     }
 
     /**
-     * Tras confirmar el SetupIntent en el frontend, actualiza el método de pago
+     * Tras confirmar el SetupIntent en el frontend, actualiza el metodo de pago
      * por defecto en Stripe (Customer + Subscription activa) y en la BD.
      */
     @Transactional

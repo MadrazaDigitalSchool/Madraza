@@ -1,5 +1,6 @@
 package com.madraza.service;
 
+import com.madraza.dto.request.CorreccionRequest;
 import com.madraza.dto.request.RespuestaRequest;
 import com.madraza.dto.response.ResultadoResponse;
 import com.madraza.entity.*;
@@ -171,6 +172,7 @@ public class IntentoService {
             m.put("textoLibre",           r.getTextoLibre());
             m.put("esCorrecta",           r.isEsCorrecta());
             m.put("pendienteCorreccion",  r.isPendienteCorreccion());
+            m.put("anotacion",            r.getAnotacion());
             m.put("opcionSeleccionadaId", r.getOpcionSeleccionada() != null ? r.getOpcionSeleccionada().getId() : null);
             // Solo mostramos opciones con su bandera esCorrecta si el intento ya está completado
             boolean mostrarCorrectas = "COMPLETADO".equals(intento.getEstado());
@@ -238,7 +240,7 @@ public class IntentoService {
     }
 
     @Transactional
-    public ResultadoResponse corregir(Long intentoId, Long correctorId, Map<Long, Boolean> correcciones) {
+    public ResultadoResponse corregir(Long intentoId, Long correctorId, CorreccionRequest body) {
         Intento intento = intentoRepository.findById(intentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Intento no encontrado"));
 
@@ -246,11 +248,22 @@ public class IntentoService {
             throw new AccessDeniedException("Solo el creador del test puede corregir este intento");
         }
 
+        Map<Long, Boolean> correcciones = body.correcciones() != null ? body.correcciones() : Map.of();
+        Map<Long, String> anotaciones   = body.anotaciones()  != null ? body.anotaciones()  : Map.of();
+
         for (RespuestaIntento respuesta : intento.getRespuestas()) {
             if (respuesta.isPendienteCorreccion() && correcciones.containsKey(respuesta.getId())) {
                 respuesta.setEsCorrecta(correcciones.get(respuesta.getId()));
                 respuesta.setPendienteCorreccion(false);
+                if (anotaciones.containsKey(respuesta.getId())) {
+                    String texto = anotaciones.get(respuesta.getId());
+                    respuesta.setAnotacion(texto != null && texto.isBlank() ? null : texto);
+                }
             }
+        }
+
+        if (body.nota() != null && body.nota() >= 1 && body.nota() <= 10) {
+            intento.setNota(body.nota());
         }
 
         long correctas = intento.getRespuestas().stream()
@@ -292,7 +305,8 @@ public class IntentoService {
                 intento.getPorcentaje(),
                 intento.getEstado(),
                 tiempo,
-                intento.isPendienteCorreccion()
+                intento.isPendienteCorreccion(),
+                intento.getNota()
         );
     }
 }

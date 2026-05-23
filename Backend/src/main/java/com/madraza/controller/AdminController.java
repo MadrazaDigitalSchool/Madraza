@@ -44,7 +44,7 @@ public class AdminController {
     @Autowired private PasswordEncoder       passwordEncoder;
     @Autowired private TestService           testService;
 
-    // ── Stats ─────────────────────────────────────────────────
+    //Stats
 
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats() {
@@ -56,7 +56,7 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
-    // ── Usuarios — CRUD ───────────────────────────────────────
+    //Usuarios — CRUD
 
     @GetMapping("/usuarios")
     @Transactional(readOnly = true)
@@ -181,7 +181,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Tests ─────────────────────────────────────────────────
+    // Tests
 
     @GetMapping("/tests")
     @Transactional(readOnly = true)
@@ -244,7 +244,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Organizaciones ────────────────────────────────────────
+    // Organizaciones
 
     @GetMapping("/organizaciones")
     @Transactional(readOnly = true)

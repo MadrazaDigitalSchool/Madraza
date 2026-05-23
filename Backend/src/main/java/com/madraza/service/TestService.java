@@ -94,9 +94,7 @@ public class TestService {
             test.setOrganizacion(org);
         }
 
-        poblarPreguntas(test, req);
-        // Las preguntas y opciones quedan en memoria tras poblarPreguntas → save no las desvincula
-        return testRepository.save(test);
+        poblarPreguntas(test, req);return testRepository.save(test);
     }
 
     @Transactional
@@ -119,11 +117,7 @@ public class TestService {
             test.setOrganizacion(null);
         }
 
-        // RespuestaIntento tiene FK a pregunta_id y opcion_id.
-        // Hay que borrar los intentos ANTES del orphan removal para evitar violación de FK.
         intentoRepository.deleteByTestId(id);
-
-        // Orphan removal elimina preguntas/opciones que se quitan
         test.getPreguntas().clear();
         poblarPreguntas(test, req);
 

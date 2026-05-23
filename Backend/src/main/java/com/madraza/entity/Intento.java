@@ -36,6 +36,7 @@ public class Intento {
     private String estado = "EN_CURSO";
 
     private boolean pendienteCorreccion = false;
+    private Integer nota;
 
     private LocalDateTime inicio = LocalDateTime.now();
     private LocalDateTime fin;

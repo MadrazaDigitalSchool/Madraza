@@ -143,8 +143,6 @@ public class ApunteController {
         }
     }
 
-    // Endpoint de IA — solo premium, el frontend ya lo oculta pero verificamos aquí también
-    // body: { modo: "asistente"|"generacion", accion?, contenidoActual?, textoSeleccionado?, tema?, contexto? }
     @PostMapping("/ia")
     public ResponseEntity<?> ia(
             @RequestBody Map<String, String> body,
@@ -152,7 +150,6 @@ public class ApunteController {
         if (!iaService.isDisponible())
             return ResponseEntity.status(503).body(Map.of("error", "El asistente de IA no está disponible actualmente"));
 
-        // comprobamos que sea premium por si accede sin pasar por el frontend
         Usuario usuario = usuarioRepository.findById(userDetails.getId()).orElse(null);
         boolean esPremium = usuario != null && usuario.isSuscripcionActiva()
                 && (usuario.getSuscripcionExpiry() == null
