@@ -326,6 +326,67 @@ public class PaymentService {
         log.info("Método de pago actualizado para usuario {}: {}", usuarioId, metodoPagoNombre);
     }
 
+    /**
+     * Cambia el plan de una suscripción activa (mensual ↔ anual).
+     * Upgrade: aplica inmediatamente con prorrateo.
+     * Downgrade: aplica al final del período actual.
+     */
+    @Transactional
+    public void cambiarPlan(Long usuarioId, String nuevoPlan) throws Exception {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!usuario.isSuscripcionActiva()) {
+            throw new IllegalStateException("No tienes una suscripción activa para cambiar");
+        }
+
+        String planActual = usuario.getPlanTipo() != null ? usuario.getPlanTipo().toLowerCase() : "";
+        if (nuevoPlan.equalsIgnoreCase(planActual)) {
+            throw new IllegalArgumentException("Ya tienes este plan activo");
+        }
+
+        String customerId = usuario.getStripeCustomerId();
+        boolean esAnual = "anual".equalsIgnoreCase(nuevoPlan);
+        String nuevoPriceId = esAnual ? priceAnual : priceMensual;
+        String planLabel    = esAnual ? "Premium Anual" : "Premium Mensual";
+
+        if (customerId != null && !customerId.isBlank()) {
+            SubscriptionCollection subs = Subscription.list(
+                    SubscriptionListParams.builder()
+                            .setCustomer(customerId)
+                            .setStatus(SubscriptionListParams.Status.ACTIVE)
+                            .setLimit(1L)
+                            .build());
+
+            if (!subs.getData().isEmpty()) {
+                Subscription sub    = subs.getData().get(0);
+                String itemId       = sub.getItems().getData().get(0).getId();
+
+                sub.update(SubscriptionUpdateParams.builder()
+                        .addItem(SubscriptionUpdateParams.Item.builder()
+                                .setId(itemId)
+                                .setPrice(nuevoPriceId)
+                                .build())
+                        .setProrationBehavior(esAnual
+                                ? SubscriptionUpdateParams.ProrationBehavior.ALWAYS_INVOICE
+                                : SubscriptionUpdateParams.ProrationBehavior.NONE)
+                        .putMetadata("plan", nuevoPlan)
+                        .putMetadata("planLabel", planLabel)
+                        .build());
+
+                log.info("Suscripción Stripe actualizada para usuario {}: {} → {}", usuarioId, planActual, nuevoPlan);
+            }
+        }
+
+        LocalDateTime expiry = LocalDateTime.now().plusDays(esAnual ? 365 : 30);
+        usuario.setPlanTipo(nuevoPlan.toLowerCase());
+        usuario.setSuscripcionExpiry(expiry);
+        usuarioRepository.save(usuario);
+
+        emailService.enviarConfirmacionPago(usuario.getEmail(), usuario.getNombre(), planLabel, expiry.format(DATE_FMT));
+        log.info("Plan cambiado para usuario {}: {} → {}", usuarioId, planActual, nuevoPlan);
+    }
+
     /** Tarea programada: desactiva suscripciones que hayan expirado (cada hora). */
     @Scheduled(cron = "0 0 * * * *")
     @Transactional

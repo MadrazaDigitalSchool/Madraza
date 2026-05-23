@@ -216,6 +216,39 @@ public class PaymentController {
     }
 
     /**
+     * PUT /api/pago/cambiar-plan
+     * Cambia el plan activo del usuario (mensual ↔ anual).
+     * Body: { "plan": "mensual" | "anual" }
+     */
+    @PutMapping("/cambiar-plan")
+    public ResponseEntity<?> cambiarPlan(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody Map<String, String> body) {
+        try {
+            String plan = body.get("plan");
+            if (plan == null || plan.isBlank())
+                return ResponseEntity.badRequest().body(new MessageResponse("plan requerido"));
+
+            paymentService.cambiarPlan(userDetails.getId(), plan);
+
+            Usuario usuario = usuarioRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            return ResponseEntity.ok(Map.of(
+                    "planTipo",          usuario.getPlanTipo(),
+                    "suscripcionExpiry", usuario.getSuscripcionExpiry() != null
+                            ? usuario.getSuscripcionExpiry().toString() : "",
+                    "mensaje",           "Plan actualizado correctamente"
+            ));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al cambiar plan: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("No se pudo cambiar el plan: " + e.getMessage()));
+        }
+    }
+
+    /**
      * GET /api/pago/estado
      * Devuelve el estado actual de suscripción del usuario autenticado.
      */
