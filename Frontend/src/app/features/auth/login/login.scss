@@ -1,4 +1,4 @@
-.login-container {
+﻿.login-container {
     min-height: calc(100vh - 80px);
     display: flex;
     flex-direction: column;
@@ -151,7 +151,7 @@
     }
 }
 
-// ── Autofill del navegador ────────────────────────────────
+// Autofill del navegador
 // Evita el fondo amarillo de Chrome y mantiene el texto legible.
 // El truco de transition 9999s hace que el background-color no cambie visualmente.
 .login-card input:-webkit-autofill,

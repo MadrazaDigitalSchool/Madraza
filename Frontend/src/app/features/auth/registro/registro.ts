@@ -40,8 +40,8 @@ export class RegistroComponent {
   mostrarPassword = false;
   recordarme = false;
 
-  readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorize/google`;
-  readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorize/github`;
+  readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorization/google`;
+  readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorization/github`;
 
   constructor(
     private authService: AuthService,

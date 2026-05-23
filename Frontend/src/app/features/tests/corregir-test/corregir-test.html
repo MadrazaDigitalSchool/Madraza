@@ -1,6 +1,5 @@
 <div class="corregir-container">
 
-    <!-- Cabecera -->
     <div class="corregir-header">
         <div class="container">
             <a [routerLink]="['/tests', testId]" class="btn-back">
@@ -9,14 +8,13 @@
             </a>
             <div class="header-info">
                 <h1>Corrección de respuestas</h1>
-                <p>Marca cada respuesta de texto libre como correcta o incorrecta</p>
+                <p>Marca cada respuesta, añade una nota y comentarios opcionales</p>
             </div>
         </div>
     </div>
 
     <div class="corregir-body container">
 
-        <!-- Cargando -->
         @if (cargando) {
         <div class="estado-center">
             <mat-spinner diameter="40"></mat-spinner>
@@ -24,7 +22,6 @@
         </div>
         }
 
-        <!-- Error -->
         @if (error) {
         <div class="estado-center">
             <mat-icon class="icon-error">error_outline</mat-icon>
@@ -33,7 +30,6 @@
         </div>
         }
 
-        <!-- Sin pendientes -->
         @if (!cargando && !error && intentos.length === 0) {
         <div class="estado-center">
             <mat-icon class="icon-ok">check_circle</mat-icon>
@@ -42,7 +38,6 @@
         </div>
         }
 
-        <!-- Intentos pendientes -->
         @if (!cargando && !error && intentos.length > 0) {
         <div class="intentos-lista">
 
@@ -76,7 +71,7 @@
 
                             <div class="respuesta-alumno">
                                 <mat-icon>edit_note</mat-icon>
-                                <span class="{{ resp.textoLibre ? '' : 'texto-vacio' }}">
+                                <span [class.texto-vacio]="!resp.textoLibre">
                                     {{ resp.textoLibre || 'El alumno no respondió esta pregunta' }}
                                 </span>
                             </div>
@@ -86,7 +81,6 @@
                                 {{ resp.puntos }} punto{{ resp.puntos !== 1 ? 's' : '' }}
                             </div>
 
-                            <!-- Botones de corrección -->
                             <div class="correccion-btns">
                                 <button
                                     class="btn-correcto"
@@ -103,10 +97,36 @@
                                     Incorrecto
                                 </button>
                             </div>
-                        </div>
 
+                            <mat-form-field class="anotacion-field" appearance="outline">
+                                <mat-label>Comentario para el alumno (opcional)</mat-label>
+                                <textarea matInput rows="2" maxlength="1000"
+                                    [ngModel]="getAnotacion(intento.intentoId, resp.respuestaId)"
+                                    (ngModelChange)="setAnotacion(intento.intentoId, resp.respuestaId, $event)"
+                                    placeholder="Explica dónde se ha equivocado o qué mejorar...">
+                                </textarea>
+                            </mat-form-field>
+
+                        </div>
                     </div>
                     }
+                </div>
+
+                <!-- Nota global del intento -->
+                <div class="nota-section">
+                    <mat-icon>grade</mat-icon>
+                    <span class="nota-label">Nota final (1-10):</span>
+                    <div class="nota-btns">
+                        @for (n of [1,2,3,4,5,6,7,8,9,10]; track n) {
+                        <button class="btn-nota"
+                            [class.activo]="notas.get(intento.intentoId) === n"
+                            [class.aprobado]="n >= 5"
+                            [class.suspenso]="n < 5"
+                            (click)="notas.set(intento.intentoId, n)">
+                            {{ n }}
+                        </button>
+                        }
+                    </div>
                 </div>
 
                 <div class="intento-actions">

@@ -1,6 +1,6 @@
-@use '@angular/material' as mat;
+﻿@use '@angular/material' as mat;
 
-// ── TEMA MADRAZA ─────────────────────────────────────────
+// TEMA MADRAZA
 html {
   @include mat.theme((color: (primary: mat.$magenta-palette,
         tertiary: mat.$violet-palette,
@@ -10,7 +10,7 @@ html {
     ));
 }
 
-// ── VARIABLES GLOBALES ────────────────────────────────────
+// VARIABLES GLOBALES
 :root {
   --madraza-primary: #7c3aed;
   --madraza-primary-dark: #6121c6;
@@ -32,7 +32,7 @@ html {
   --madraza-radius-lg: 20px;
 }
 
-// ── RESET Y BASE ──────────────────────────────────────────
+// RESET Y BASE
 *,
 *::before,
 *::after {
@@ -55,7 +55,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-// ── ANGULAR MATERIAL — TOKENS SIN !important ──────────────
+// ANGULAR MATERIAL — TOKENS SIN !important
 // Usamos las custom properties de MDC para sobreescribir
 // los estilos de Angular Material correctamente
 
@@ -174,7 +174,7 @@ body.tema-claro .perfil-container .card {
   .mat-icon { color: #9e9e9e; }
 }
 
-// ── UTILIDADES RESPONSIVE ─────────────────────────────────
+// UTILIDADES RESPONSIVE
 .container {
   width: 100%;
   max-width: 1200px;
@@ -208,12 +208,12 @@ img { max-width: 100%; height: auto; }
   }
 }
 
-// ── LAYOUT ────────────────────────────────────────────────
+// LAYOUT
 main {
   min-height: calc(100vh - 80px - 200px);
 }
 
-// ── TEMA CLARO ────────────────────────────────────────────
+// TEMA CLARO
 body.tema-claro {
   --madraza-bg: #f0eff8;
   --madraza-surface: #ffffff;

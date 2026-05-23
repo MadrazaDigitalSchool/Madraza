@@ -32,7 +32,6 @@ export class PaymentService {
     return this.http.post<{ url: string }>(`${this.apiUrl}/crear-sesion`, { plan, metodoPago });
   }
 
-  /** @deprecated Usar confirmarSuscripcion(). Mantener para flujo de redirect 3DS */
   verificarSesion(sessionId: string): Observable<{ suscripcionActiva: boolean; mensaje: string }> {
     return this.http.post<{ suscripcionActiva: boolean; mensaje: string }>(
       `${this.apiUrl}/verificar-sesion`, { sessionId }

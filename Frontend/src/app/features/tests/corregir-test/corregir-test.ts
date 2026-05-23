@@ -1,35 +1,43 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { IntentoService } from '../../../core/services/intento';
 import { IntentoParaCorregir } from '../../../core/models/intento.model';
 
 @Component({
   selector: 'app-corregir-test',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, MatIconModule,
+            MatProgressSpinnerModule, MatFormFieldModule, MatInputModule],
   templateUrl: './corregir-test.html',
   styleUrl: './corregir-test.scss'
 })
 export class CorregirTestComponent implements OnInit {
 
-  private route        = inject(ActivatedRoute);
-  private router       = inject(Router);
-  private intentoSvc   = inject(IntentoService);
-  private snackBar     = inject(MatSnackBar);
+  private route      = inject(ActivatedRoute);
+  private router     = inject(Router);
+  private intentoSvc = inject(IntentoService);
+  private snackBar   = inject(MatSnackBar);
 
-  testId = 0;
+  testId   = 0;
   cargando = true;
   guardando = false;
-  error = '';
+  error    = '';
   intentos: IntentoParaCorregir[] = [];
 
   // intentoId → respuestaId → true/false/null
   correcciones = new Map<number, Map<number, boolean | null>>();
+  // intentoId → respuestaId → texto
+  anotaciones  = new Map<number, Map<number, string>>();
+  // intentoId → nota (1-10)
+  notas        = new Map<number, number | null>();
 
   ngOnInit(): void {
     this.testId = Number(this.route.snapshot.paramMap.get('id'));
@@ -42,9 +50,15 @@ export class CorregirTestComponent implements OnInit {
       next: (lista) => {
         this.intentos = lista;
         lista.forEach(i => {
-          const mapa = new Map<number, boolean | null>();
-          i.respuestasPendientes.forEach(r => mapa.set(r.respuestaId, null));
-          this.correcciones.set(i.intentoId, mapa);
+          const mCorr = new Map<number, boolean | null>();
+          const mAnot = new Map<number, string>();
+          i.respuestasPendientes.forEach(r => {
+            mCorr.set(r.respuestaId, null);
+            mAnot.set(r.respuestaId, '');
+          });
+          this.correcciones.set(i.intentoId, mCorr);
+          this.anotaciones.set(i.intentoId, mAnot);
+          this.notas.set(i.intentoId, null);
         });
         this.cargando = false;
       },
@@ -63,6 +77,14 @@ export class CorregirTestComponent implements OnInit {
     return this.correcciones.get(intentoId)?.get(respuestaId) ?? null;
   }
 
+  getAnotacion(intentoId: number, respuestaId: number): string {
+    return this.anotaciones.get(intentoId)?.get(respuestaId) ?? '';
+  }
+
+  setAnotacion(intentoId: number, respuestaId: number, texto: string): void {
+    this.anotaciones.get(intentoId)?.set(respuestaId, texto);
+  }
+
   intentoCompleto(intentoId: number): boolean {
     const mapa = this.correcciones.get(intentoId);
     if (!mapa) return false;
@@ -70,18 +92,27 @@ export class CorregirTestComponent implements OnInit {
   }
 
   guardarIntento(intentoId: number): void {
-    const mapa = this.correcciones.get(intentoId);
-    if (!mapa) return;
+    const mCorr = this.correcciones.get(intentoId);
+    if (!mCorr) return;
 
-    const payload: Record<number, boolean> = {};
-    mapa.forEach((val, id) => { if (val !== null) payload[id] = val; });
+    const correcciones: Record<number, boolean> = {};
+    mCorr.forEach((val, id) => { if (val !== null) correcciones[id] = val; });
+
+    const anotaciones: Record<number, string> = {};
+    this.anotaciones.get(intentoId)?.forEach((texto, id) => {
+      if (texto.trim()) anotaciones[id] = texto.trim();
+    });
+
+    const nota = this.notas.get(intentoId) ?? null;
 
     this.guardando = true;
-    this.intentoSvc.corregir(intentoId, payload).subscribe({
+    this.intentoSvc.corregir(intentoId, { nota, correcciones, anotaciones }).subscribe({
       next: () => {
         this.guardando = false;
         this.intentos = this.intentos.filter(i => i.intentoId !== intentoId);
         this.correcciones.delete(intentoId);
+        this.anotaciones.delete(intentoId);
+        this.notas.delete(intentoId);
         this.snackBar.open('Corrección guardada correctamente.', 'Cerrar', { duration: 3000 });
         if (this.intentos.length === 0) {
           this.snackBar.open('Todos los intentos han sido corregidos.', 'Cerrar', { duration: 3000 });

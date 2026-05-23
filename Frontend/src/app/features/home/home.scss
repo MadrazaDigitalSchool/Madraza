@@ -1,9 +1,9 @@
-.home-container {
+﻿.home-container {
   min-height: 100vh;
   background: var(--madraza-bg);
 }
 
-// ── HERO ──────────────────────────────────────────────────
+// HERO
 
 .hero {
   position: relative;
@@ -169,7 +169,7 @@
   }
 }
 
-// ── FEATURES ──────────────────────────────────────────────
+// FEATURES
 
 .features-section {
   padding: clamp(60px, 8vw, 100px) 0;
@@ -229,7 +229,7 @@
   p { color: var(--madraza-text-muted); font-size: 14px; line-height: 1.6; margin: 0; }
 }
 
-// ── CTA ───────────────────────────────────────────────────
+// CTA
 
 .cta-section {
   padding: clamp(60px, 8vw, 100px) 0;
@@ -302,7 +302,7 @@
   font-size: 15px !important;
 }
 
-// ── RESPONSIVE ────────────────────────────────────────────
+// RESPONSIVE
 
 @media (max-width: 900px) {
   .features-grid { grid-template-columns: repeat(2, 1fr); }

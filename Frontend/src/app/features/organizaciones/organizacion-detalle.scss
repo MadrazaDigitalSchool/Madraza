@@ -1,4 +1,4 @@
-.page-container { padding: 32px 16px; max-width: 900px; margin: 0 auto; }
+﻿.page-container { padding: 32px 16px; max-width: 900px; margin: 0 auto; }
 
 .estado-center { display: flex; justify-content: center; padding: 80px 0; }
 
@@ -142,7 +142,7 @@
   &.dest-todos      { background: rgba(124,58,237,.12); color: #a78bfa; }
 }
 
-// ── TARJETAS EXPANDIBLES ───────────────────────────────────
+// TARJETAS EXPANDIBLES
 
 .miembro-card, .asig-card {
   background: var(--madraza-surface, #1e1e2e);
@@ -168,7 +168,7 @@
 
 .stats-loading { display: flex; justify-content: center; padding: 16px; }
 
-// ── PANEL ESTADÍSTICAS MIEMBRO ────────────────────────────
+// PANEL ESTADÍSTICAS MIEMBRO
 
 .stats-panel, .resultados-panel {
   padding: 16px 20px;
@@ -195,7 +195,7 @@
 
 .resultados-vacio { font-size: 13px; color: var(--madraza-text-muted); margin: 0; }
 
-// ── TABLA DE STATS ────────────────────────────────────────
+// TABLA DE STATS
 
 .stats-tabla {
   width: 100%; border-collapse: collapse; font-size: 13px;

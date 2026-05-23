@@ -13,7 +13,15 @@
       "Bash(mvn spring-boot:run -Dspring-boot.run.profiles=dev)",
       "Bash(Get-ChildItem -Path \"E:\\\\desarrollo_web\\\\daw\\\\2_daw\\\\proyecto_madraza\\\\Frontend\\\\src\" -Filter \"*.scss\" -Recurse)",
       "Bash(Select-Object FullName)",
-      "Bash(Sort-Object FullName)"
+      "Bash(Sort-Object FullName)",
+      "Bash(xargs grep -l -i \"oauth2\\\\|OAuth2\\\\|successHandler\\\\|OAuth\")",
+      "Bash(xargs grep -l -i \"SecurityConfig\\\\|security\")",
+      "Bash(xargs grep -l -i \"oauth2\\\\|callback\")",
+      "Bash(xargs grep -l -i \"google\\\\|github\")",
+      "Bash(grep -v \"//\\\\s*$\")",
+      "Bash(xargs grep -l \"corregir\\\\|correccion\\\\|PENDIENTE_CORRECCION\")",
+      "Bash(xargs grep -l \"corregir\\\\|correccion\")",
+      "Bash(git -C E:/desarrollo_web/daw/2_daw/proyecto_madraza diff --stat HEAD)"
     ]
   }
 }

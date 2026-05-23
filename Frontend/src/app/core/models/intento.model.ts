@@ -38,6 +38,7 @@ export interface ResultadoResponse {
     estado: string;
     tiempoEmpleado: number;
     pendienteCorreccion: boolean;
+    nota?: number;
 }
 
 export interface DetalleRespuesta {
@@ -49,6 +50,7 @@ export interface DetalleRespuesta {
     textoLibre?: string;
     esCorrecta: boolean;
     pendienteCorreccion: boolean;
+    anotacion?: string;
     opcionSeleccionadaId?: number;
     opciones: { id: number; texto: string; esCorrecta: boolean | null; orden: number }[];
 }

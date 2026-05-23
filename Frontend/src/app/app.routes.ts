@@ -4,13 +4,13 @@ import { subscriptionGuard } from './core/guards/subscription-guard';
 import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
-  // ── Página principal ────────────────────────────────────
+  // Página principal
   {
     path: '',
     loadComponent: () => import('./features/home/home').then(m => m.HomeComponent)
   },
 
-  // ── Páginas informativas (públicas) ─────────────────────
+  // Páginas informativas
   {
     path: 'que-es-madraza',
     loadComponent: () =>
@@ -42,13 +42,13 @@ export const routes: Routes = [
       import('./features/info/cookies/cookies').then(m => m.CookiesComponent)
   },
 
-  // ── Autenticación (pública) ──────────────────────────────
+  // Autenticación
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
-  // ── Pago (requiere login pero NO suscripción) ─────────────
+  // Pago
   {
     path: 'pago',
     canActivate: [authGuard],
@@ -75,7 +75,7 @@ export const routes: Routes = [
     ]
   },
 
-  // ── Admin (requiere ROLE_ADMIN) ───────────────────────────
+  // Admin
   {
     path: 'admin',
     canActivate: [adminGuard],
@@ -83,34 +83,34 @@ export const routes: Routes = [
       import('./features/admin/admin-dashboard').then(m => m.AdminDashboardComponent)
   },
 
-  // ── Tests (lista pública; crear/editar ya tienen authGuard en tests.routes.ts) ─
+  // Tests
   {
     path: 'tests',
     loadChildren: () => import('./features/tests/tests.routes').then(m => m.TESTS_ROUTES)
   },
 
-  // ── Examen (requiere login) ───────────────────────────────
+  // Examen
   {
     path: 'examen',
     canActivate: [authGuard],
     loadChildren: () => import('./features/examen/examen.routes').then(m => m.EXAMEN_ROUTES)
   },
 
-  // ── Dashboard (requiere solo login — plan FREE también accede) ──
+  // Dashboard
   {
     path: 'dashboard',
     canActivate: [authGuard],
     loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
   },
 
-  // ── Perfil (requiere login) ───────────────────────────────
+  // Perfil
   {
     path: 'perfil',
     canActivate: [authGuard],
     loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
   },
 
-  // ── Organizaciones ───────────────────────────────────────
+  // Organizaciones
   {
     path: 'organizaciones',
     canActivate: [authGuard],
@@ -124,7 +124,7 @@ export const routes: Routes = [
       import('./features/organizaciones/organizacion-detalle').then(m => m.OrganizacionDetalleComponent)
   },
 
-  // ── Mis asignaciones ─────────────────────────────────────
+  // Mis asignaciones
   {
     path: 'asignaciones',
     canActivate: [authGuard],
@@ -132,13 +132,12 @@ export const routes: Routes = [
       import('./features/asignaciones/mis-asignaciones').then(m => m.MisAsignacionesComponent)
   },
 
-  // ── Apuntes (requiere login; premium verificado internamente) ─
+  // Apuntes
   {
     path: 'apuntes',
     canActivate: [authGuard],
     loadComponent: () => import('./features/apuntes/apuntes').then(m => m.ApuntesComponent)
   },
 
-  // ── Fallback ─────────────────────────────────────────────
   { path: '**', redirectTo: '' }
 ];

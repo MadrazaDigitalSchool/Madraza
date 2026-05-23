@@ -46,7 +46,7 @@ export class RecursoGuardService {
     return this.testService.getDependencias(test.id).pipe(
       switchMap(deps => {
         const hayDeps = deps.asignaciones > 0 || deps.apuntesAsociados > 0;
-        if (!hayDeps) return of(true); // sin dependencias → proceder directamente
+        if (!hayDeps) return of(true); // sin dependencias y proceder directamente
 
         const detalles: string[] = [];
         if (deps.asignaciones > 0)

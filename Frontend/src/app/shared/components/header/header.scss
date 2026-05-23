@@ -1,4 +1,4 @@
-.navbar {
+﻿.navbar {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -175,7 +175,7 @@
     }
 }
 
-// ── Dropdown de usuario ───────────────────────────────────
+// Dropdown de usuario
 // Backdrop: cubre toda la pantalla, cierra el menú al clicar fuera
 .dropdown-backdrop {
     position: fixed;
@@ -333,7 +333,7 @@
     }
 }
 
-// ── Notificaciones ───────────────────────────────────────
+// Notificaciones
 
 .notif-wrapper {
     position: relative;
@@ -541,7 +541,7 @@
     margin-top: 4px;
 }
 
-// ── MEDIA QUERIES ─────────────────────────────────────────
+// MEDIA QUERIES
 
 // Botón login en el nav (solo escritorio)
 .btn-login-nav {

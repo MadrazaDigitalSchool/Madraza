@@ -263,7 +263,7 @@ export class ApuntesComponent implements OnInit, OnDestroy {
     return (this.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
   }
 
-  // ── Editor Quill ───────────────────────────────────────────
+  // Editor Quill
 
   onEditorCreated(editor: any): void {
     this.quillInstance = editor;
@@ -275,7 +275,7 @@ export class ApuntesComponent implements OnInit, OnDestroy {
     if (editor) this.textoSeleccionado = editor.getText(event.range.index, event.range.length);
   }
 
-  // ── Tabla ──────────────────────────────────────────────────
+  // Tabla
 
   private getTableModule(): any {
     return this.quillInstance?.getModule('table');
@@ -295,7 +295,7 @@ export class ApuntesComponent implements OnInit, OnDestroy {
   eliminarColumna(): void     { this.getTableModule()?.deleteColumn(); }
   eliminarTabla(): void       { this.getTableModule()?.deleteTable(); }
 
-  // ── IA ─────────────────────────────────────────────────────
+  // IA
 
   private stripHtml(html: string): string {
     if (!html) return '';

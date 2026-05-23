@@ -1,9 +1,9 @@
-.crear-container {
+﻿.crear-container {
     min-height: 100vh;
     background: var(--madraza-bg);
 }
 
-// ── CABECERA ──────────────────────────────────────────────
+// CABECERA
 
 .crear-header {
     background: var(--madraza-surface);
@@ -54,7 +54,7 @@
     }
 }
 
-// ── CUERPO ────────────────────────────────────────────────
+// CUERPO
 
 .crear-body {
     padding-top: 40px;
@@ -76,7 +76,7 @@
     font-size: 14px;
 }
 
-// ── SECCIONES ─────────────────────────────────────────────
+// SECCIONES
 
 .seccion {
     background: var(--madraza-surface);
@@ -113,7 +113,7 @@
     }
 }
 
-// ── GRID DEL FORMULARIO ───────────────────────────────────
+// GRID DEL FORMULARIO
 
 .form-grid {
     display: grid;
@@ -129,7 +129,7 @@
     }
 }
 
-// ── BOTÓN AÑADIR PREGUNTA ─────────────────────────────────
+// BOTÓN AÑADIR PREGUNTA
 
 .btn-add-pregunta {
     background: var(--madraza-primary);
@@ -154,7 +154,7 @@
     }
 }
 
-// ── TARJETA DE PREGUNTA ───────────────────────────────────
+// TARJETA DE PREGUNTA
 
 .pregunta-card {
     background: rgba(255, 255, 255, 0.03);
@@ -240,7 +240,7 @@
     width: 100%;
 }
 
-// ── OPCIONES ──────────────────────────────────────────────
+// OPCIONES
 
 .opciones-section {
     display: flex;
@@ -399,7 +399,7 @@
     }
 }
 
-// ── ACCIONES FINALES ──────────────────────────────────────
+// ACCIONES FINALES
 
 .crear-actions {
     display: flex;
@@ -438,7 +438,7 @@
     }
 }
 
-// ── MATERIAL DARK THEME ───────────────────────────────────
+// MATERIAL DARK THEME
 
 ::ng-deep .crear-container {
 
@@ -484,7 +484,7 @@
     }
 }
 
-// ── MEDIA QUERIES ─────────────────────────────────────────
+// MEDIA QUERIES
 
 @media (max-width: 768px) {
     .form-grid {

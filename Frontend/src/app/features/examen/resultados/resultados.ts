@@ -17,6 +17,7 @@ interface PreguntaResultado {
   pendienteCorreccion: boolean;
   opcionCorrectaTexto: string;
   opcionElegidaTexto: string;
+  anotacion?: string;
 }
 
 @Component({
@@ -151,7 +152,8 @@ export class ResultadosComponent implements OnInit {
           esCorrecta: d.esCorrecta,
           pendienteCorreccion: d.pendienteCorreccion,
           opcionCorrectaTexto: d.explicacion ?? '—',
-          opcionElegidaTexto: d.textoLibre ?? 'Sin respuesta'
+          opcionElegidaTexto: d.textoLibre ?? 'Sin respuesta',
+          anotacion: d.anotacion
         };
       }
 

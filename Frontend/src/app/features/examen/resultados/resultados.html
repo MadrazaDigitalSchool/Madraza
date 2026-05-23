@@ -68,6 +68,13 @@
                     <span class="stat-valor">{{ resultado.puntuacion }}</span>
                     <span class="stat-label">Puntos</span>
                 </div>
+                @if (resultado.nota) {
+                <div class="stat stat-nota">
+                    <mat-icon class="icon-nota">grade</mat-icon>
+                    <span class="stat-valor nota-valor">{{ resultado.nota }}<span class="nota-den">/10</span></span>
+                    <span class="stat-label">Nota</span>
+                </div>
+                }
             </div>
         </div>
 
@@ -154,6 +161,15 @@
                                 Respuesta esperada
                             </span>
                             <p class="tl-texto">{{ item.pregunta.explicacion }}</p>
+                        </div>
+                        }
+                        @if (item.anotacion) {
+                        <div class="tl-bloque tl-anotacion">
+                            <span class="tl-label">
+                                <mat-icon>comment</mat-icon>
+                                Comentario del corrector
+                            </span>
+                            <p class="tl-texto">{{ item.anotacion }}</p>
                         </div>
                         }
                         }

@@ -1,0 +1,34 @@
+@if (visible()) {
+<div class="cookie-overlay">
+  <div class="cookie-banner">
+    <div class="cookie-icon">
+      <mat-icon>cookie</mat-icon>
+    </div>
+
+    <div class="cookie-content">
+      <h3>Usamos cookies</h3>
+      <p>
+        Utilizamos cookies propias y de terceros para mejorar tu experiencia, analizar el tráfico
+        y personalizar el contenido. Puedes aceptar todas, elegir solo las necesarias o rechazarlas.
+        Consulta nuestra
+        <a routerLink="/privacidad">política de privacidad</a>,
+        <a routerLink="/terminos">términos de uso</a> y
+        <a routerLink="/cookies">política de cookies</a>.
+      </p>
+    </div>
+
+    <div class="cookie-actions">
+      <button mat-stroked-button class="btn-rechazar" (click)="rechazar()">
+        Rechazar
+      </button>
+      <button mat-stroked-button class="btn-necesarias" (click)="soloNecesarias()">
+        Solo necesarias
+      </button>
+      <button mat-flat-button class="btn-aceptar" (click)="aceptarTodas()">
+        <mat-icon>check</mat-icon>
+        Aceptar todas
+      </button>
+    </div>
+  </div>
+</div>
+}

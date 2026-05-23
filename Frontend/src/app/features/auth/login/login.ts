@@ -37,8 +37,8 @@ export class LoginComponent implements OnInit {
   mostrarPassword = false;
   recordarme = false;
 
-  readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorize/google`;
-  readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorize/github`;
+  readonly googleOAuthUrl = `${environment.backendUrl}/oauth2/authorization/google`;
+  readonly githubOAuthUrl = `${environment.backendUrl}/oauth2/authorization/github`;
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -52,8 +52,6 @@ export class LoginComponent implements OnInit {
     if (savedEmail) {
       this.email = savedEmail;
       this.recordarme = true;
-      // Forzar detección de cambios para que el label del mat-form-field
-      // flote correctamente al ser el valor asignado programáticamente
       this.cdr.detectChanges();
     }
   }

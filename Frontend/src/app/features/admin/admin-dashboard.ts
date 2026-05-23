@@ -42,10 +42,10 @@ export class AdminDashboardComponent implements OnInit {
   private authService  = inject(AuthService);
   private route        = inject(ActivatedRoute);
 
-  // ── Tabs ──────────────────────────────────────────────────
+  // Tabs
   tabActiva = signal<Tab>('resumen');
 
-  // ── Datos ─────────────────────────────────────────────────
+  // Datos
   stats          = signal<AdminStats | null>(null);
   usuarios       = signal<AdminUsuario[]>([]);
   tests          = signal<AdminTest[]>([]);
@@ -62,7 +62,7 @@ export class AdminDashboardComponent implements OnInit {
   fOrgDescripcion = '';
   fOrgActiva    = true;
 
-  // ── Búsqueda ──────────────────────────────────────────────
+  // Búsqueda
   busquedaUsuario = signal('');
   busquedaTest    = signal('');
   busquedaOrg     = signal('');
@@ -97,7 +97,7 @@ export class AdminDashboardComponent implements OnInit {
     );
   });
 
-  // ── CRUD usuarios ─────────────────────────────────────────
+  // CRUD usuarios
   modoForm          = signal<ModoForm>(null);
   usuarioEditando   = signal<AdminUsuario | null>(null);
   guardandoUsuario  = signal(false);

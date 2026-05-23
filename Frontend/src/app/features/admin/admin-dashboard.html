@@ -66,7 +66,7 @@
       </button>
     </div>
 
-    <!-- ═══════════════ TAB: RESUMEN ═══════════════ -->
+    <!-- Tab: Resumen -->
     @if (tabActiva() === 'resumen') {
       <div class="tab-content">
         <div class="resumen-cards">
@@ -118,7 +118,7 @@
       </div>
     }
 
-    <!-- ═══════════════ TAB: USUARIOS ═══════════════ -->
+    <!-- Tab: Usuarios -->
     @if (tabActiva() === 'usuarios') {
       <div class="tab-content">
 
@@ -139,7 +139,7 @@
           </button>
         </div>
 
-        <!-- ── Formulario crear / editar ── -->
+        <!-- Formulario crear / editar -->
         @if (modoForm() !== null) {
           <div class="usuario-form" id="usuario-form">
             <div class="form-header">
@@ -225,7 +225,6 @@
           </div>
         }
 
-        <!-- ── Tabla ── -->
         @if (cargandoUsuarios()) {
           <div class="loading-center"><mat-spinner diameter="40"></mat-spinner></div>
         } @else {
@@ -244,7 +243,7 @@
                 @for (u of usuariosFiltrados(); track u.id) {
                   <tr [class.inactivo]="!u.activo" [class.editando]="usuarioEditando()?.id === u.id">
 
-                    <!-- ① Usuario: avatar + nombre + email + badges -->
+                    <!-- Usuario -->
                     <td>
                       <div class="user-cell">
                         <div class="avatar-mini">{{ u.nombre.charAt(0).toUpperCase() }}</div>
@@ -263,7 +262,7 @@
                       </div>
                     </td>
 
-                    <!-- ② Suscripción: badge + detalles en sub-línea -->
+                    <!-- Suscripción -->
                     <td>
                       <span class="badge" [class.badge-activo]="u.suscripcionActiva"
                                           [class.badge-inactivo]="!u.suscripcionActiva">
@@ -280,12 +279,12 @@
                       }
                     </td>
 
-                    <!-- ③ Fecha de alta -->
+                    <!-- Fecha de alta -->
                     <td class="text-muted text-sm">
                       @if (u.createdAt) { {{ u.createdAt | date:'dd/MM/yy' }} } @else { — }
                     </td>
 
-                    <!-- ④ Estado + Rol apilados -->
+                    <!-- Estado y rol -->
                     <td>
                       <div class="estado-rol">
                         <span class="badge" [class.badge-activo]="u.activo" [class.badge-inactivo]="!u.activo">
@@ -300,7 +299,7 @@
                       </div>
                     </td>
 
-                    <!-- ⑤ Acciones -->
+                    <!-- Acciones -->
                     <td class="acciones-td">
                       <div class="acciones-cell">
                         <button mat-icon-button class="icon-btn-blue" (click)="abrirEditar(u)" matTooltip="Editar">
@@ -361,7 +360,7 @@
       </div>
     }
 
-    <!-- ═══════════════ TAB: TESTS ═══════════════ -->
+    <!-- Tab: Tests -->
     @if (tabActiva() === 'tests') {
       <div class="tab-content">
         <div class="tab-toolbar">
@@ -404,7 +403,7 @@
                         {{ t.dificultad }}
                       </span>
                     </td>
-                    <!-- Visibilidad — clickable para cambiar -->
+                    <!-- Visibilidad -->
                     <td>
                       <button class="vis-toggle"
                         [class.vis-publico]="t.visibilidad === 'PUBLICO'"
@@ -451,7 +450,7 @@
       </div>
     }
 
-    <!-- ═══════════════ TAB: ORGANIZACIONES ═══════════════ -->
+    <!-- Tab: Organizaciones -->
     @if (tabActiva() === 'organizaciones') {
       <div class="tab-content">
         <div class="tab-toolbar">
@@ -561,10 +560,11 @@
                       (click)="guardarOrg()"
                       [disabled]="guardandoOrg() || !fOrgNombre.trim()">
                 @if (guardandoOrg()) {
-                  <mat-spinner diameter="18"></mat-spinner> Guardando...
+                  <mat-spinner diameter="18"></mat-spinner>
                 } @else {
-                  <mat-icon>save</mat-icon> Guardar cambios
+                  <mat-icon>save</mat-icon>
                 }
+                {{ guardandoOrg() ? 'Guardando...' : 'Guardar cambios' }}
               </button>
             </div>
           </div>

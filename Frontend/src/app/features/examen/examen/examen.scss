@@ -1,4 +1,4 @@
-.examen-container {
+﻿.examen-container {
     min-height: 100vh;
     background: var(--madraza-bg);
     display: flex;
@@ -296,7 +296,7 @@
     }
 }
 
-// ── TEXTO LIBRE ───────────────────────────────────────────
+// TEXTO LIBRE
 
 .texto-libre-container {
     margin-bottom: 24px;
@@ -381,7 +381,7 @@
     }
 }
 
-// ── MEDIA QUERIES ─────────────────────────────────────────
+// MEDIA QUERIES
 
 @media (max-width: 768px) {
     .examen-header {

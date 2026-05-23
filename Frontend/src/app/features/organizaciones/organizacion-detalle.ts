@@ -44,21 +44,17 @@ export class OrganizacionDetalleComponent implements OnInit {
   cargando    = signal(true);
   usuarioId   = this.authService.getUsuarioActual()?.id ?? 0;
 
-  // Editar organización
   editando        = false;
   guardandoEdicion = signal(false);
   fNombre      = '';
   fTipo        = 'CENTRO_EDUCATIVO';
   fDescripcion = '';
 
-  // Eliminar organización
   eliminando = signal(false);
 
-  // Invitar
   emailInvitar = '';
   invitando    = signal(false);
 
-  // Asignar recurso
   mostrarAsignar      = false;
   tipoRecurso: 'TEST' | 'APUNTE' = 'TEST';
   misTests: Test[]    = [];
@@ -70,14 +66,11 @@ export class OrganizacionDetalleComponent implements OnInit {
   instrucciones = '';
   asignando     = signal(false);
 
-  // Exámenes propios de la organización
   examenesOrg: Test[] = [];
 
-  // Resultados de asignación expandida
   resultadosAsignacion = new Map<number, ResultadoAsignacion[]>();
   cargandoResultados   = new Set<number>();
 
-  // Estadísticas de miembro expandido
   statsMiembro = new Map<number, EstadisticasMiembro>();
   cargandoStats = new Set<number>();
 

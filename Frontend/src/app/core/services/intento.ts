@@ -41,8 +41,8 @@ export class IntentoService {
     return this.http.get<IntentoParaCorregir[]>(`${this.apiUrl}/para-corregir/${testId}`);
   }
 
-  corregir(intentoId: number, correcciones: Record<number, boolean>): Observable<ResultadoResponse> {
-    return this.http.put<ResultadoResponse>(`${this.apiUrl}/${intentoId}/corregir`, correcciones);
+  corregir(intentoId: number, body: { nota: number | null; correcciones: Record<number, boolean>; anotaciones: Record<number, string> }): Observable<ResultadoResponse> {
+    return this.http.put<ResultadoResponse>(`${this.apiUrl}/${intentoId}/corregir`, body);
   }
 
   exportarPdf(intentoId: number): Observable<Blob> {

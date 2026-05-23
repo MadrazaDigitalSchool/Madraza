@@ -1,0 +1,114 @@
+.cookie-overlay {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.cookie-banner {
+  pointer-events: all;
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--madraza-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.4);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.cookie-icon {
+  flex-shrink: 0;
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #eab308;
+  }
+}
+
+.cookie-content {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--madraza-text);
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--madraza-text-muted);
+    line-height: 1.5;
+
+    a {
+      color: var(--madraza-primary-light);
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+  }
+}
+
+.cookie-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-rechazar {
+  color: var(--madraza-text-muted);
+  border-color: rgba(255, 255, 255, 0.15);
+  font-size: 13px;
+  &:hover { border-color: rgba(255, 255, 255, 0.3); }
+}
+
+.btn-necesarias {
+  color: var(--madraza-text);
+  border-color: rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+}
+
+.btn-aceptar {
+  background: var(--madraza-primary);
+  color: #fff;
+  font-size: 13px;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+@media (max-width: 768px) {
+  .cookie-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .cookie-icon { display: none; }
+
+  .cookie-actions {
+    flex-direction: column;
+    gap: 8px;
+
+    button { width: 100%; }
+  }
+
+  .btn-rechazar { order: 3; }
+  .btn-necesarias { order: 2; }
+  .btn-aceptar { order: 1; }
+}

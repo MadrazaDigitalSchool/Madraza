@@ -74,22 +74,15 @@ export class DashboardComponent implements OnInit {
       this.apunteService.getMisApuntes().subscribe({ next: (apuntes) => { this.misApuntes = apuntes; } });
     }
 
-    // Cargar límites del plan FREE si no es premium
     if (!this.authService.tieneSubscripcion()) {
       this.authService.getLimites().subscribe({ next: l => this.limites.set(l) });
     }
 
-    // Recursos compartidos conmigo
     this.compartirService.getRecibidos().subscribe({ next: c => this.compartidos.set(c.filter(x => !x.visto).slice(0, 5)) });
-
-    // Asignaciones pendientes
     this.orgService.getMisAsignaciones().subscribe({ next: a => this.asignaciones.set(a.filter(x => x.estado === 'PENDIENTE').slice(0, 5)) });
 
-    // Organizaciones donde el usuario es admin (para asignar tests desde el dashboard)
     const userId = this.authService.getUsuarioActual()?.id;
     this.orgService.getMisOrganizaciones().subscribe({ next: orgs => this.misOrgsAdmin = orgs.filter(o => o.adminId === userId) });
-
-    // Exámenes de texto libre pendientes de corrección
     this.intentoService.getMisPendientesCorreccion().subscribe({ next: p => this.pendientesCorreccion.set(p), error: () => {} });
   }
 

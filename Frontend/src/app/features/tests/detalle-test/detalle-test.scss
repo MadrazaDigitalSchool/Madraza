@@ -1,4 +1,4 @@
-.detalle-container {
+﻿.detalle-container {
     min-height: 100vh;
     background: var(--madraza-bg);
 }
@@ -228,7 +228,7 @@
     }
 }
 
-// ── Apuntes relacionados ──────────────────────────────────
+// Apuntes relacionados
 .apuntes-relacionados {
     background: var(--madraza-surface);
     border-radius: var(--madraza-radius-lg);
@@ -402,7 +402,7 @@
     }
 }
 
-// ── MEDIA QUERIES ─────────────────────────────────────────
+// MEDIA QUERIES
 
 @media (max-width: 768px) {
     .stats-grid {
