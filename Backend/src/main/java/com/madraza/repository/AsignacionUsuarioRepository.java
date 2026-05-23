@@ -20,6 +20,13 @@ public interface AsignacionUsuarioRepository extends JpaRepository<AsignacionUsu
 
     long countByUsuarioIdAndEstado(Long usuarioId, String estado);
 
+    @Query("SELECT COUNT(au) > 0 FROM AsignacionUsuario au " +
+           "WHERE au.usuario.id = :usuarioId " +
+           "AND au.asignacion.tipoRecurso = 'APUNTE' " +
+           "AND au.asignacion.activa = true " +
+           "AND au.asignacion.apunte.id = :apunteId")
+    boolean tieneApunteAsignado(@Param("usuarioId") Long usuarioId, @Param("apunteId") Long apunteId);
+
     @Query("SELECT au FROM AsignacionUsuario au " +
            "WHERE au.usuario.id = :usuarioId " +
            "AND au.asignacion.tipoRecurso = 'APUNTE' " +

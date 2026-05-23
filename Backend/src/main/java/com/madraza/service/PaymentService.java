@@ -60,12 +60,6 @@ public class PaymentService {
     @Value("${stripe.price.anual}")
     private String priceAnual;
 
-    @Value("${stripe.price.mensual.bizum}")
-    private String priceMensualBizum;
-
-    @Value("${stripe.price.anual.bizum}")
-    private String priceAnualBizum;
-
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
@@ -156,26 +150,14 @@ public class PaymentService {
 
     /**
      * Crea una sesión de Stripe Checkout y devuelve la URL de pago.
-     * Acepta metodoPago: "bizum" o "klarna".
-     * El Checkout se muestra en español y con el método de pago preseleccionado.
+     * Acepta metodoPago: "klarna" (resto usa el Payment Element automático de Stripe).
      */
     public String crearSesionCheckout(Long usuarioId, String plan, String metodoPago) throws Exception {
-        boolean esBizum  = "bizum".equalsIgnoreCase(metodoPago);
         boolean esKlarna = "klarna".equalsIgnoreCase(metodoPago);
 
         String planLabel = "anual".equalsIgnoreCase(plan) ? "Premium Anual" : "Premium Mensual";
+        String priceId   = "anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual;
 
-        // Para Bizum usa precios específicos si están configurados; si no, usa los generales.
-        String priceId;
-        if (esBizum) {
-            String bizumPrice = "anual".equalsIgnoreCase(plan) ? priceAnualBizum : priceMensualBizum;
-            priceId = (bizumPrice != null && !bizumPrice.isBlank()) ? bizumPrice
-                    : ("anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual);
-        } else {
-            priceId = "anual".equalsIgnoreCase(plan) ? priceAnual : priceMensual;
-        }
-
-        // Asocia el Customer de Stripe si ya existe, para que Stripe conozca al usuario
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -193,9 +175,8 @@ public class PaymentService {
                 .putMetadata("usuarioId", usuarioId.toString())
                 .putMetadata("plan", plan)
                 .putMetadata("planLabel", planLabel)
-                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "bizum");
+                .putMetadata("metodoPago", metodoPago != null ? metodoPago : "tarjeta");
 
-        // Adjunta o pre-rellena el email del Customer para que Stripe pueda detectar España
         String customerId = usuario.getStripeCustomerId();
         if (customerId != null && !customerId.isBlank()) {
             builder.setCustomer(customerId);
@@ -204,11 +185,9 @@ public class PaymentService {
         }
 
         if (esKlarna) {
-            // Klarna solo — locale ES activa la versión española de Klarna
             builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.KLARNA);
         }
-        // Bizum: con locale=ES y customer español Stripe lo muestra automáticamente
-        // si está habilitado en el Dashboard de Stripe (no se especifica payment_method_types).
+
         Session session = Session.create(builder.build());
         log.info("Sesión Stripe creada: {} para usuario {} método: {}", session.getId(), usuarioId, metodoPago);
         return session.getUrl();

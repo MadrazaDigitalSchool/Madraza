@@ -102,6 +102,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/pago/webhook").permitAll()
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contacto").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tests").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tests/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categorias").permitAll()

@@ -5,7 +5,10 @@ import com.madraza.dto.response.ResultadoResponse;
 import com.madraza.entity.Intento;
 import com.madraza.security.services.UserDetailsImpl;
 import com.madraza.service.IntentoService;
+import com.madraza.service.PdfService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,7 @@ import java.util.Map;
 public class IntentoController {
 
     @Autowired private IntentoService intentoService;
+    @Autowired private PdfService     pdfService;
 
     @PostMapping("/test/{testId}")
     public ResponseEntity<Intento> iniciar(
@@ -80,5 +84,24 @@ public class IntentoController {
             @RequestBody Map<Long, Boolean> correcciones,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(intentoService.corregir(intentoId, userDetails.getId(), correcciones));
+    }
+
+    @GetMapping("/{intentoId}/pdf")
+    public ResponseEntity<?> exportarPdf(
+            @PathVariable Long intentoId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            byte[] pdf = pdfService.generarResultadoPdf(intentoId, userDetails.getId());
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"resultado-" + intentoId + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error al generar el PDF"));
+        }
     }
 }

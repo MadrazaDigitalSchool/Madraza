@@ -8,7 +8,10 @@ import com.madraza.repository.UsuarioRepository;
 import com.madraza.security.services.UserDetailsImpl;
 import com.madraza.service.ApunteService;
 import com.madraza.service.IaService;
+import com.madraza.service.PdfService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +30,8 @@ import java.util.Map;
 public class ApunteController {
 
     @Autowired private ApunteService apunteService;
-    @Autowired private IaService iaService;
+    @Autowired private IaService     iaService;
+    @Autowired private PdfService    pdfService;
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private AsignacionTestRepository asignacionRepo;
     @Autowired private AsignacionUsuarioRepository asignacionUsuarioRepo;
@@ -118,6 +122,25 @@ public class ApunteController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         apunteService.eliminar(id, userDetails.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<?> exportarPdf(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            byte[] pdf = pdfService.generarApuntePdf(id, userDetails.getId());
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"apunte-" + id + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error al generar el PDF"));
+        }
     }
 
     // Endpoint de IA — solo premium, el frontend ya lo oculta pero verificamos aquí también

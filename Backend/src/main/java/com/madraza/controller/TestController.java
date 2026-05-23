@@ -5,9 +5,12 @@ import com.madraza.entity.Test;
 import com.madraza.repository.ApunteRepository;
 import com.madraza.repository.AsignacionTestRepository;
 import com.madraza.security.services.UserDetailsImpl;
+import com.madraza.service.PdfService;
 import com.madraza.service.TestService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,9 +26,10 @@ import java.util.Map;
 @RequestMapping("/api/tests")
 public class TestController {
 
-    @Autowired private TestService testService;
+    @Autowired private TestService              testService;
     @Autowired private AsignacionTestRepository asignacionRepo;
-    @Autowired private ApunteRepository apunteRepo;
+    @Autowired private ApunteRepository         apunteRepo;
+    @Autowired private PdfService               pdfService;
 
     @GetMapping
     public ResponseEntity<List<Test>> getTestsPublicos() {
@@ -84,5 +88,24 @@ public class TestController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         testService.eliminarTest(id, userDetails.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<?> exportarPdf(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            byte[] pdf = pdfService.generarTestPdf(id, userDetails.getId());
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"test-" + id + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error al generar el PDF"));
+        }
     }
 }
