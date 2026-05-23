@@ -110,6 +110,11 @@
       </mat-form-field>
 
       <div class="toolbar-actions">
+        @if (apunteActual() || apunteAsignadoActual) {
+        <button mat-icon-button (click)="exportarPdf()" title="Exportar PDF">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
+        }
         @if (!apunteAsignadoActual) {
         <button mat-stroked-button (click)="mostrarIa = !mostrarIa" class="btn-ia" [class.activo]="mostrarIa">
           <mat-icon>auto_awesome</mat-icon> IA

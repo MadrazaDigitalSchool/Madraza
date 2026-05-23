@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { QuillModule } from 'ngx-quill';
+import { marked } from 'marked';
 import { ApunteService, Apunte, ApunteAsignado } from '../../core/services/apunte.service';
 import { TestService } from '../../core/services/test';
 import { AuthService } from '../../core/services/auth';
@@ -240,6 +241,24 @@ export class ApuntesComponent implements OnInit, OnDestroy {
     });
   }
 
+  exportarPdf(): void {
+    const id     = this.apunteActual()?.id ?? this.apunteAsignadoActual?.id;
+    const titulo = this.apunteActual()?.titulo ?? this.apunteAsignadoActual?.titulo ?? 'apunte';
+    if (!id) return;
+
+    this.apunteService.exportarPdf(id).subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = `${titulo}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.snackBar.open('Error al generar el PDF.', 'Cerrar', { duration: 3000 })
+    });
+  }
+
   get tagsParsados(): string[] {
     return (this.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
   }
@@ -307,29 +326,33 @@ export class ApuntesComponent implements OnInit, OnDestroy {
     });
   }
 
+  private mdToHtml(md: string): string {
+    return marked(md) as string;
+  }
+
   insertarEnEditor(): void {
-    const texto = this.respuestaIa();
+    const html = this.mdToHtml(this.respuestaIa());
     if (this.quillInstance) {
       const len = this.quillInstance.getLength();
-      this.quillInstance.insertText(len - 1, '\n' + texto);
+      this.quillInstance.setSelection(len - 1);
+      this.quillInstance.clipboard.dangerouslyPasteHTML(len - 1, '<p><br></p>' + html);
       this.quillInstance.focus();
+      this.contenido = this.quillInstance.getSemanticHTML();
     } else {
-      this.contenido += (this.contenido ? '<p><br></p>' : '') + '<p>' + texto.replace(/\n/g, '</p><p>') + '</p>';
+      this.contenido += (this.contenido ? '<p><br></p>' : '') + html;
     }
     this.respuestaIa.set('');
     this.snackBar.open('Texto insertado en el editor.', 'Cerrar', { duration: 2000 });
   }
 
   reemplazarEditor(): void {
-    const texto = this.respuestaIa();
+    const html = this.mdToHtml(this.respuestaIa());
     if (this.quillInstance) {
-      this.quillInstance.setContents([]);
-      this.quillInstance.insertText(0, texto);
+      this.quillInstance.clipboard.dangerouslyPasteHTML(0, html);
       this.quillInstance.focus();
-      // Sincronizar ngModel
       this.contenido = this.quillInstance.getSemanticHTML();
     } else {
-      this.contenido = '<p>' + texto.replace(/\n/g, '</p><p>') + '</p>';
+      this.contenido = html;
     }
     this.respuestaIa.set('');
     this.snackBar.open('Editor actualizado con el contenido de la IA.', 'Cerrar', { duration: 2000 });

@@ -75,4 +75,8 @@ export class TestService {
   crearCategoria(nombre: string): Observable<Categoria> {
     return this.http.post<Categoria>(`${environment.apiUrl}/categorias`, { nombre });
   }
+
+  exportarPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/pdf`, { responseType: 'blob' });
+  }
 }

@@ -133,6 +133,14 @@
         <!-- CTA -->
         <div class="cta-section">
 
+            <!-- Exportar PDF (usuarios premium) -->
+            @if (authService.isLoggedIn() && authService.tieneSubscripcion()) {
+            <button mat-stroked-button (click)="exportarPdf()" class="btn-pdf">
+                <mat-icon>picture_as_pdf</mat-icon>
+                Exportar PDF
+            </button>
+            }
+
             <!-- Botón de corrección (solo visible para el creador del test) -->
             @if (authService.isLoggedIn() && test.creador?.id === authService.getUsuarioActual()?.id) {
             <a [routerLink]="['/tests', test.id, 'corregir']" mat-stroked-button class="btn-corregir">

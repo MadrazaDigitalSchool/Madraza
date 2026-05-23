@@ -201,4 +201,19 @@ export class ResultadosComponent implements OnInit {
   repetirTest(): void {
     this.router.navigate(['/tests', this.testId]);
   }
+
+  exportarPdf(): void {
+    if (!this.resultado) return;
+    const titulo = `resultado-${this.resultado.intentoId}`;
+    this.intentoService.exportarPdf(this.resultado.intentoId).subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = `${titulo}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
 }

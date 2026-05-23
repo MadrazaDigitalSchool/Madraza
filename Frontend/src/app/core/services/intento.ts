@@ -44,4 +44,8 @@ export class IntentoService {
   corregir(intentoId: number, correcciones: Record<number, boolean>): Observable<ResultadoResponse> {
     return this.http.put<ResultadoResponse>(`${this.apiUrl}/${intentoId}/corregir`, correcciones);
   }
+
+  exportarPdf(intentoId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${intentoId}/pdf`, { responseType: 'blob' });
+  }
 }

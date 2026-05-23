@@ -1,0 +1,73 @@
+<div class="chat-widget">
+  @if (abierto()) {
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">M</div>
+          <div>
+            <div class="chat-nombre">Madra</div>
+            <div class="chat-estado">Asistente de Madraza</div>
+          </div>
+        </div>
+        <button mat-icon-button (click)="toggle()" class="btn-cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="chat-mensajes" #mensajesContainer>
+        @for (msg of mensajes(); track $index) {
+          <div class="mensaje" [class.usuario]="msg.role === 'user'" [class.asistente]="msg.role === 'assistant'">
+            @if (msg.role === 'assistant') {
+              <div class="msg-avatar">M</div>
+            }
+            <div class="msg-burbuja">
+              @if (msg.html) {
+                <div [innerHTML]="msg.html"></div>
+              } @else {
+                {{ msg.content }}
+              }
+            </div>
+          </div>
+        }
+        @if (cargando()) {
+          <div class="mensaje asistente">
+            <div class="msg-avatar">M</div>
+            <div class="msg-burbuja typing">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="chat-input">
+        <textarea
+          [(ngModel)]="inputTexto"
+          (keydown)="onKeydown($event)"
+          placeholder="Escribe tu mensaje..."
+          rows="1"
+          [disabled]="cargando()">
+        </textarea>
+        <button mat-icon-button (click)="enviar()" [disabled]="!inputTexto.trim() || cargando()" class="btn-enviar">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (oculto()) {
+    <button class="chat-restaurar" (click)="restaurar()" title="Mostrar asistente">
+      <mat-icon>chat</mat-icon>
+    </button>
+  } @else {
+    <div class="chat-actions">
+      @if (!abierto()) {
+        <button class="btn-ocultar" (click)="ocultar()" title="Ocultar asistente">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <button class="chat-toggle" (click)="toggle()">
+        <mat-icon>{{ abierto() ? 'close' : 'chat' }}</mat-icon>
+      </button>
+    </div>
+  }
+</div>

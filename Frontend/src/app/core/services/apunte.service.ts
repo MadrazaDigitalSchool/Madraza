@@ -74,4 +74,8 @@ export class ApunteService {
   asistirConIa(req: IaRequest): Observable<{ resultado: string }> {
     return this.http.post<{ resultado: string }>(`${this.apiUrl}/ia`, req);
   }
+
+  exportarPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/pdf`, { responseType: 'blob' });
+  }
 }

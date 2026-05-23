@@ -107,4 +107,18 @@ export class DetalleTestComponent implements OnInit {
     };
     return clases[dificultad] ?? '';
   }
+
+  exportarPdf(): void {
+    if (!this.test) return;
+    this.testService.exportarPdf(this.test.id).subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = `${this.test!.titulo}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
 }
