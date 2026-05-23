@@ -245,6 +245,59 @@ class IntentoServiceTest {
             assertThatThrownBy(() -> intentoService.corregir(100L, 99L, new CorreccionRequest(null, Map.of(), Map.of())))
                     .isInstanceOf(AccessDeniedException.class);
         }
+
+        @org.junit.jupiter.api.Test
+        @DisplayName("anotación se persiste en la respuesta al corregir")
+        void anotacion_sePersisteEnRespuesta() {
+            RespuestaIntento resp = new RespuestaIntento();
+            resp.setId(200L);
+            resp.setPendienteCorreccion(true);
+            resp.setEsCorrecta(false);
+            intentoEnCurso.setRespuestas(new ArrayList<>(List.of(resp)));
+            intentoEnCurso.setTotalPreguntas(1);
+
+            when(intentoRepository.findById(100L)).thenReturn(Optional.of(intentoEnCurso));
+            when(intentoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            intentoService.corregir(100L, 1L,
+                    new CorreccionRequest(null, Map.of(200L, true), Map.of(200L, "Faltó desarrollar más")));
+
+            assertThat(resp.getAnotacion()).isEqualTo("Faltó desarrollar más");
+        }
+
+        @org.junit.jupiter.api.Test
+        @DisplayName("nota válida (1-10) se persiste en el intento")
+        void notaValida_sePersisteEnIntento() {
+            RespuestaIntento resp = new RespuestaIntento();
+            resp.setId(200L);
+            resp.setPendienteCorreccion(true);
+            intentoEnCurso.setRespuestas(new ArrayList<>(List.of(resp)));
+            intentoEnCurso.setTotalPreguntas(1);
+
+            when(intentoRepository.findById(100L)).thenReturn(Optional.of(intentoEnCurso));
+            when(intentoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            intentoService.corregir(100L, 1L, new CorreccionRequest(7, Map.of(200L, true), Map.of()));
+
+            assertThat(intentoEnCurso.getNota()).isEqualTo(7);
+        }
+
+        @org.junit.jupiter.api.Test
+        @DisplayName("nota fuera de rango (0 o 11) no modifica la nota del intento")
+        void notaFueraDeRango_noSeAplica() {
+            RespuestaIntento resp = new RespuestaIntento();
+            resp.setId(200L);
+            resp.setPendienteCorreccion(true);
+            intentoEnCurso.setRespuestas(new ArrayList<>(List.of(resp)));
+            intentoEnCurso.setTotalPreguntas(1);
+
+            when(intentoRepository.findById(100L)).thenReturn(Optional.of(intentoEnCurso));
+            when(intentoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            intentoService.corregir(100L, 1L, new CorreccionRequest(0, Map.of(200L, true), Map.of()));
+
+            assertThat(intentoEnCurso.getNota()).isNull();
+        }
     }
 
     private RespuestaIntento respuestaCorrecta() {
