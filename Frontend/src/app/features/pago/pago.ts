@@ -1,21 +1,30 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth';
+import { PaymentService } from '../../core/services/payment.service';
 
 @Component({
   selector: 'app-pago',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './pago.html',
   styleUrl: './pago.scss'
 })
 export class PagoComponent {
 
-  private router = inject(Router);
-  private authService = inject(AuthService);
+  private router         = inject(Router);
+  private authService    = inject(AuthService);
+  private paymentService = inject(PaymentService);
+  private snackBar       = inject(MatSnackBar);
+
+  esPremium   = this.authService.tieneSubscripcion();
+  planActual  = this.authService.getUsuarioActual()?.planTipo?.toLowerCase() ?? '';
+  cambiando   = signal(false);
 
   planes = [
     {
@@ -86,24 +95,58 @@ export class PagoComponent {
     }
   ];
 
-  constructor() {
-    if (this.authService.tieneSubscripcion()) {
-      this.router.navigate(['/dashboard']);
-    }
-  }
-
   getCtaLabel(planId: string): string {
-    if (planId === 'free') return 'Tu plan actual';
     if (planId === 'institucional') return 'Contactar';
+    if (this.esPremium) {
+      if (planId === 'free') return 'Cancelar suscripción';
+      if (planId === this.planActual) return 'Plan actual';
+      return planId === 'anual' ? 'Mejorar a Anual' : 'Cambiar a Mensual';
+    }
+    if (planId === 'free') return 'Tu plan actual';
     return 'Elegir este plan';
   }
 
+  isPlanActual(planId: string): boolean {
+    return this.esPremium && planId === this.planActual;
+  }
+
   seleccionarPlan(planId: string): void {
-    if (planId === 'free') return;
     if (planId === 'institucional') {
       this.router.navigate(['/contacto']);
       return;
     }
+
+    if (this.esPremium) {
+      if (planId === 'free') {
+        this.router.navigate(['/perfil']);
+        return;
+      }
+      if (planId === this.planActual) return;
+      this.cambiarPlan(planId as 'mensual' | 'anual');
+      return;
+    }
+
+    if (planId === 'free') return;
     this.router.navigate(['/pago/checkout'], { queryParams: { plan: planId } });
+  }
+
+  private cambiarPlan(plan: 'mensual' | 'anual'): void {
+    this.cambiando.set(true);
+    this.paymentService.cambiarPlan(plan).subscribe({
+      next: (res) => {
+        this.cambiando.set(false);
+        const u = this.authService.getUsuarioActual();
+        if (u) {
+          this.authService.guardarUsuarioLocal({ ...u, planTipo: res.planTipo, suscripcionExpiry: res.suscripcionExpiry });
+          this.planActual = res.planTipo?.toLowerCase() ?? '';
+        }
+        this.snackBar.open('Plan actualizado correctamente.', 'Cerrar', { duration: 4000 });
+      },
+      error: (err) => {
+        this.cambiando.set(false);
+        const msg = err.error?.message || 'No se pudo cambiar el plan. Inténtalo de nuevo.';
+        this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+      }
+    });
   }
 }

@@ -53,4 +53,11 @@ export class PaymentService {
   actualizarMetodoPago(paymentMethodId: string, metodoPago: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/metodo-pago`, { paymentMethodId, metodoPago });
   }
+
+  /** Cambia el plan activo entre mensual y anual */
+  cambiarPlan(plan: 'mensual' | 'anual'): Observable<{ planTipo: string; suscripcionExpiry: string; mensaje: string }> {
+    return this.http.put<{ planTipo: string; suscripcionExpiry: string; mensaje: string }>(
+      `${this.apiUrl}/cambiar-plan`, { plan }
+    );
+  }
 }

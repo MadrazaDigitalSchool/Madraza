@@ -350,6 +350,8 @@ public class PaymentService {
         String nuevoPriceId = esAnual ? priceAnual : priceMensual;
         String planLabel    = esAnual ? "Premium Anual" : "Premium Mensual";
 
+        LocalDateTime expiry = LocalDateTime.now().plusDays(esAnual ? 365 : 30);
+
         if (customerId != null && !customerId.isBlank()) {
             SubscriptionCollection subs = Subscription.list(
                     SubscriptionListParams.builder()
@@ -362,7 +364,7 @@ public class PaymentService {
                 Subscription sub    = subs.getData().get(0);
                 String itemId       = sub.getItems().getData().get(0).getId();
 
-                sub.update(SubscriptionUpdateParams.builder()
+                Subscription updated = sub.update(SubscriptionUpdateParams.builder()
                         .addItem(SubscriptionUpdateParams.Item.builder()
                                 .setId(itemId)
                                 .setPrice(nuevoPriceId)
@@ -374,11 +376,16 @@ public class PaymentService {
                         .putMetadata("planLabel", planLabel)
                         .build());
 
-                log.info("Suscripción Stripe actualizada para usuario {}: {} → {}", usuarioId, planActual, nuevoPlan);
+                // Usar la fecha de fin de ciclo real que devuelve Stripe
+                expiry = java.time.Instant.ofEpochSecond(updated.getCurrentPeriodEnd())
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDateTime();
+
+                log.info("Suscripción Stripe actualizada para usuario {}: {} → {}, expiry={}",
+                        usuarioId, planActual, nuevoPlan, expiry);
             }
         }
 
-        LocalDateTime expiry = LocalDateTime.now().plusDays(esAnual ? 365 : 30);
         usuario.setPlanTipo(nuevoPlan.toLowerCase());
         usuario.setSuscripcionExpiry(expiry);
         usuarioRepository.save(usuario);

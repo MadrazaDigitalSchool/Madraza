@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth';
 import { TestService, CreateTestDTO } from '../../core/services/test';
+import { PaymentService } from '../../core/services/payment.service';
 import { Usuario } from '../../core/models/usuario.model';
 import { Test } from '../../core/models/test.model';
 import { CrearCategoriaDialogComponent } from '../../shared/components/crear-categoria-dialog/crear-categoria-dialog';
@@ -31,12 +32,13 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
   styleUrl: './perfil.scss'
 })
 export class PerfilComponent implements OnInit {
-  authService     = inject(AuthService);
+  authService        = inject(AuthService);
   private testService    = inject(TestService);
-  private router    = inject(Router);
-  private dialog    = inject(MatDialog);
-  private snackBar  = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
+  private paymentService = inject(PaymentService);
+  private router         = inject(Router);
+  private dialog         = inject(MatDialog);
+  private snackBar       = inject(MatSnackBar);
+  private destroyRef     = inject(DestroyRef);
 
   usuario = signal<Usuario | null>(null);
   nombre = '';
@@ -53,6 +55,7 @@ export class PerfilComponent implements OnInit {
   misTestsCargando = true;
   eliminandoId: number | null = null;
   duplicandoId: number | null = null;
+  cambiandoPlan = signal(false);
 
   fechaExpiry = computed(() => {
     const u = this.usuario();
@@ -200,6 +203,46 @@ export class PerfilComponent implements OnInit {
         error: (err) => {
           const msg = err.error?.error || 'No se pudo crear la categoría.';
           this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+        }
+      });
+    });
+  }
+
+  cambiarPlan(plan: 'mensual' | 'anual'): void {
+    const label   = plan === 'anual' ? 'Premium Anual' : 'Premium Mensual';
+    const precio  = plan === 'anual' ? '79,99 €/año' : '9,99 €/mes';
+    const detalle = plan === 'anual'
+      ? 'Se cobrará hoy la diferencia prorrateada y tu nuevo ciclo de facturación será anual.'
+      : 'El cambio se aplicará al final de tu ciclo actual. No se realizará ningún cargo adicional ahora.';
+
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        titulo: 'Cambiar de plan',
+        mensaje: `Pasarás al plan ${label} (${precio}).\n\n${detalle}`,
+        labelConfirmar: 'Confirmar cambio',
+        labelCancelar: 'Cancelar'
+      }
+    });
+    ref.afterClosed().subscribe(confirmado => {
+      if (!confirmado) return;
+      this.cambiandoPlan.set(true);
+      this.paymentService.cambiarPlan(plan).subscribe({
+        next: (res) => {
+          this.cambiandoPlan.set(false);
+          const u = this.authService.getUsuarioActual();
+          if (u) {
+            const actualizado: Usuario = { ...u, planTipo: res.planTipo, suscripcionExpiry: res.suscripcionExpiry };
+            this.authService.guardarUsuarioLocal(actualizado);
+            this.planTipo = res.planTipo ?? '';
+            this.usuario.update(prev => ({ ...prev!, planTipo: res.planTipo, suscripcionExpiry: res.suscripcionExpiry }));
+          }
+          this.snackBar.open(`Plan cambiado a ${label} correctamente.`, 'Cerrar', { duration: 4000 });
+        },
+        error: (err) => {
+          this.cambiandoPlan.set(false);
+          const msg = err.error?.message || 'No se pudo cambiar el plan. Inténtalo de nuevo.';
+          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
         }
       });
     });

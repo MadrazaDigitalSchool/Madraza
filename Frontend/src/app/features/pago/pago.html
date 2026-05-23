@@ -59,9 +59,11 @@
   <!-- Planes -->
   <div class="planes-grid">
     @for (plan of planes; track plan.id) {
-      <div class="plan-card" [class.destacado]="plan.destacado">
+      <div class="plan-card" [class.destacado]="plan.destacado" [class.plan-actual]="isPlanActual(plan.id)">
 
-        @if (plan.destacado) {
+        @if (isPlanActual(plan.id)) {
+          <div class="badge-recomendado">Tu plan actual</div>
+        } @else if (plan.destacado) {
           <div class="badge-recomendado">Más popular</div>
         }
 
@@ -90,12 +92,17 @@
         <button
           mat-flat-button
           class="btn-pagar"
-          [class.btn-destacado]="plan.destacado"
+          [class.btn-destacado]="plan.destacado && !isPlanActual(plan.id)"
           [class.btn-free]="plan.id === 'free'"
           [class.btn-institucional]="plan.id === 'institucional'"
-          [disabled]="plan.id === 'free'"
+          [class.btn-plan-actual]="isPlanActual(plan.id)"
+          [disabled]="isPlanActual(plan.id) || (plan.id === 'free' && !esPremium) || cambiando()"
           (click)="seleccionarPlan(plan.id)">
-          {{ getCtaLabel(plan.id) }}
+          @if (cambiando()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            {{ getCtaLabel(plan.id) }}
+          }
         </button>
 
       </div>

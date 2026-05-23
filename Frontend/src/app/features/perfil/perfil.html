@@ -228,6 +228,32 @@
                 }
               </div>
 
+              <div class="cambiar-plan-btns">
+                @if (planTipo === 'mensual') {
+                  <button mat-stroked-button class="btn-cambiar-plan btn-upgrade"
+                          [disabled]="cambiandoPlan()"
+                          (click)="cambiarPlan('anual')">
+                    @if (cambiandoPlan()) {
+                      <mat-spinner diameter="16"></mat-spinner>
+                    } @else {
+                      <mat-icon>arrow_upward</mat-icon>
+                    }
+                    Mejorar a Anual
+                  </button>
+                } @else if (planTipo === 'anual') {
+                  <button mat-stroked-button class="btn-cambiar-plan btn-downgrade"
+                          [disabled]="cambiandoPlan()"
+                          (click)="cambiarPlan('mensual')">
+                    @if (cambiandoPlan()) {
+                      <mat-spinner diameter="16"></mat-spinner>
+                    } @else {
+                      <mat-icon>arrow_downward</mat-icon>
+                    }
+                    Cambiar a Mensual
+                  </button>
+                }
+              </div>
+
               @if (planExpirandoPronto()) {
                 <div class="expiry-alert expiry-alert--warn">
                   <mat-icon>warning_amber</mat-icon>

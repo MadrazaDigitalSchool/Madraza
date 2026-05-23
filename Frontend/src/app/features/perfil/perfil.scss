@@ -252,6 +252,37 @@
   }
 }
 
+.cambiar-plan-btns {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-cambiar-plan {
+  flex: 1;
+  min-width: 130px;
+  height: 36px;
+  font-size: 13px !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &.btn-upgrade {
+    border-color: #6c63ff !important;
+    color: #6c63ff !important;
+    &:hover:not(:disabled) { background: rgba(108,99,255,0.06) !important; }
+  }
+
+  &.btn-downgrade {
+    border-color: #94a3b8 !important;
+    color: #64748b !important;
+    &:hover:not(:disabled) { background: rgba(100,116,139,0.06) !important; }
+  }
+}
+
 .btn-renovar {
   margin-top: 8px;
   background: #7c3aed !important;
