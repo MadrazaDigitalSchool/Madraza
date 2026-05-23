@@ -11,16 +11,12 @@ import java.util.Optional;
 @Repository
 public interface TestRepository extends JpaRepository<Test, Long> {
 
-    // Tests públicos activos — solo FETCH creador + preguntas (no opciones):
-    // Hibernate 6 no permite JOIN FETCH simultáneo en dos colecciones List (MultipleBagFetchException).
-    // Las opciones se inicializan lazy dentro de la transacción en TestService.
     @Query("SELECT DISTINCT t FROM Test t " +
            "LEFT JOIN FETCH t.creador " +
            "LEFT JOIN FETCH t.preguntas " +
            "WHERE t.visibilidad = 'PUBLICO' AND t.activo = true")
     List<Test> findPublicosConPreguntas();
 
-    // Tests del usuario concreto con creador y preguntas cargadas
     @Query("SELECT DISTINCT t FROM Test t " +
            "LEFT JOIN FETCH t.creador " +
            "LEFT JOIN FETCH t.preguntas " +
@@ -33,13 +29,11 @@ public interface TestRepository extends JpaRepository<Test, Long> {
            "WHERE t.id = :id")
     Optional<Test> findByIdConPreguntas(@Param("id") Long id);
 
-    // Tests de una organización (visibilidad = ORGANIZACION)
     @Query("SELECT DISTINCT t FROM Test t " +
            "LEFT JOIN FETCH t.creador " +
            "LEFT JOIN FETCH t.preguntas " +
            "WHERE t.organizacion.id = :orgId AND t.activo = true")
     List<Test> findByOrganizacionIdConPreguntas(@Param("orgId") Long orgId);
 
-    // Conteo de tests de un usuario (para límite del plan FREE)
     long countByCreadorId(Long creadorId);
 }

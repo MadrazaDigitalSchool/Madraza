@@ -29,6 +29,9 @@ public class EmailService {
     @Value("${app.mail.from}")
     private String from;
 
+    @Value("${app.mail.contacto:${app.mail.from}}")
+    private String contactoEmail;
+
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
@@ -127,7 +130,7 @@ public class EmailService {
             <p>%s</p>
             """.formatted(nombre, email, asunto, mensaje);
         try {
-            enviar("hola@madraza.app", "Contacto: " + asunto, body);
+            enviar(contactoEmail, "Contacto: " + asunto, body);
         } catch (Exception e) {
             log.error("Error al enviar email de contacto: {}", e.getMessage());
         }
@@ -136,7 +139,7 @@ public class EmailService {
     private void enviar(String destinatario, String asunto, String html) throws Exception {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom(from);
+        helper.setFrom("Madraza <" + from + ">");
         helper.setTo(destinatario);
         helper.setSubject(asunto);
         helper.setText(html, true);

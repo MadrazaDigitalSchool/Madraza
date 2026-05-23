@@ -48,7 +48,6 @@ public class Test {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Serializa solo id y nombre del creador (sin password ni datos sensibles)
     @JsonIgnoreProperties({"password", "roles", "activo", "emailVerificado",
                            "createdAt", "proveedorOauth", "avatarUrl", "apellidos"})
     @ManyToOne(fetch = FetchType.LAZY)

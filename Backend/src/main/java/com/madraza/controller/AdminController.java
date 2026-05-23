@@ -44,8 +44,6 @@ public class AdminController {
     @Autowired private PasswordEncoder       passwordEncoder;
     @Autowired private TestService           testService;
 
-    //Stats
-
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats() {
         Map<String, Object> stats = new LinkedHashMap<>();
@@ -55,8 +53,6 @@ public class AdminController {
         stats.put("totalIntentos",       intentoRepository.count());
         return ResponseEntity.ok(stats);
     }
-
-    //Usuarios — CRUD
 
     @GetMapping("/usuarios")
     @Transactional(readOnly = true)
