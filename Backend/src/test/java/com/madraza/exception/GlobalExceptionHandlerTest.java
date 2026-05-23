@@ -35,4 +35,16 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode().value()).isEqualTo(404);
         assertThat(response.getBody().get("error")).isEqualTo("Test no encontrado");
     }
+
+    @Test
+    @DisplayName("AccessDeniedException devuelve 403 con mensaje de permisos")
+    void accessDenied_devuelve403() {
+        org.springframework.security.access.AccessDeniedException ex =
+                new org.springframework.security.access.AccessDeniedException("Forbidden");
+        ResponseEntity<Map<String, String>> response = handler.handleAccessDenied(ex);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(403);
+        assertThat(response.getBody()).containsKey("error");
+        assertThat(response.getBody().get("error")).isEqualTo("No tienes permisos para realizar esta acción");
+    }
 }
