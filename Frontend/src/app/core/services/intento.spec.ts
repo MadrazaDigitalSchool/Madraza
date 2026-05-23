@@ -101,4 +101,44 @@ describe('IntentoService', () => {
       req.flush([{ preguntaId: 1, esCorrecta: true }]);
     });
   });
+
+  describe('corregir', () => {
+    it('realiza PUT a /api/intentos/:id/corregir con payload {nota, correcciones, anotaciones}', () => {
+      const payload = {
+        nota: 7,
+        correcciones: { 200: true } as Record<number, boolean>,
+        anotaciones: { 200: 'Faltó desarrollar más' } as Record<number, string>
+      };
+
+      service.corregir(10, payload).subscribe(resultado => {
+        expect(resultado.estado).toBe('COMPLETADO');
+        expect(resultado.nota).toBe(7);
+      });
+
+      const req = httpMock.expectOne(`${API}/10/corregir`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body.nota).toBe(7);
+      expect(req.request.body.correcciones[200]).toBeTrue();
+      expect(req.request.body.anotaciones[200]).toBe('Faltó desarrollar más');
+      req.flush({
+        intentoId: 10, puntuacion: 5, totalPreguntas: 5,
+        correctas: 5, incorrectas: 0, porcentaje: 100,
+        estado: 'COMPLETADO', tiempoEmpleado: 120,
+        pendienteCorreccion: false, nota: 7
+      });
+    });
+  });
+
+  describe('getMisPendientesCorreccion', () => {
+    it('realiza GET a /api/intentos/mis-pendientes-correccion', () => {
+      service.getMisPendientesCorreccion().subscribe(lista => {
+        expect(lista.length).toBe(1);
+        expect(lista[0].testTitulo).toBe('Test de Inglés');
+      });
+
+      const req = httpMock.expectOne(`${API}/mis-pendientes-correccion`);
+      expect(req.request.method).toBe('GET');
+      req.flush([{ testId: 5, testTitulo: 'Test de Inglés', pendientes: 3 }]);
+    });
+  });
 });

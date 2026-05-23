@@ -21,7 +21,8 @@
       "Bash(grep -v \"//\\\\s*$\")",
       "Bash(xargs grep -l \"corregir\\\\|correccion\\\\|PENDIENTE_CORRECCION\")",
       "Bash(xargs grep -l \"corregir\\\\|correccion\")",
-      "Bash(git -C E:/desarrollo_web/daw/2_daw/proyecto_madraza diff --stat HEAD)"
+      "Bash(git -C E:/desarrollo_web/daw/2_daw/proyecto_madraza diff --stat HEAD)",
+      "Bash(npx ng *)"
     ]
   }
 }
