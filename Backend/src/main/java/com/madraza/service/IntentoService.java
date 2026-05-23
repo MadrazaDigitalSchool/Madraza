@@ -125,13 +125,18 @@ public class IntentoService {
                 .filter(r -> !r.isPendienteCorreccion() && r.getOpcionSeleccionada() != null && !r.isEsCorrecta())
                 .count();
 
-        double porcentaje = intento.getTotalPreguntas() > 0
-                ? (double) correctas / intento.getTotalPreguntas() * 100
-                : 0.0;
+        int puntosObtenidos = intento.getRespuestas().stream()
+                .filter(r -> !r.isPendienteCorreccion() && r.isEsCorrecta())
+                .mapToInt(r -> r.getPregunta().getPuntos())
+                .sum();
+        int puntosTotal = intento.getTest().getPreguntas().stream()
+                .mapToInt(Pregunta::getPuntos)
+                .sum();
+        double porcentaje = puntosTotal > 0 ? (double) puntosObtenidos / puntosTotal * 100 : 0.0;
 
         intento.setCorrectas((int) correctas);
         intento.setIncorrectas((int) incorrectas);
-        intento.setPuntuacion((int) correctas * 10);
+        intento.setPuntuacion(puntosObtenidos);
         intento.setPorcentaje(porcentaje);
         intento.setPendienteCorreccion(tienePendientes);
         intento.setEstado(tienePendientes ? "PENDIENTE_CORRECCION" : "COMPLETADO");
@@ -274,12 +279,18 @@ public class IntentoService {
                              && (r.getOpcionSeleccionada() != null
                                  || (r.getTextoLibre() != null && !r.getTextoLibre().isBlank())))
                 .count();
-        double porcentaje = intento.getTotalPreguntas() > 0
-                ? (double) correctas / intento.getTotalPreguntas() * 100 : 0.0;
+        int puntosObtenidos = intento.getRespuestas().stream()
+                .filter(r -> !r.isPendienteCorreccion() && r.isEsCorrecta())
+                .mapToInt(r -> r.getPregunta().getPuntos())
+                .sum();
+        int puntosTotal = intento.getTest().getPreguntas().stream()
+                .mapToInt(Pregunta::getPuntos)
+                .sum();
+        double porcentaje = puntosTotal > 0 ? (double) puntosObtenidos / puntosTotal * 100 : 0.0;
 
         intento.setCorrectas((int) correctas);
         intento.setIncorrectas((int) incorrectas);
-        intento.setPuntuacion((int) correctas * 10);
+        intento.setPuntuacion(puntosObtenidos);
         intento.setPorcentaje(porcentaje);
         intento.setPendienteCorreccion(false);
         intento.setEstado("COMPLETADO");
