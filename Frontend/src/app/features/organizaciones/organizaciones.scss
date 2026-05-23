@@ -58,9 +58,25 @@
   .org-icon { width: 44px; height: 44px; border-radius: 10px; background: rgba(124,58,237,.15);
     display: flex; align-items: center; justify-content: center;
     mat-icon { color: #7c3aed; } }
-  .org-info { flex: 1; h3 { margin: 0 0 4px; font-size: 15px; } }
+  .org-info { flex: 1; min-width: 0; h3 { margin: 0 0 4px; font-size: 15px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
   .tipo-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px;
-    background: rgba(124,58,237,.15); color: #a78bfa; }
+    background: rgba(124,58,237,.15); color: #a78bfa; white-space: nowrap; }
   .admin { font-size: 12px; color: var(--text-secondary, #aaa); margin: 4px 0 0; }
-  .arrow { color: var(--text-secondary, #aaa); }
+  .arrow { color: var(--text-secondary, #aaa); flex-shrink: 0; }
+}
+
+@media (max-width: 640px) {
+  .page-container { padding: 20px 12px; }
+  .page-header {
+    h1 { font-size: 1.3rem; }
+    flex-direction: column; align-items: flex-start;
+  }
+  .header-actions { width: 100%; }
+  .form-card { padding: 16px; }
+  .org-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 400px) {
+  .org-card { padding: 14px 12px; gap: 10px; }
 }

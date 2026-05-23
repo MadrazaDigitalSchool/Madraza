@@ -239,3 +239,43 @@
 .color-ok   { color: #22c55e; font-weight: 600; }
 .color-warn { color: #eab308; font-weight: 600; }
 .color-err  { color: #ef4444; font-weight: 600; }
+
+@media (max-width: 768px) {
+  .page-container { padding: 20px 12px; }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    h1 { font-size: 1.3rem; }
+  }
+
+  .header-actions { width: 100%; flex-wrap: wrap; }
+
+  .invitar-form {
+    flex-direction: column;
+    gap: 8px;
+    mat-form-field { width: 100%; }
+  }
+
+  .miembro-item { gap: 8px; }
+
+  .stats-resumen { gap: 12px; }
+
+  .stats-panel, .resultados-panel { padding: 12px; }
+
+  .stats-tabla {
+    font-size: 12px;
+    th, td { padding: 6px 8px; }
+  }
+
+  .asig-item { flex-wrap: wrap; gap: 8px; }
+  .asig-acciones { width: 100%; justify-content: flex-end; }
+}
+
+@media (max-width: 480px) {
+  .editar-form-card { padding: 14px; }
+  .editar-form-grid { grid-template-columns: 1fr; }
+  .stats-tabla th:nth-child(3),
+  .stats-tabla td:nth-child(3) { display: none; }
+  .miembro-info .miembro-email { display: none; }
+}

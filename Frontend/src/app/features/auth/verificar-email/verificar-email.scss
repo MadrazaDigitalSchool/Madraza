@@ -61,3 +61,19 @@
     font-weight: 600;
   }
 }
+
+@media (max-width: 480px) {
+  .verificar-container {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 40px;
+
+    .card {
+      padding: clamp(28px, 7vw, 48px) clamp(18px, 5vw, 40px);
+      border-radius: 16px;
+    }
+
+    h2 { font-size: 18px; }
+    .texto { font-size: 14px; }
+  }
+}

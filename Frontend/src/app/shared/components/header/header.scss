@@ -602,4 +602,22 @@
     .navbar-title .navbar-title-link h1 {
         font-size: 13px;
     }
+
+    .dropdown {
+        min-width: calc(100vw - 32px);
+        max-width: calc(100vw - 16px);
+        right: 8px !important;
+        left: 8px !important;
+    }
+
+    .notif-dropdown {
+        width: calc(100vw - 16px);
+        right: 8px !important;
+        left: 8px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .navbar-inner { gap: 8px; }
+    .navbar-logo { height: 48px; }
 }

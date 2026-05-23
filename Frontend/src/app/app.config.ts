@@ -1,4 +1,4 @@
-import { ApplicationConfig, LOCALE_ID } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, isDevMode } from '@angular/core';
 import {
   provideRouter,
   withInMemoryScrolling,
@@ -12,6 +12,7 @@ import { jwtInterceptor } from './core/interceptors/jwt-interceptor';
 
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
+import { provideServiceWorker } from '@angular/service-worker';
 registerLocaleData(localeEs);
 
 export const appConfig: ApplicationConfig = {
@@ -27,6 +28,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([jwtInterceptor])
-    )
+    ), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };

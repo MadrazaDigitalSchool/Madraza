@@ -10,7 +10,10 @@
       "Bash(unzip -p \"E:/desarrollo_web/daw/2_daw/proyecto_madraza/Backend/target/tmp3/anthropic-java-core-2.31.0-sources.jar\" \"main/com/anthropic/models/messages/MessageCreateParams.kt\")",
       "Bash(unzip -p \"E:/desarrollo_web/daw/2_daw/proyecto_madraza/Backend/target/tmp3/anthropic-java-core-2.31.0-sources.jar\" \"main/com/anthropic/models/messages/ContentBlock.kt\")",
       "Bash(npx tsc *)",
-      "Bash(mvn spring-boot:run -Dspring-boot.run.profiles=dev)"
+      "Bash(mvn spring-boot:run -Dspring-boot.run.profiles=dev)",
+      "Bash(Get-ChildItem -Path \"E:\\\\desarrollo_web\\\\daw\\\\2_daw\\\\proyecto_madraza\\\\Frontend\\\\src\" -Filter \"*.scss\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)"
     ]
   }
 }

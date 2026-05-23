@@ -366,3 +366,11 @@
 
   &:hover { opacity: 0.8; }
 }
+
+@media (max-width: 480px) {
+  .checkout-container { padding: 24px 14px 48px; gap: 20px; }
+  .checkout-header h1 { font-size: clamp(20px, 6vw, 30px); }
+  .plan-card { padding: 28px 18px; }
+  .pago-resumen { padding: 20px 16px; }
+  .plan-precio .precio-num { font-size: 30px; }
+}

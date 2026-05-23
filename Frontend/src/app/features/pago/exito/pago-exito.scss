@@ -83,3 +83,22 @@
     height: 44px;
   }
 }
+
+@media (max-width: 480px) {
+  .exito-container {
+    padding: 20px 16px;
+    align-items: flex-start;
+    padding-top: 40px;
+
+    .card {
+      padding: clamp(28px, 7vw, 52px) clamp(18px, 5vw, 40px);
+      border-radius: 16px;
+      gap: 14px;
+    }
+
+    h2 { font-size: 20px; }
+    .texto { font-size: 14px; }
+    .btn-group { flex-direction: column; align-items: stretch; }
+    .btn-dashboard, .btn-reintentar { width: 100%; justify-content: center; }
+  }
+}

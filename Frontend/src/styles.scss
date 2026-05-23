@@ -182,6 +182,32 @@ body.tema-claro .perfil-container .card {
   padding-inline: clamp(16px, 4vw, 32px);
 }
 
+// Evita desbordamiento horizontal global
+html, body { overflow-x: hidden; }
+
+// Imágenes siempre dentro de su contenedor
+img { max-width: 100%; height: auto; }
+
+// Tablas con scroll horizontal cuando no caben
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Diálogos de Angular Material: responsivos en móvil
+@media (max-width: 600px) {
+  .mat-mdc-dialog-container {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px !important;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: 16px !important;
+    padding: 16px !important;
+  }
+}
+
 // ── LAYOUT ────────────────────────────────────────────────
 main {
   min-height: calc(100vh - 80px - 200px);

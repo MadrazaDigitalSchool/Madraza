@@ -163,3 +163,39 @@
 .aviso-incompleto {
     font-size: 13px; color: var(--madraza-text-muted); font-style: italic;
 }
+
+@media (max-width: 640px) {
+    .corregir-body { padding: 20px 0 48px; }
+
+    .intento-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        .intento-fecha { width: 100%; order: 3; }
+    }
+
+    .respuestas-lista { padding: 0 12px; }
+
+    .respuesta-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .respuesta-num { align-self: flex-start; }
+
+    .correccion-btns { flex-wrap: wrap; }
+
+    .intento-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 14px 16px;
+        button { width: 100%; }
+    }
+
+    .respuesta-modelo, .respuesta-alumno { padding: 8px 10px; }
+}
+
+@media (max-width: 400px) {
+    .intento-header { padding: 12px 14px; }
+    .btn-correcto, .btn-incorrecto { flex: 1; justify-content: center; }
+}
