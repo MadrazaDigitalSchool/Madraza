@@ -52,7 +52,6 @@ Frontend/src/environments/environment.prod.ts
 
 # Backend: configuración local con claves sensibles
 Backend/src/main/resources/application-dev.properties
-Backend/src/main/resources/application-prod.properties
 
 # Logs
 logs
