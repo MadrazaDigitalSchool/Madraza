@@ -6,6 +6,7 @@ import com.madraza.security.oauth2.OAuth2SuccessHandler;
 import com.madraza.security.oauth2.OAuth2UserServiceImpl;
 import com.madraza.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -40,6 +41,9 @@ public class SecurityConfig {
     @Autowired private OAuth2UserServiceImpl oAuth2UserService;
     @Autowired private OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    @Value("${allowed.origins:http://localhost:4200,http://localhost:4000}")
+    private String allowedOriginsValue;
+
     @Bean
     public AuthTokenFilter authTokenFilter() {
         return new AuthTokenFilter();
@@ -68,11 +72,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        String allowedOriginsEnv = System.getenv("ALLOWED_ORIGINS");
-        List<String> allowedOrigins = (allowedOriginsEnv != null && !allowedOriginsEnv.isBlank())
-                ? List.of(allowedOriginsEnv.split(","))
-                : List.of("http://localhost:4200", "http://localhost:4000");
-
+        List<String> allowedOrigins = List.of(allowedOriginsValue.split(","));
         config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
