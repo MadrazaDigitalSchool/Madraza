@@ -28,11 +28,14 @@ public class EmailService {
     @Autowired private RestClient.Builder restClientBuilder;
     @Autowired private TemplateEngine templateEngine;
 
-    @Value("${resend.api.key:}")
+    @Value("${brevo.api.key:}")
     private String apiKey;
 
-    @Value("${resend.from:Madraza <onboarding@resend.dev>}")
-    private String from;
+    @Value("${brevo.sender.name:Madraza}")
+    private String senderName;
+
+    @Value("${brevo.sender.email:madrazaapp@gmail.com}")
+    private String senderEmail;
 
     @Value("${app.mail.contacto:}")
     private String contactoEmail;
@@ -44,7 +47,7 @@ public class EmailService {
 
     @PostConstruct
     public void init() {
-        this.restClient = restClientBuilder.baseUrl("https://api.resend.com").build();
+        this.restClient = restClientBuilder.baseUrl("https://api.brevo.com").build();
     }
 
     @Async
@@ -137,7 +140,7 @@ public class EmailService {
             <p>%s</p>
             """.formatted(nombre, email, asunto, mensaje);
         try {
-            String destino = contactoEmail.isBlank() ? from : contactoEmail;
+            String destino = contactoEmail.isBlank() ? senderEmail : contactoEmail;
             enviar(destino, "Contacto: " + asunto, html);
         } catch (Exception e) {
             log.error("Error al enviar email de contacto: {}", e.getMessage());
@@ -151,15 +154,15 @@ public class EmailService {
         }
 
         Map<String, Object> body = Map.of(
-            "from", from,
-            "to", List.of(destinatario),
+            "sender", Map.of("name", senderName, "email", senderEmail),
+            "to", List.of(Map.of("email", destinatario)),
             "subject", asunto,
-            "html", html
+            "htmlContent", html
         );
 
         restClient.post()
-            .uri("/emails")
-            .header("Authorization", "Bearer " + apiKey)
+            .uri("/v3/smtp/email")
+            .header("api-key", apiKey)
             .contentType(MediaType.APPLICATION_JSON)
             .body(body)
             .retrieve()
