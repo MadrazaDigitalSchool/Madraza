@@ -24,6 +24,9 @@
     ]
   },
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["@parcel/watcher", "esbuild", "lmdb", "msgpackr-extract"]
+  },
   "dependencies": {
     "@angular/animations": "^20.3.19",
     "@angular/cdk": "^20.2.14",
