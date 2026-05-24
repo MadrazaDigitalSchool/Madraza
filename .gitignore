@@ -61,3 +61,6 @@ logs
 # Package locks (optional, uncomment if needed)
 # package-lock.json
 # yarn.lock
+
+# Claude Code (configuración local autogenerada)
+**/.claude/settings.local.json
