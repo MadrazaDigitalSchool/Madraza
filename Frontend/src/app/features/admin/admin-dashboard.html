@@ -251,12 +251,14 @@
                           <span class="user-nombre">{{ u.nombre }} {{ u.apellidos }}</span>
                           <span class="user-email">{{ u.email }}</span>
                           <div class="user-tags">
-                            @if (u.proveedorOauth) {
-                              <span class="oauth-tag">{{ u.proveedorOauth }}</span>
-                            }
-                            @if (!u.emailVerificado) {
-                              <span class="oauth-tag warn">No verificado</span>
-                            }
+                            <span class="oauth-tag" [class.tag-google]="u.proveedorOauth === 'google'" [class.tag-github]="u.proveedorOauth === 'github'">
+                              <mat-icon>{{ u.proveedorOauth === 'google' ? 'account_circle' : u.proveedorOauth === 'github' ? 'code' : 'lock' }}</mat-icon>
+                              {{ u.proveedorOauth ? u.proveedorOauth : 'contraseña' }}
+                            </span>
+                            <span class="oauth-tag" [class.tag-verificado]="u.emailVerificado" [class.warn]="!u.emailVerificado">
+                              <mat-icon>{{ u.emailVerificado ? 'verified' : 'cancel' }}</mat-icon>
+                              {{ u.emailVerificado ? 'Verificado' : 'Sin verificar' }}
+                            </span>
                           </div>
                         </div>
                       </div>
