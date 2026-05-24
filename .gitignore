@@ -81,6 +81,10 @@ Backend/*.war
 Backend/*.nar
 Backend/*.ear
 
+# Archivos de salida temporales
+Backend/*.txt
+Frontend/*.txt
+
 # Backend: Spring Boot devtools / JVM crash logs
 spring-boot-devtools.properties
 hs_err_pid*
