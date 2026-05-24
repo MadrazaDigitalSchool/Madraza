@@ -64,3 +64,40 @@ logs
 
 # Claude Code (configuración local autogenerada)
 **/.claude/settings.local.json
+
+# Backend: Maven build
+Backend/target/
+Backend/pom.xml.tag
+Backend/pom.xml.releaseBackup
+Backend/pom.xml.versionsBackup
+Backend/pom.xml.next
+Backend/release.properties
+Backend/dependency-reduced-pom.xml
+Backend/buildNumber.properties
+Backend/.mvn/timing.properties
+Backend/.mvn/wrapper/maven-wrapper.jar
+!Backend/**/src/main/**/target/
+!Backend/**/src/test/**/target/
+
+# Backend: artefactos empaquetados
+Backend/*.jar
+Backend/*.war
+Backend/*.nar
+Backend/*.ear
+
+# Backend: Spring Boot devtools / JVM crash logs
+spring-boot-devtools.properties
+hs_err_pid*
+replay_pid*
+
+# Backend: IDEs (Spring Tool Suite / NetBeans)
+Backend/.apt_generated
+Backend/.factorypath
+Backend/.springBeans
+Backend/.sts4-cache
+Backend/nbproject/private/
+Backend/nbbuild/
+Backend/.nb-gradle/
+Backend/build/
+!Backend/**/src/main/**/build/
+!Backend/**/src/test/**/build/
