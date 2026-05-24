@@ -44,6 +44,9 @@ public class SecurityConfig {
     @Value("${allowed.origins:http://localhost:4200,http://localhost:4000}")
     private String allowedOriginsValue;
 
+    @Value("${app.frontend.url:http://localhost:4200}")
+    private String frontendUrl;
+
     @Bean
     public AuthTokenFilter authTokenFilter() {
         return new AuthTokenFilter();
@@ -116,6 +119,8 @@ public class SecurityConfig {
                     .userInfoEndpoint(userInfo -> userInfo
                             .userService(oAuth2UserService))
                     .successHandler(oAuth2SuccessHandler)
+                    .failureHandler((req, res, ex) ->
+                            res.sendRedirect(frontendUrl + "/auth/login?error=oauth2_cancelled"))
             );
 
         return http.build();

@@ -54,6 +54,11 @@ export class LoginComponent implements OnInit {
       this.recordarme = true;
       this.cdr.detectChanges();
     }
+
+    const error = new URLSearchParams(window.location.search).get('error');
+    if (error === 'oauth2_cancelled') {
+      this.errorMessage = 'Inicio de sesión cancelado.';
+    }
   }
 
   private readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
