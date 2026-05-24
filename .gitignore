@@ -62,9 +62,6 @@ logs
 # package-lock.json
 # yarn.lock
 
-# Claude Code (configuración local autogenerada)
-**/.claude/settings.local.json
-
 # Backend: Maven build
 Backend/target/
 Backend/pom.xml.tag
