@@ -7,6 +7,7 @@ import com.madraza.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,12 @@ public class DataInitializer implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final Environment environment;
+
+    @Value("${app.admin.email:madrazaapp@gmail.com}")
+    private String adminEmail;
+
+    @Value("${app.admin.password:Admin1234!}")
+    private String adminPassword;
 
     @Override
     public void run(String... args) {
@@ -49,18 +56,18 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void crearAdminSiNoExiste(Rol rolUser, Rol rolAdmin) {
-        if (usuarioRepository.existsByEmail("admin@madraza.com")) return;
+        if (usuarioRepository.existsByEmail(adminEmail)) return;
 
         Usuario admin = new Usuario();
         admin.setNombre("Admin");
         admin.setApellidos("Madraza");
-        admin.setEmail("admin@madraza.com");
-        admin.setPassword(passwordEncoder.encode("Admin1234!"));
+        admin.setEmail(adminEmail);
+        admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setEmailVerificado(true);
         admin.setActivo(true);
         admin.setRoles(Set.of(rolUser, rolAdmin));
         usuarioRepository.save(admin);
-        log.info("Admin creado: admin@madraza.com");
+        log.info("Admin creado: {}", adminEmail);
     }
 
     private void crearUsuarioPruebaSiNoExiste(Rol rolUser) {
