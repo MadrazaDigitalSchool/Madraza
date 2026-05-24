@@ -91,9 +91,9 @@ export class LoginComponent implements OnInit {
             this.router.navigate(['/pago']);
           }
         },
-        error: () => {
+        error: (err) => {
           this.cargando = false;
-          this.errorMessage = 'Email o contraseña incorrectos';
+          this.errorMessage = err?.error?.error ?? 'Email o contraseña incorrectos';
         }
       });
   }

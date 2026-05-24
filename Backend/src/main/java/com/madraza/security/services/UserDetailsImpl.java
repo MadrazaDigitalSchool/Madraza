@@ -18,15 +18,17 @@ public class UserDetailsImpl implements UserDetails {
     private final String nombre;
     private final String email;
     private final String password;
+    private final boolean emailVerificado;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Long id, String nombre, String email,
-                           String password,
+                           String password, boolean emailVerificado,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.nombre = nombre;
         this.email = email;
         this.password = password;
+        this.emailVerificado = emailVerificado;
         this.authorities = authorities;
     }
 
@@ -40,6 +42,7 @@ public class UserDetailsImpl implements UserDetails {
                 usuario.getNombre(),
                 usuario.getEmail(),
                 usuario.getPassword(),
+                usuario.isEmailVerificado(),
                 authorities);
     }
 
@@ -52,5 +55,5 @@ public class UserDetailsImpl implements UserDetails {
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override public boolean isEnabled() { return emailVerificado; }
 }
