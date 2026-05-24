@@ -2,6 +2,13 @@
 
 Madraza es una plataforma web educativa que permite a estudiantes, docentes, centros educativos y opositores crear, compartir y realizar exámenes de forma online. Incluye un sistema de suscripciones, organizaciones, apuntes colaborativos y un asistente de IA integrado.
 
+## Acceso en producción
+
+**Frontend:** [https://madraza.vercel.app](https://madraza.vercel.app)  
+**Backend API:** [https://madraza-production.up.railway.app](https://madraza-production.up.railway.app)
+
+> Madraza es una **Progressive Web App (PWA)** — puede instalarse en cualquier dispositivo (móvil, tablet o escritorio) directamente desde el navegador, sin necesidad de pasar por una tienda de aplicaciones. Funciona sin conexión gracias al Service Worker integrado.
+
 ---
 
 ## Capturas de pantalla
