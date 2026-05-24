@@ -47,8 +47,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Environments con datos sensibles (solo producción)
-Frontend/src/environments/environment.prod.ts
+# Environments de desarrollo local (contienen URLs locales)
+Frontend/src/environments/environment.development.ts
 
 # Backend: configuración local con claves sensibles
 Backend/src/main/resources/application-dev.properties
