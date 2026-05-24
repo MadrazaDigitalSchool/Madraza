@@ -1,13 +1,13 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+Frontend/dist/
+Frontend/tmp/
+Frontend/out-tsc/
+Frontend/bazel-out/
 
 # Node
-/node_modules
+Frontend/node_modules/
 npm-debug.log
 yarn-error.log
 pnpm-debug.log
@@ -31,15 +31,15 @@ pnpm-debug.log
 .history/
 
 # Angular
-/.angular/cache
+Frontend/.angular/
 
 # Miscellaneous
 .sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
+Frontend/connect.lock
+Frontend/coverage/
+Frontend/libpeerconnection.log
 testem.log
-/typings
+Frontend/typings/
 
 # System files
 .DS_Store
@@ -48,7 +48,7 @@ ehthumbs.db
 Desktop.ini
 
 # Environments con datos sensibles (solo producción)
-src/environments/environment.prod.ts
+Frontend/src/environments/environment.prod.ts
 
 # Backend: configuración local con claves sensibles
 Backend/src/main/resources/application-dev.properties
