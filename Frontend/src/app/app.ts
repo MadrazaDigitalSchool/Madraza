@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { HeaderComponent } from './shared/components/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { ChatWidgetComponent } from './shared/components/chat-widget/chat-widget';
@@ -15,4 +16,12 @@ import { CookieBannerComponent } from './shared/components/cookie-banner/cookie-
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class AppComponent { }
+export class AppComponent implements OnInit {
+  private router = inject(Router);
+
+  ngOnInit(): void {
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  }
+}

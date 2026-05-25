@@ -56,18 +56,24 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void crearAdminSiNoExiste(Rol rolUser, Rol rolAdmin) {
-        if (usuarioRepository.existsByEmail(adminEmail)) return;
-
-        Usuario admin = new Usuario();
-        admin.setNombre("Admin");
-        admin.setApellidos("Madraza");
-        admin.setEmail(adminEmail);
-        admin.setPassword(passwordEncoder.encode(adminPassword));
-        admin.setEmailVerificado(true);
-        admin.setActivo(true);
-        admin.setRoles(Set.of(rolUser, rolAdmin));
-        usuarioRepository.save(admin);
-        log.info("Admin creado: {}", adminEmail);
+        usuarioRepository.findByEmail(adminEmail).ifPresentOrElse(admin -> {
+            if (!passwordEncoder.matches(adminPassword, admin.getPassword())) {
+                admin.setPassword(passwordEncoder.encode(adminPassword));
+                usuarioRepository.save(admin);
+                log.info("Admin password actualizada: {}", adminEmail);
+            }
+        }, () -> {
+            Usuario admin = new Usuario();
+            admin.setNombre("Admin");
+            admin.setApellidos("Madraza");
+            admin.setEmail(adminEmail);
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            admin.setEmailVerificado(true);
+            admin.setActivo(true);
+            admin.setRoles(Set.of(rolUser, rolAdmin));
+            usuarioRepository.save(admin);
+            log.info("Admin creado: {}", adminEmail);
+        });
     }
 
     private void crearUsuarioPruebaSiNoExiste(Rol rolUser) {

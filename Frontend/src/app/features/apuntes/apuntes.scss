@@ -319,7 +319,7 @@
 .ia-panel {
   width: 320px; flex-shrink: 0; border-left: 1px solid var(--madraza-overlay-subtle);
   background: var(--surface, #1e1e2e); display: flex; flex-direction: column;
-  overflow-y: auto; padding: 16px; gap: 12px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; gap: 12px;
 }
 
 // RESPONSIVE
@@ -407,9 +407,10 @@
   em { font-style: italic; }
 }
 
-.ia-respuesta { flex: 1; display: flex; flex-direction: column; gap: 8px;
+.ia-respuesta { display: flex; flex-direction: column; gap: 8px;
   pre { background: rgba(0,0,0,.3); border-radius: 8px; padding: 12px; font-size: 12px;
-    line-height: 1.6; overflow-y: auto; max-height: 300px; white-space: pre-wrap;
+    line-height: 1.6; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    max-height: 320px; white-space: pre-wrap;
     word-break: break-word; color: #ddd; margin: 0; }
   .ia-acciones { display: flex; flex-direction: column; gap: 6px; }
 }
