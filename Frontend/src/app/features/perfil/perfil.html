@@ -252,6 +252,11 @@
                     Cambiar a Mensual
                   </button>
                 }
+                <button mat-button class="btn-cancelar-plan"
+                        [disabled]="cambiandoPlan()"
+                        (click)="cancelarSuscripcion()">
+                  <mat-icon>cancel</mat-icon> Cancelar suscripción
+                </button>
               </div>
 
               @if (planExpirandoPronto()) {

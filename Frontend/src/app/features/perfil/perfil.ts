@@ -208,6 +208,36 @@ export class PerfilComponent implements OnInit {
     });
   }
 
+  cancelarSuscripcion(): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        titulo: 'Cancelar suscripción',
+        mensaje: 'Seguirás teniendo acceso Premium hasta el final del período ya pagado. Después, tu cuenta volverá al plan gratuito sin ningún cargo adicional.',
+        labelConfirmar: 'Cancelar suscripción',
+        labelCancelar: 'Mantener Premium'
+      }
+    });
+    ref.afterClosed().subscribe(confirmado => {
+      if (!confirmado) return;
+      this.cambiandoPlan.set(true);
+      this.paymentService.cancelarSuscripcion().subscribe({
+        next: (res) => {
+          this.cambiandoPlan.set(false);
+          this.authService.getPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (u) => this.aplicarUsuario(u)
+          });
+          this.snackBar.open(res.mensaje || 'Suscripción cancelada. Seguirás con acceso hasta fin del período actual.', 'Cerrar', { duration: 6000 });
+        },
+        error: (err) => {
+          this.cambiandoPlan.set(false);
+          const msg = err.error?.message || 'No se pudo cancelar la suscripción. Inténtalo de nuevo.';
+          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+        }
+      });
+    });
+  }
+
   cambiarPlan(plan: 'mensual' | 'anual'): void {
     const label   = plan === 'anual' ? 'Premium Anual' : 'Premium Mensual';
     const precio  = plan === 'anual' ? '79,99 €/año' : '9,99 €/mes';

@@ -60,4 +60,9 @@ export class PaymentService {
       `${this.apiUrl}/cambiar-plan`, { plan }
     );
   }
+
+  /** Cancela la suscripción activa; el acceso se mantiene hasta fin del período pagado */
+  cancelarSuscripcion(): Observable<{ mensaje: string }> {
+    return this.http.delete<{ mensaje: string }>(`${this.apiUrl}/suscripcion`);
+  }
 }
