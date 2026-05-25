@@ -16,6 +16,8 @@ interface MensajeUI {
   html?: SafeHtml;
 }
 
+const RUTAS_FOCO = ['/apuntes', '/examen'];
+
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
@@ -23,8 +25,6 @@ interface MensajeUI {
   templateUrl: './chat-widget.html',
   styleUrl: './chat-widget.scss'
 })
-const RUTAS_FOCO = ['/apuntes', '/examen'];
-
 export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   private chatService = inject(ChatService);
   private sanitizer   = inject(DomSanitizer);
