@@ -182,36 +182,16 @@
     <!-- Menú móvil -->
     @if (menuMovilAbierto()) {
     <div class="menu-movil">
-        @if (isAdmin()) {
-        <div class="menu-movil-actions">
-            <a routerLink="/admin"   (click)="menuMovilAbierto.set(false)">Panel de administración</a>
-            <a routerLink="/perfil"  (click)="menuMovilAbierto.set(false)">Mi perfil</a>
-            <button (click)="logout()">Cerrar sesión</button>
-        </div>
-        } @else {
         <ul>
             <li><a routerLink="/que-es-madraza" (click)="menuMovilAbierto.set(false)">¿Qué es Madraza?</a></li>
             <li><a routerLink="/precios"        (click)="menuMovilAbierto.set(false)">Precios</a></li>
             <li><a routerLink="/contacto"       (click)="menuMovilAbierto.set(false)">Contacto</a></li>
         </ul>
-        @if (isLoggedIn()) {
+        @if (!isLoggedIn()) {
         <div class="menu-movil-actions">
-            <a routerLink="/perfil"         (click)="menuMovilAbierto.set(false)">Mi perfil</a>
-            <a routerLink="/dashboard"      (click)="menuMovilAbierto.set(false)">Mi panel</a>
-            <a routerLink="/tests"          (click)="menuMovilAbierto.set(false)">Recursos</a>
-            <a routerLink="/asignaciones"   (click)="menuMovilAbierto.set(false)">Mis asignaciones</a>
-            <a routerLink="/organizaciones" (click)="menuMovilAbierto.set(false)">Organizaciones</a>
-            @if (esPremium()) {
-            <a routerLink="/apuntes" (click)="menuMovilAbierto.set(false)">Mis apuntes</a>
-            }
-            <button (click)="logout()">Cerrar sesión</button>
+            <a routerLink="/auth/login"    (click)="menuMovilAbierto.set(false)">Iniciar sesión</a>
+            <a routerLink="/auth/registro" (click)="menuMovilAbierto.set(false)">Registrarse</a>
         </div>
-        } @else {
-        <div class="menu-movil-actions">
-            <a routerLink="/auth/login">Iniciar sesión</a>
-            <a routerLink="/auth/registro">Registrarse</a>
-        </div>
-        }
         }
     </div>
     }

@@ -1,4 +1,4 @@
-import { Component, signal, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, signal, inject, ViewChild, ElementRef, AfterViewChecked, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,31 +20,28 @@ interface MensajeUI {
   templateUrl: './chat-widget.html',
   styleUrl: './chat-widget.scss'
 })
-export class ChatWidgetComponent implements AfterViewChecked {
+export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   private chatService = inject(ChatService);
   private sanitizer   = inject(DomSanitizer);
 
   @ViewChild('mensajesContainer') mensajesContainer!: ElementRef;
 
-  abierto   = signal(false);
-  cargando  = signal(false);
-  mensajes  = signal<MensajeUI[]>([]);
-  oculto    = signal(localStorage.getItem('chatWidgetOculto') === 'true');
-  inputTexto = '';
+  abierto        = signal(false);
+  cargando       = signal(false);
+  mensajes       = signal<MensajeUI[]>([]);
+  burbujaVisible = signal(false);
+  inputTexto     = '';
   private scrollPendiente = false;
 
-  ocultar(): void {
-    localStorage.setItem('chatWidgetOculto', 'true');
-    this.oculto.set(true);
-    this.abierto.set(false);
-  }
-
-  restaurar(): void {
-    localStorage.removeItem('chatWidgetOculto');
-    this.oculto.set(false);
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.burbujaVisible.set(true);
+      setTimeout(() => this.burbujaVisible.set(false), 5000);
+    }, 1500);
   }
 
   toggle(): void {
+    this.burbujaVisible.set(false);
     this.abierto.update(v => !v);
     if (this.abierto() && this.mensajes().length === 0) {
       this.mensajes.set([{

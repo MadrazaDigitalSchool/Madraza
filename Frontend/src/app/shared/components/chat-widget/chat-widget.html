@@ -54,20 +54,13 @@
     </div>
   }
 
-  @if (oculto()) {
-    <button class="chat-restaurar" (click)="restaurar()" title="Mostrar asistente">
-      <mat-icon>chat</mat-icon>
-    </button>
-  } @else {
-    <div class="chat-actions">
-      @if (!abierto()) {
-        <button class="btn-ocultar" (click)="ocultar()" title="Ocultar asistente">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-      <button class="chat-toggle" (click)="toggle()">
-        <mat-icon>{{ abierto() ? 'close' : 'chat' }}</mat-icon>
-      </button>
+  @if (burbujaVisible() && !abierto()) {
+    <div class="chat-burbuja">
+      👋 ¡Hola! Soy <strong>Madra</strong>, el asistente de Madraza. ¿En qué puedo ayudarte?
     </div>
   }
+
+  <button class="chat-toggle" (click)="toggle()" [attr.aria-label]="abierto() ? 'Cerrar asistente' : 'Abrir asistente'">
+    <mat-icon>{{ abierto() ? 'close' : 'chat' }}</mat-icon>
+  </button>
 </div>
