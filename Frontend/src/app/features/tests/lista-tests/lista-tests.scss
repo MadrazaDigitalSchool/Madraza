@@ -565,9 +565,7 @@
     .tests-grid {
         grid-template-columns: 1fr;
     }
-}
 
-@media (max-width: 480px) {
     .card-footer {
         flex-direction: column;
         align-items: flex-start;

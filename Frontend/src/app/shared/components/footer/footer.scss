@@ -216,10 +216,14 @@
     .footer-brand .footer-desc {
         max-width: 100%;
     }
-}
 
-@media (max-width: 480px) {
     .footer-links {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    .footer-links {
+        grid-template-columns: 1fr;
     }
 }

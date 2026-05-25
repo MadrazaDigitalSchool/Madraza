@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { marked } from 'marked';
 import { ChatService, ChatMensaje } from '../../../core/services/chat.service';
 
@@ -20,9 +23,12 @@ interface MensajeUI {
   templateUrl: './chat-widget.html',
   styleUrl: './chat-widget.scss'
 })
+const RUTAS_FOCO = ['/apuntes', '/examen'];
+
 export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   private chatService = inject(ChatService);
   private sanitizer   = inject(DomSanitizer);
+  private router      = inject(Router);
 
   @ViewChild('mensajesContainer') mensajesContainer!: ElementRef;
 
@@ -30,13 +36,30 @@ export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   cargando       = signal(false);
   mensajes       = signal<MensajeUI[]>([]);
   burbujaVisible = signal(false);
+  ocultoEnRuta   = signal(false);
   inputTexto     = '';
   private scrollPendiente = false;
 
+  constructor() {
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      takeUntilDestroyed()
+    ).subscribe((e: NavigationEnd) => {
+      const esFoco = RUTAS_FOCO.some(r => e.urlAfterRedirects.startsWith(r));
+      this.ocultoEnRuta.set(esFoco);
+      if (esFoco) {
+        this.abierto.set(false);
+        this.burbujaVisible.set(false);
+      }
+    });
+  }
+
   ngOnInit(): void {
     setTimeout(() => {
-      this.burbujaVisible.set(true);
-      setTimeout(() => this.burbujaVisible.set(false), 5000);
+      if (!this.ocultoEnRuta()) {
+        this.burbujaVisible.set(true);
+        setTimeout(() => this.burbujaVisible.set(false), 5000);
+      }
     }, 1500);
   }
 

@@ -1,3 +1,4 @@
+@if (!ocultoEnRuta()) {
 <div class="chat-widget">
   @if (abierto()) {
     <div class="chat-panel">
@@ -64,3 +65,4 @@
     <mat-icon>{{ abierto() ? 'close' : 'chat' }}</mat-icon>
   </button>
 </div>
+}

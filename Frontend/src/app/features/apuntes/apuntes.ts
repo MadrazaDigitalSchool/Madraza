@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -79,6 +79,7 @@ export class ApuntesComponent implements OnInit, OnDestroy {
   tablaCols    = 3;
 
   // Panel IA
+  @ViewChild('iaPanel') iaPanelRef?: ElementRef;
   mostrarIa       = false;
   modoIa: ModoIa  = 'asistente';
   accionIa: AccionIa = 'ampliar';
@@ -302,6 +303,15 @@ export class ApuntesComponent implements OnInit, OnDestroy {
     const div = document.createElement('div');
     div.innerHTML = html;
     return div.textContent || div.innerText || '';
+  }
+
+  toggleIa(): void {
+    this.mostrarIa = !this.mostrarIa;
+    if (this.mostrarIa && window.innerWidth <= 768) {
+      setTimeout(() => {
+        this.iaPanelRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
   }
 
   pedirIa(): void {

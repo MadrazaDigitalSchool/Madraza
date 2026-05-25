@@ -484,6 +484,11 @@
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
+
+    .mis-tests-item {
+        flex-wrap: wrap;
+        .test-acciones { width: 100%; justify-content: flex-end; }
+    }
 }
 
 @media (max-width: 480px) {

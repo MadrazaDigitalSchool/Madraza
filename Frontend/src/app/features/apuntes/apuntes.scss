@@ -1,4 +1,4 @@
-﻿:host { display: block; height: calc(100vh - 64px); }
+﻿:host { display: block; height: calc(100vh - 80px); }
 
 .premium-gate {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -329,7 +329,7 @@
 }
 
 @media (max-width: 768px) {
-  :host { height: auto; min-height: calc(100dvh - 64px); }
+  :host { height: auto; min-height: calc(100dvh - 80px); }
 
   .apuntes-layout {
     flex-direction: column;
@@ -339,33 +339,61 @@
 
   .apuntes-sidebar {
     width: 100%;
-    max-height: 220px;
+    max-height: 200px;
     border-right: none;
     border-bottom: 1px solid var(--madraza-overlay-subtle);
     flex-shrink: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .apuntes-editor {
     flex: none;
-    min-height: 60dvh;
+    width: 100%;
     padding: 12px;
+    gap: 8px;
     overflow: visible;
+    min-height: unset;
   }
 
-  .apunte-quill-editor { min-height: 300px; }
+  .apunte-quill-editor {
+    flex: none;
+    min-height: 300px;
+
+    ::ng-deep .ql-toolbar {
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    ::ng-deep .ql-editor {
+      min-height: 260px;
+    }
+  }
+
+  .apunte-readonly-content {
+    min-height: 40dvh;
+  }
 
   .editor-toolbar {
     flex-wrap: wrap;
     gap: 8px;
-    .titulo-field { min-width: 0; }
+    .titulo-field { min-width: 0; width: 100%; }
     .toolbar-actions { width: 100%; justify-content: flex-end; }
   }
 
-  .editor-meta { gap: 8px; }
+  .editor-meta {
+    flex-direction: column;
+    gap: 8px;
+    .tags-field, .test-field { width: 100%; min-width: 0; margin: 0; }
+  }
+
+  .banner-asignado { flex-direction: column; gap: 8px; }
+  .banner-asignado-badge { align-self: flex-start; }
 
   .ia-panel {
     width: 100%;
-    max-height: 380px;
+    max-height: 55dvh;
     border-left: none;
     border-top: 1px solid var(--madraza-overlay-subtle);
   }
@@ -374,14 +402,9 @@
 }
 
 @media (max-width: 480px) {
-  .apuntes-sidebar { max-height: 180px; }
-
+  .apuntes-sidebar { max-height: 160px; }
   .apuntes-editor { padding: 8px; }
-
   .editor-toolbar { gap: 6px; }
-
-  .banner-asignado { flex-direction: column; gap: 8px; }
-  .banner-asignado-badge { align-self: flex-start; }
 }
 
 .ia-panel-header { display: flex; align-items: center; justify-content: space-between;

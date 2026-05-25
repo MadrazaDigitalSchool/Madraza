@@ -386,7 +386,8 @@
 @media (max-width: 768px) {
     .examen-header {
         .header-info h2 {
-            max-width: 200px;
+            max-width: 100%;
+            white-space: normal;
         }
     }
 
