@@ -249,6 +249,25 @@ public class PaymentController {
     }
 
     /**
+     * DELETE /api/pago/suscripcion
+     * Cancela la suscripción activa al final del período ya pagado.
+     * El usuario mantiene acceso Premium hasta la fecha de expiración actual.
+     */
+    @DeleteMapping("/suscripcion")
+    public ResponseEntity<?> cancelarSuscripcion(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            String mensaje = paymentService.cancelarSuscripcion(userDetails.getId());
+            return ResponseEntity.ok(Map.of("mensaje", mensaje));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al cancelar suscripción: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("No se pudo cancelar la suscripción: " + e.getMessage()));
+        }
+    }
+
+    /**
      * GET /api/pago/estado
      * Devuelve el estado actual de suscripción del usuario autenticado.
      */

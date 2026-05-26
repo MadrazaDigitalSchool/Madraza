@@ -394,6 +394,48 @@ public class PaymentService {
         log.info("Plan cambiado para usuario {}: {} → {}", usuarioId, planActual, nuevoPlan);
     }
 
+    /**
+     * Cancela la suscripción activa al final del período ya pagado (cancel_at_period_end).
+     * El usuario mantiene acceso Premium hasta la fecha de expiración actual.
+     * El job @Scheduled la desactivará cuando caduque.
+     */
+    @Transactional
+    public String cancelarSuscripcion(Long usuarioId) throws Exception {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!usuario.isSuscripcionActiva()) {
+            throw new IllegalStateException("No tienes una suscripción activa para cancelar");
+        }
+
+        String customerId = usuario.getStripeCustomerId();
+        if (customerId != null && !customerId.isBlank()) {
+            SubscriptionCollection subs = Subscription.list(
+                    SubscriptionListParams.builder()
+                            .setCustomer(customerId)
+                            .setStatus(SubscriptionListParams.Status.ACTIVE)
+                            .setLimit(1L)
+                            .build());
+
+            if (!subs.getData().isEmpty()) {
+                subs.getData().get(0).update(
+                        SubscriptionUpdateParams.builder()
+                                .setCancelAtPeriodEnd(true)
+                                .build());
+                log.info("Suscripción Stripe marcada para cancelar al final del período: usuario {}", usuarioId);
+            }
+        }
+
+        String expiryStr = usuario.getSuscripcionExpiry() != null
+                ? usuario.getSuscripcionExpiry().format(DATE_FMT) : "";
+        String mensaje = expiryStr.isBlank()
+                ? "Suscripción cancelada. Seguirás con acceso Premium hasta el fin del período actual."
+                : "Suscripción cancelada. Seguirás con acceso Premium hasta el " + expiryStr + ".";
+
+        log.info("Cancelación procesada para usuario {}", usuarioId);
+        return mensaje;
+    }
+
     /** Tarea programada: desactiva suscripciones que hayan expirado (cada hora). */
     @Scheduled(cron = "0 0 * * * *")
     @Transactional
